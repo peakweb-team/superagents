@@ -1,3 +1,39 @@
+---
+schema_version: 1
+id: project-management/github-issues
+title: GitHub Issues
+fragment_type: provider
+layer: project-management
+summary: Use GitHub Issues as the system of record for task intake, progress logging, and traceability.
+provider: github
+capabilities:
+  - task-tracker.read
+  - task-tracker.update
+selection:
+  evidence_any:
+    - forge.github
+    - task_tracker.github_issues
+    - repo.references_issue_numbers
+  evidence_all: []
+  evidence_none: []
+  requires_confirmation:
+    - forge.github_without_confirmed_issue_workflow
+  preference: 85
+composition:
+  requires: []
+  suggests:
+    - orchestration/team-sizing
+    - delivery/pull-request-review
+  conflicts:
+    - project-management/jira
+  exclusive_within:
+    - primary-task-tracker
+  emits:
+    - task-intake
+    - task-status-updates
+  order: 20
+---
+
 # Fragment: GitHub Issues
 
 ## Purpose

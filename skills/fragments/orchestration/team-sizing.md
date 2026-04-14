@@ -1,3 +1,34 @@
+---
+schema_version: 1
+id: orchestration/team-sizing
+title: Team Sizing
+fragment_type: generic
+layer: orchestration
+summary: Select the smallest capable agent team for a task based on scope, risk, and domain breadth.
+capabilities:
+  - orchestration.team-sizing
+selection:
+  evidence_any:
+    - repo.multi_step_delivery
+    - repo.cross_functional_changes
+    - workflow.review_and_validation_expected
+  evidence_all: []
+  evidence_none: []
+  preference: 70
+composition:
+  requires: []
+  suggests:
+    - project-management/github-issues
+    - project-management/jira
+    - delivery/pull-request-review
+    - runtime/context-and-model-routing
+  conflicts: []
+  exclusive_within: []
+  emits:
+    - team-sizing-rules
+  order: 40
+---
+
 # Fragment: Team Sizing
 
 ## Purpose

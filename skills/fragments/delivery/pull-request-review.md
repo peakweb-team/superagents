@@ -1,3 +1,32 @@
+---
+schema_version: 1
+id: delivery/pull-request-review
+title: Pull Request Review
+fragment_type: generic
+layer: delivery
+summary: Standardize how implementation work becomes a PR, how review is requested, and how reviewer feedback is handled.
+capabilities:
+  - delivery.pr-review
+selection:
+  evidence_any:
+    - workflow.pull_requests
+    - forge.github
+    - forge.gitlab
+  evidence_all: []
+  evidence_none: []
+  preference: 75
+composition:
+  requires: []
+  suggests:
+    - orchestration/team-sizing
+    - runtime/context-and-model-routing
+  conflicts: []
+  exclusive_within: []
+  emits:
+    - review-loop
+  order: 60
+---
+
 # Fragment: Pull Request Review
 
 ## Purpose

@@ -1,3 +1,39 @@
+---
+schema_version: 1
+id: project-management/jira
+title: Jira
+fragment_type: provider
+layer: project-management
+summary: Use Jira as the planning and delivery source of truth while keeping implementation behavior aligned with ticket discipline.
+provider: jira
+capabilities:
+  - task-tracker.read
+  - task-tracker.update
+selection:
+  evidence_any:
+    - task_tracker.jira
+    - repo.references_jira_keys
+    - docs.references_jira_workflows
+  evidence_all: []
+  evidence_none: []
+  requires_confirmation:
+    - forge.github_with_possible_jira_reference_only
+  preference: 90
+composition:
+  requires: []
+  suggests:
+    - orchestration/team-sizing
+    - delivery/pull-request-review
+  conflicts:
+    - project-management/github-issues
+  exclusive_within:
+    - primary-task-tracker
+  emits:
+    - task-intake
+    - task-status-updates
+  order: 20
+---
+
 # Fragment: Jira
 
 ## Purpose
