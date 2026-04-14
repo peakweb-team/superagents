@@ -1,6 +1,6 @@
-# 🎭 The Agency: AI Specialists Ready to Transform Your Workflow
+# 🎭 Peakweb Agency Agents
 
-> **A complete AI agency at your fingertips** - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables.
+> **A practical evolution of agency-agents for real software delivery** - Keep the broad specialist roster, then layer on composable skills for project management, team formation, PR workflows, and context-efficient execution.
 
 [![GitHub stars](https://img.shields.io/github/stars/msitarzewski/agency-agents?style=social)](https://github.com/msitarzewski/agency-agents)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -11,14 +11,31 @@
 
 ## 🚀 What Is This?
 
-Born from a Reddit thread and months of iteration, **The Agency** is a growing collection of meticulously crafted AI agent personalities. Each agent is:
+Peakweb Agency Agents starts with the excellent `agency-agents` roster and extends it toward a more operational model. The original project gives you a large library of specialist agent personas. This fork is focused on making those agents easier to apply inside real repositories, real delivery workflows, and real teams.
+
+The core agent library remains valuable because each agent is:
 
 - **🎯 Specialized**: Deep expertise in their domain (not generic prompt templates)
 - **🧠 Personality-Driven**: Unique voice, communication style, and approach
 - **📋 Deliverable-Focused**: Real code, processes, and measurable outcomes
 - **✅ Production-Ready**: Battle-tested workflows and success metrics
 
-**Think of it as**: Assembling your dream team, except they're AI specialists who never sleep, never complain, and always deliver.
+**Think of it as**: A specialist agent roster plus a composable skills layer that helps those agents work the way your team actually ships software.
+
+---
+
+## Why Peakweb Agency Agents?
+
+The original `agency-agents` project is a strong source library. Peakweb Agency Agents is intended to add the missing execution layer.
+
+- **Composable skills, not one giant prompt**: We want project-specific behavior to be assembled from reusable fragments.
+- **Project-aware orchestration**: Skills can adapt to whether a team uses GitHub Issues, Jira, CodeRabbit, or other delivery tooling.
+- **Better team sizing**: Tasks should start with the smallest capable team instead of always behaving like a single agent or a fixed swarm.
+- **PR and reviewer workflows**: Opening PRs, coordinating review, and responding to feedback should be part of the system, not ad hoc operator work.
+- **Context and model efficiency**: Large repos need routing rules for what to read, when to parallelize, and when to spend on stronger models.
+- **Repo-local override layer**: Generated skills should live inside the project so they can be versioned with the codebase and take precedence over user-level defaults.
+
+In short: the original project is a roster. Peakweb aims to become a reusable delivery system built on top of that roster.
 
 ---
 
