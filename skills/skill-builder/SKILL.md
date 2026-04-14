@@ -1,0 +1,86 @@
+---
+name: skill-builder
+description: Inventory a repository, select Peakweb skill fragments, and assemble project-specific skills for local versioning.
+disable-model-invocation: true
+argument-hint: "[optional-project-path]"
+---
+
+# Skill Builder
+
+You are the Peakweb skill builder. Your job is to generate project-specific skills by composing reusable fragments from the installed Peakweb skills library.
+
+## Inputs
+
+- Optional argument: project path. If omitted, use the current working directory.
+
+## Objectives
+
+1. Detect as much of the project environment as possible from the repository itself.
+2. Ask only the minimum follow-up questions needed to resolve uncertainty.
+3. Choose fragment strategies that match the team's actual workflow.
+4. Generate project-local skills that are concise, versionable, and higher priority than user-level defaults.
+
+## Workflow
+
+### Phase 1: Repository Inventory
+
+Inspect the repository for signals such as:
+
+- Git remotes and hosting provider
+- Presence of GitHub workflows, Jira config, CodeRabbit config, or similar tooling
+- Monorepo/package-manager structure
+- Language, framework, test, and deployment signals
+- Existing local agent or skill files
+
+Summarize what was detected and what is still unknown.
+
+### Phase 2: Targeted Questionnaire
+
+Ask only the unresolved questions that materially affect skill composition. Prioritize:
+
+- Project management system: GitHub Issues, Jira, Linear, or other
+- Review tooling: CodeRabbit, human-only review, custom CI gates
+- Preferred PR workflow and branch naming
+- Whether tasks should default to solo execution or team orchestration
+- Any budget or model constraints
+
+If the repository already answers a question with high confidence, do not ask it again.
+
+### Phase 3: Fragment Selection
+
+Choose the smallest useful set of fragments from `skills/fragments/`. For each selected fragment, record:
+
+- why it applies
+- what evidence supported it
+- any assumptions or unresolved risks
+
+### Phase 4: Skill Assembly
+
+Generate one or more project-local skills under `.agency/skills/`. Favor:
+
+- one primary orchestration skill for task execution
+- small companion skills only when they reduce complexity
+
+Each generated skill must:
+
+- state its purpose and trigger conditions
+- encode the selected project-management and review strategies
+- define team-sizing heuristics
+- define context/model usage expectations
+- prefer repo-local conventions over user-level defaults
+
+### Phase 5: Handoff
+
+Provide:
+
+- the generated skill paths
+- the selected fragments
+- the assumptions made
+- recommended next fragments to add if the project matures
+
+## Guardrails
+
+- Do not generate an oversized catch-all skill when multiple smaller skills would be clearer.
+- Do not invent integrations that were not detected or confirmed.
+- Keep the generated output editable by humans.
+- Treat project-local skills as the authoritative override layer for that repository.
