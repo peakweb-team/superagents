@@ -37,6 +37,8 @@ The original `agency-agents` project is a strong source library. Peakweb Agency 
 
 In short: the original project is a roster. Peakweb aims to become a reusable delivery system built on top of that roster.
 
+Another way to think about it: workflow-oriented skills systems like `superpowers` show how powerful a disciplined operating model can be. Peakweb's opportunity is to go a step further by combining that workflow discipline with **adaptive specialist teams** drawn from the broader `agency-agents` persona roster. In Claude Code terms, that means not just subagent-friendly workflows, but workflows that can take advantage of **agent teams** when the task is complex enough to benefit from more independent collaboration.
+
 ---
 
 ## 🗂️ Repository Layout

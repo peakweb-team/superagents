@@ -191,6 +191,7 @@ Non-goals:
 ### Phase 1
 
 - Issue `#29` should be treated as a front-of-queue decision gate for MVP platform stance.
+- Issue `#31` should be treated as a workflow-pattern reference review for fragment design and builder behavior.
 - Epic 1: Skill Builder Foundation
 - Epic 2: Fragment And Assembly Architecture
 - Epic 3: External Integration Contract
