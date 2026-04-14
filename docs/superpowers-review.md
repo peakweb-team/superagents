@@ -119,7 +119,7 @@ Anthropic's official Claude Code documentation says custom subagents use **their
 - [Claude Code subagents](https://code.claude.com/docs/en/sub-agents)
 - [Claude Code agent teams](https://code.claude.com/docs/en/agent-teams)
 
-Those docs also reinforce the bigger distinction: subagents return results to the caller, while agent teams are designed for more independent collaboration across separate sessions.
+Those docs also reinforce the bigger distinction: subagents return summarized results to the main agent, while agent teams enable direct messaging and self-coordination across fully independent sessions.
 
 So the difference is not simply:
 
@@ -133,7 +133,7 @@ The more useful distinction is:
 - `superpowers` appears to be centered on a workflow/methodology built around Claude Code subagents
 - Peakweb can combine **workflow discipline** with a broader **specialist-agent roster** and explicit team-composition logic
 
-That still gives Peakweb a real opportunity to be more powerful in practice, especially when tasks benefit from multiple specialized roles.
+That gives Peakweb a real opportunity to be more powerful in practice, especially when tasks benefit from multiple specialized roles that need to coordinate directly instead of reporting only through a single parent session.
 
 ### Why Peakweb May Still Be More Powerful
 
@@ -234,7 +234,7 @@ Peakweb should learn from the emphasis on verification and iteration, but should
 
 Peakweb should not try to become a clone of `superpowers`.
 
-The product direction is different:
+The product directions differ:
 
 - `superpowers` is a complete methodology
 - Peakweb is a builder-driven system for generating project-specific skill layers
