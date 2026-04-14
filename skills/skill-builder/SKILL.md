@@ -42,9 +42,9 @@ Ask only the unresolved questions that materially affect skill composition. Prio
 
 - Project management system: GitHub Issues, Jira, Linear, or other
 - Review tooling: CodeRabbit, human-only review, custom CI gates
-- Preferred PR workflow and branch naming
 - Whether tasks should default to solo execution or team orchestration
 - Any budget or model constraints
+- Preferred PR workflow and branch naming
 
 If the repository already answers a question with high confidence, do not ask it again.
 If a high-impact workflow decision remains below high confidence, ask a focused follow-up question instead of guessing silently.
