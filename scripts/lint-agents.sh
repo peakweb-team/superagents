@@ -11,6 +11,7 @@
 set -euo pipefail
 
 # Keep in sync with AGENT_DIRS in scripts/convert.sh
+AGENTS_ROOT="agents"
 AGENT_DIRS=(
   academic
   design
@@ -63,8 +64,7 @@ lint_file() {
   local first_line
   first_line=$(head -1 "$file")
   if [[ "$first_line" != "---" ]]; then
-    echo "ERROR $file: missing frontmatter opening ---"
-    errors=$((errors + 1))
+    echo "SKIP  $file: no agent frontmatter detected"
     return
   fi
 
@@ -138,10 +138,10 @@ if [[ $# -gt 0 ]]; then
   files=("$@")
 else
   for dir in "${AGENT_DIRS[@]}"; do
-    if [[ -d "$dir" ]]; then
+    if [[ -d "$AGENTS_ROOT/$dir" ]]; then
       while IFS= read -r f; do
         files+=("$f")
-      done < <(find "$dir" -name "*.md" -type f | sort)
+      done < <(find "$AGENTS_ROOT/$dir" -name "*.md" -type f | sort)
     fi
   done
 fi

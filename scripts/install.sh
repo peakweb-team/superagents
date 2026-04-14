@@ -103,7 +103,8 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 
 ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor aider windsurf qwen kimi)
 
-# Standard agent category directories (keep sorted, sync with convert.sh / lint-agents.sh)
+# Standard agent category directories under agents/ (keep sorted, sync with convert.sh / lint-agents.sh)
+AGENTS_ROOT="$REPO_ROOT/agents"
 AGENT_DIRS=(
   academic design engineering finance game-development marketing paid-media product project-management
   sales spatial-computing specialized strategy support testing
@@ -308,13 +309,13 @@ install_claude_code() {
   mkdir -p "$dest"
   local dir f first_line
   for dir in "${AGENT_DIRS[@]}"; do
-    [[ -d "$REPO_ROOT/$dir" ]] || continue
+    [[ -d "$AGENTS_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"
       [[ "$first_line" == "---" ]] || continue
       cp "$f" "$dest/"
       (( count++ )) || true
-    done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
+    done < <(find "$AGENTS_ROOT/$dir" -name "*.md" -type f -print0)
   done
   ok "Claude Code: $count agents -> $dest"
 }
@@ -326,14 +327,14 @@ install_copilot() {
   mkdir -p "$dest_github" "$dest_copilot"
   local dir f first_line
   for dir in "${AGENT_DIRS[@]}"; do
-    [[ -d "$REPO_ROOT/$dir" ]] || continue
+    [[ -d "$AGENTS_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
       first_line="$(head -1 "$f")"
       [[ "$first_line" == "---" ]] || continue
       cp "$f" "$dest_github/"
       cp "$f" "$dest_copilot/"
       (( count++ )) || true
-    done < <(find "$REPO_ROOT/$dir" -name "*.md" -type f -print0)
+    done < <(find "$AGENTS_ROOT/$dir" -name "*.md" -type f -print0)
   done
   ok "Copilot: $count agents -> $dest_github"
   ok "Copilot: $count agents -> $dest_copilot"

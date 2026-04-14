@@ -2,7 +2,7 @@
 #
 # convert.sh — Convert agency agent .md files into tool-specific formats.
 #
-# Reads all agent files from the standard category directories and outputs
+# Reads all agent files from agents/<category>/ and outputs
 # converted files to integrations/<tool>/. Run this to regenerate all
 # integration files after adding or modifying agents.
 #
@@ -61,6 +61,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUT_DIR="$REPO_ROOT/integrations"
 TODAY="$(date +%Y-%m-%d)"
 
+AGENTS_ROOT="$REPO_ROOT/agents"
 AGENT_DIRS=(
   academic design engineering finance game-development marketing paid-media product project-management
   sales spatial-computing specialized strategy support testing
@@ -485,7 +486,7 @@ run_conversions() {
   local count=0
 
   for dir in "${AGENT_DIRS[@]}"; do
-    local dirpath="$REPO_ROOT/$dir"
+    local dirpath="$AGENTS_ROOT/$dir"
     [[ -d "$dirpath" ]] || continue
 
     while IFS= read -r -d '' file; do
