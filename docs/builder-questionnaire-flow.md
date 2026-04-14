@@ -1,0 +1,425 @@
+# Builder Questionnaire And Unresolved-Decision Flow
+
+This document defines the proposed contract for issue `#15`:
+
+- [#15 Define builder questionnaire and unresolved-decision flow](https://github.com/peakweb-team/pw-agency-agents/issues/15)
+
+It builds on:
+
+- the Claude-first MVP stance from issue `#29`
+- the fragment schema from issue `#11`
+- the builder inventory and confidence model from issue `#14`
+
+## Why This Exists
+
+The inventory workflow gives the builder signals and confidence levels.
+
+That is not enough by itself.
+
+The builder still needs a disciplined way to decide:
+
+1. which questions are worth asking
+2. which questions should be skipped because the repo already answered them
+3. how to record confirmed vs assumed vs unresolved decisions
+4. how unresolved decisions should appear in builder output
+
+This document defines the MVP answer so the builder can stay minimal, explicit, and deterministic.
+
+## Goals
+
+- define the smallest useful questionnaire for MVP
+- prioritize only the questions that materially change fragment selection or generated-skill behavior
+- define when a question should be skipped
+- define the builder decision states
+- define how unresolved decisions are recorded in output
+
+## Non-Goals
+
+- creating a long setup interview
+- asking the user about facts already visible in the repo
+- replacing repository inspection with questionnaires
+- defining the full fragment assembly engine
+
+## Core Principle
+
+The builder should ask the minimum number of questions required to avoid misleading workflow instructions.
+
+That means:
+
+- inspect first
+- infer second
+- ask third
+- record uncertainty explicitly
+
+In a Claude-first MVP, the builder should prefer safe defaults when the impact is low, but it should not guess silently on high-impact workflow choices.
+
+## Decision States
+
+Every builder decision should end in one of four states:
+
+- `confirmed`
+- `assumed`
+- `unresolved`
+- `not-applicable`
+
+### `confirmed`
+
+Use `confirmed` when either:
+
+- repository evidence is strong enough to support a high-confidence automatic choice, or
+- the user explicitly answers the questionnaire
+
+Examples:
+
+- GitHub Issues is selected because direct repo evidence makes it clearly primary
+- the user confirms that CodeRabbit is part of the review loop
+
+### `assumed`
+
+Use `assumed` when:
+
+- the builder has a plausible default
+- the decision is below full certainty
+- the cost of being wrong is limited enough to proceed for MVP
+
+Examples:
+
+- assume human PR review when PR flow is clear but no review automation is detected
+- assume solo-by-default execution in a small repo with no strong multi-agent evidence
+
+An assumed decision must always include:
+
+- the assumption text
+- the supporting evidence
+- the reason it was not escalated to a question
+
+### `unresolved`
+
+Use `unresolved` when:
+
+- the decision materially affects fragment selection or generated behavior
+- the builder lacks enough confidence to confirm a choice
+- no safe assumption is appropriate
+
+Examples:
+
+- both GitHub Issues and Jira appear active, but primary authority is unclear
+- review automation is referenced, but it is unclear whether it is required or legacy
+
+An unresolved decision should usually create a follow-up question.
+
+### `not-applicable`
+
+Use `not-applicable` when the decision does not matter for this repository or builder run.
+
+Examples:
+
+- branch naming preference for a repo that is not using branch-based delivery guidance in v1
+- model-budget questions for a tiny repository where runtime-routing guidance is not selected
+
+## Questionnaire Priorities
+
+The builder should ask questions in priority order, not all at once.
+
+The initial MVP questionnaire should focus on the smallest set of decisions that most strongly affect fragment selection.
+
+### Priority 1: Primary Task Tracker
+
+Question goal:
+
+- determine which system is authoritative for task intake and status tracking
+
+Ask when:
+
+- multiple task systems are suggested by the repo, or
+- the repo clearly uses a forge but issue authority is still unclear
+
+Examples:
+
+- Is GitHub Issues the primary task tracker, or is another system authoritative?
+- If both GitHub Issues and Jira are used, which one should the builder treat as the source of truth?
+
+### Priority 2: Review Path
+
+Question goal:
+
+- determine how implementation work is reviewed before completion
+
+Ask when:
+
+- PR-based delivery is evident, but the review path is ambiguous
+- review automation is mentioned without direct config
+
+Examples:
+
+- Should the builder assume human PR review, CodeRabbit, or a layered review path?
+- Is reviewer automation active in this repo, or are reviews human-only?
+
+### Priority 3: Orchestration Default
+
+Question goal:
+
+- determine whether the generated skill should bias toward solo execution or explicit specialist-team coordination
+
+Ask when:
+
+- the repository shape suggests cross-functional work, but the default execution mode is unclear
+
+Examples:
+
+- Should the generated skill default to solo execution for most tasks, or to a small specialist team?
+- Are implementation, review, and validation typically handled by separate roles here?
+
+### Priority 4: Runtime / Budget Constraints
+
+Question goal:
+
+- capture constraints that materially change runtime/model-routing guidance
+
+Ask when:
+
+- runtime guidance is likely relevant but budget or model expectations are not inferable
+
+Examples:
+
+- Should the generated skill optimize aggressively for low token/tool cost, or favor stronger reasoning by default?
+- Are there model or budget constraints the builder should encode in runtime guidance?
+
+### Priority 5: PR And Branching Conventions
+
+Question goal:
+
+- capture naming or flow rules that will shape generated instructions but usually do not block fragment selection
+
+Ask when:
+
+- PR delivery is evident and the repo does not already document branch/PR conventions
+
+Examples:
+
+- Should branch names include ticket keys by default?
+- Is there a preferred PR title/body convention the generated skill should follow?
+
+This is lower priority because it usually refines generated output rather than changing the fragment set.
+
+## Question-Avoidance Logic
+
+The builder should skip a question when any of the following is true:
+
+### 1. The Repo Already Answered It With High Confidence
+
+If the inventory workflow marked a decision `high` confidence and no meaningful conflict exists, do not ask.
+
+Example:
+
+- a direct Jira workflow plus repeated Jira ticket references means the builder should not ask whether Jira exists
+
+### 2. The Question Would Not Change Builder Behavior
+
+If different answers would not change fragment selection or meaningful generated behavior, do not ask.
+
+Example:
+
+- asking whether a repo uses PRs is unnecessary if all visible delivery evidence already requires PR-based review behavior
+
+### 3. A Safe Default Exists And The Impact Is Low
+
+If the decision can be safely assumed for MVP and the assumption is explicitly recorded, do not ask.
+
+Example:
+
+- assume human-only review when no direct automation evidence exists
+
+### 4. The Topic Is Better Recorded As Unresolved Than Forced Into An Immediate Answer
+
+If the answer is optional for MVP and would create a noisy questionnaire, record it as unresolved or not-applicable instead of asking.
+
+Example:
+
+- a future optimization preference that does not affect the initial fragment set
+
+## Ask / Assume / Skip Decision Rule
+
+For each candidate question, the builder should evaluate:
+
+1. Does this decision materially affect fragment selection or generated behavior?
+2. Is current confidence below `high`?
+3. Would a wrong assumption likely mislead the user?
+4. Is there a safe MVP default?
+
+Recommended behavior:
+
+- Ask if the answer is high impact, confidence is below `high`, and no safe default exists.
+- Assume if the answer is lower risk and a safe default exists.
+- Skip if the repo already answered it or it would not change behavior.
+
+## Suggested Question Shape
+
+Questions should be short, direct, and framed around concrete project choices.
+
+Good pattern:
+
+- decision
+- why it matters
+- the narrowest reasonable set of likely answers
+
+Good example:
+
+- Which system should the builder treat as the primary task tracker: GitHub Issues or Jira? This changes the generated project-management fragment.
+
+Avoid:
+
+- broad open-ended discovery interviews
+- asking users to restate what the repository already shows
+- mixing multiple unrelated decisions into one question
+
+## Recording Questionnaire Results
+
+Builder output should preserve both the question and the resulting decision state.
+
+Recommended conceptual shape:
+
+```yaml
+questions:
+  - id: primary-task-tracker
+    status: asked
+    prompt: Which system should the builder treat as the primary task tracker?
+    options:
+      - github-issues
+      - jira
+    why: This changes the project-management fragment and issue-handling guidance.
+    answer: jira
+decisions:
+  primary_task_tracker:
+    state: confirmed
+    value: jira
+    source: user-answer
+```
+
+If a question is skipped, the builder should still record why:
+
+```yaml
+questions:
+  - id: review-path
+    status: skipped
+    reason: Repository evidence already supports human PR review at high confidence.
+decisions:
+  review_path:
+    state: confirmed
+    value: human-pr-review
+    source: repo-evidence
+```
+
+## Unresolved-Decision Output Contract
+
+Unresolved decisions should be visible in builder output, not hidden in prose.
+
+At minimum, each unresolved decision should record:
+
+- `id`
+- `topic`
+- `why_unresolved`
+- `impact`
+- `recommended_question`
+- `safe_to_proceed`
+
+Recommended shape:
+
+```yaml
+unresolved_decisions:
+  - id: task-tracker-authority
+    topic: primary task tracker
+    why_unresolved: GitHub Issues and Jira are both referenced, but authority is not explicit.
+    impact: high
+    recommended_question: Which system should the builder treat as authoritative for task intake and status updates?
+    safe_to_proceed: false
+  - id: runtime-budget-preference
+    topic: runtime budget preference
+    why_unresolved: The repo suggests complex work, but no explicit budget preference was found.
+    impact: medium
+    recommended_question: Should the generated skill optimize for lower cost or stronger reasoning by default?
+    safe_to_proceed: true
+```
+
+## Example Builder Output
+
+Below is a sample output shape showing confirmed, assumed, and unresolved decisions together.
+
+```yaml
+inventory:
+  signals:
+    - id: forge.github
+      value: true
+      strength: direct
+      source:
+        type: git-remote
+        path: .git/config
+    - id: task_tracker.jira
+      value: true
+      strength: strong-indirect
+      source:
+        type: docs
+        path: CONTRIBUTING.md
+        detail: Jira ticket keys appear in workflow examples
+decisions:
+  primary_forge:
+    state: confirmed
+    value: github
+    confidence: high
+    source: repo-evidence
+  review_path:
+    state: assumed
+    value: human-pr-review
+    confidence: medium
+    source: builder-default
+    assumption: No direct review automation config was found, so the builder assumed human review.
+  primary_task_tracker:
+    state: unresolved
+    value: null
+    confidence: low
+    source: conflicting-evidence
+    why_unresolved: GitHub Issues and Jira both appear active, but neither is clearly primary.
+questions:
+  - id: primary-task-tracker
+    status: pending
+    prompt: Which system should the builder treat as the primary task tracker?
+    why: This changes the generated project-management fragment.
+unresolved_decisions:
+  - id: task-tracker-authority
+    topic: primary task tracker
+    why_unresolved: GitHub Issues and Jira both appear active, but authority is unclear.
+    impact: high
+    recommended_question: Which system should the builder treat as authoritative?
+    safe_to_proceed: false
+```
+
+## Relationship To The Inventory Workflow
+
+Issue `#14` defined when the builder should ask a follow-up question.
+
+This document defines what should happen next:
+
+- which questions deserve priority
+- how to skip unnecessary questions
+- how to represent decision state after asking or skipping
+- how unresolved choices remain visible in output
+
+Together, `#14` and `#15` form the MVP builder decision loop:
+
+1. inspect the repository
+2. normalize evidence into signals
+3. assign confidence to candidate decisions
+4. ask only the necessary questions
+5. record confirmed, assumed, and unresolved outcomes explicitly
+
+## Practical Guidance For MVP
+
+To keep the questionnaire disciplined, the builder should:
+
+- ask at most a few high-impact questions in the first pass
+- prefer binary or short-option questions over broad prose requests
+- skip any question already answered by strong repo evidence
+- preserve ambiguity in output instead of hiding it
+- avoid pretending the user answered something they did not answer
+
+This keeps the builder lightweight, reviewable, and aligned with Peakweb's goal of becoming an adaptive workflow operating layer rather than a giant setup wizard.

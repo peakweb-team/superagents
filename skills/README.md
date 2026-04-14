@@ -33,6 +33,8 @@ The repository-inventory and confidence rules for the builder now live in [`docs
 
 That document defines which repo signals the builder should look for, how it should assign confidence, and when it should stop inferring and ask the user.
 
+The questionnaire and unresolved-decision contract now lives in [`docs/builder-questionnaire-flow.md`](../docs/builder-questionnaire-flow.md).
+
 ## Intended Flow
 
 1. Peakweb Agency Agents is installed into the user's home directory with the base agent roster and reusable skill fragments.

@@ -48,6 +48,7 @@ Ask only the unresolved questions that materially affect skill composition. Prio
 
 If the repository already answers a question with high confidence, do not ask it again.
 If a high-impact workflow decision remains below high confidence, ask a focused follow-up question instead of guessing silently.
+Record each resulting decision as confirmed, assumed, unresolved, or not-applicable. Follow `docs/builder-questionnaire-flow.md` for questionnaire priority and unresolved-decision handling.
 
 ### Phase 3: Fragment Selection
 
@@ -77,6 +78,7 @@ Each generated skill must:
 Provide:
 
 - the inventory summary with signals, confidence, and evidence
+- the questionnaire outcome summary, including unresolved decisions
 - the generated skill paths
 - the selected fragments
 - the assumptions made
