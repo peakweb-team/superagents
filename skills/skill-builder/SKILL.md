@@ -32,7 +32,7 @@ Inspect the repository for signals such as:
 - Language, framework, test, and deployment signals
 - Existing local agent or skill files
 
-Normalize those findings into explicit builder signals and assign confidence to the resulting project choices. Follow the contract in `docs/builder-inventory-workflow.md` when available.
+Normalize those findings into explicit builder signals and assign confidence to the resulting project choices. Follow the contract in `docs/builder-inventory-workflow.md`.
 
 Summarize what was detected and what is still unknown.
 
