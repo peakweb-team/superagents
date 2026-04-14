@@ -153,7 +153,7 @@ Required `selection` fields:
   - Type: integer
   - Meaning: relative selection weight for deterministic tie-breaking
 
-`evidence_any` may be an empty array for broad baseline fragments, but it must still be present so the shape stays consistent.
+The `evidence_any` field may be an empty array for broad baseline fragments, but it must still be present so the shape stays consistent.
 
 ### `composition`
 
@@ -170,7 +170,7 @@ Required `composition` fields:
   - Type: array of fragment ids
   - Meaning: fragments commonly paired with this one
 
-`suggests` may be empty, but it must be present.
+The `suggests` field may be empty, but it must be present.
 
 ## Optional Metadata
 

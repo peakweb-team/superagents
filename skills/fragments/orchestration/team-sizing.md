@@ -19,6 +19,7 @@ composition:
   requires: []
   suggests:
     - project-management/github-issues
+    - project-management/jira
     - delivery/pull-request-review
     - runtime/context-and-model-routing
   conflicts: []
