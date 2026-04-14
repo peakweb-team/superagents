@@ -1,3 +1,35 @@
+---
+schema_version: 1
+id: runtime/context-and-model-routing
+title: Context And Model Routing
+fragment_type: generic
+layer: runtime
+summary: Guide agents to use context windows, tools, and model capability intentionally instead of wasting budget on every step.
+capabilities:
+  - runtime.context-routing
+  - runtime.model-routing
+selection:
+  evidence_any:
+    - repo.large
+    - repo.monorepo
+    - workflow.parallel_agents
+    - workflow.model_budget_matters
+  evidence_all: []
+  evidence_none: []
+  preference: 65
+composition:
+  requires: []
+  suggests:
+    - orchestration/team-sizing
+    - delivery/pull-request-review
+  conflicts: []
+  exclusive_within: []
+  emits:
+    - context-budgeting
+    - model-routing-rules
+  order: 80
+---
+
 # Fragment: Context And Model Routing
 
 ## Purpose

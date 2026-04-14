@@ -21,6 +21,12 @@ This directory is the starting point for the Peakweb skills layer.
 - `fragments/runtime/`
   - Context budgeting, tool usage, and model-routing guidance.
 
+## Fragment Contract
+
+Fragments are no longer just loose Markdown notes. The canonical fragment schema now lives in [`docs/fragment-schema.md`](../docs/fragment-schema.md), and the fragment source directory is documented in [`skills/fragments/README.md`](./fragments/README.md).
+
+That contract keeps the builder deterministic while preserving readable, reviewable fragment bodies.
+
 ## Intended Flow
 
 1. Peakweb Agency Agents is installed into the user's home directory with the base agent roster and reusable skill fragments.

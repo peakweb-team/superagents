@@ -39,6 +39,31 @@ In short: the original project is a roster. Peakweb aims to become a reusable de
 
 ---
 
+## Skill Builder
+
+The centerpiece of this fork is the **skill builder**: a project-aware layer that turns the base agent library into repo-specific operating instructions.
+
+Instead of expecting every team to use the same giant skill, the builder is intended to:
+
+- inspect a repository for clues about its stack, workflow, and tooling
+- ask a short follow-up questionnaire only when the repo cannot answer something confidently
+- choose the right strategy fragments for that team, such as GitHub Issues, Jira, CodeRabbit, team-sizing rules, and runtime/model routing
+- assemble one or more project-local skills that live with the codebase and can be versioned alongside it
+
+This is the core difference from the original project. Peakweb Agency Agents is not just a bigger roster of personas; it is trying to generate the **right operating layer for each project**.
+
+The intended flow looks like this:
+
+1. Install Peakweb Agency Agents at the user level.
+2. Run the `skill-builder` skill inside a target repository.
+3. Let it inspect the repo and confirm only the missing workflow details.
+4. Generate project-local skills from reusable fragments.
+5. Commit those generated skills with the project so the team can review and evolve them over time.
+
+That gives teams a practical path from generic specialist agents to a repeatable delivery system tailored to how they actually work.
+
+---
+
 ## 🗂️ Repository Layout
 
 - `agents/` contains the source roster, grouped by division.
@@ -75,6 +100,8 @@ Each agent file contains:
 Browse the agents below and copy/adapt the ones you need!
 
 Project-specific skills are starting to live in [`skills/`](skills/README.md). The long-term direction is for a builder skill to assemble repo-specific skills from reusable fragments and place the generated result inside the target project.
+
+The fragment metadata contract for that builder is documented in [`docs/fragment-schema.md`](docs/fragment-schema.md).
 
 ### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code)
 
