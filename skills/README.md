@@ -27,6 +27,12 @@ Fragments are no longer just loose Markdown notes. The canonical fragment schema
 
 That contract keeps the builder deterministic while preserving readable, reviewable fragment bodies.
 
+## Builder Contract
+
+The repository-inventory and confidence rules for the builder now live in [`docs/builder-inventory-workflow.md`](../docs/builder-inventory-workflow.md).
+
+That document defines which repo signals the builder should look for, how it should assign confidence, and when it should stop inferring and ask the user.
+
 ## Intended Flow
 
 1. Peakweb Agency Agents is installed into the user's home directory with the base agent roster and reusable skill fragments.
