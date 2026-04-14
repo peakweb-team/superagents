@@ -32,6 +32,8 @@ Inspect the repository for signals such as:
 - Language, framework, test, and deployment signals
 - Existing local agent or skill files
 
+Normalize those findings into explicit builder signals and assign confidence to the resulting project choices. Follow the contract in `docs/builder-inventory-workflow.md`.
+
 Summarize what was detected and what is still unknown.
 
 ### Phase 2: Targeted Questionnaire
@@ -45,6 +47,7 @@ Ask only the unresolved questions that materially affect skill composition. Prio
 - Any budget or model constraints
 
 If the repository already answers a question with high confidence, do not ask it again.
+If a high-impact workflow decision remains below high confidence, ask a focused follow-up question instead of guessing silently.
 
 ### Phase 3: Fragment Selection
 
@@ -73,6 +76,7 @@ Each generated skill must:
 
 Provide:
 
+- the inventory summary with signals, confidence, and evidence
 - the generated skill paths
 - the selected fragments
 - the assumptions made
