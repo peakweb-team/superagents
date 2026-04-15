@@ -8,6 +8,7 @@ It builds directly on:
 
 - the Claude-first MVP stance from issue `#29`
 - the fragment schema from issue `#11`
+- the generated-skill layout contract from issue `#12`
 - the roadmap goal of turning Peakweb into a workflow operating layer instead of a loose prompt library
 
 ## Why This Exists
@@ -80,6 +81,7 @@ Use one or more signals to infer builder decisions such as:
 - whether team-sizing guidance is needed
 - whether runtime/model-routing guidance is needed
 - whether a repo-local generated skill is likely to need multiple companion fragments
+- whether existing repo-local Claude or Peakweb files should be reviewed before regeneration
 
 The builder should infer choices only when the evidence reaches the confidence threshold defined below.
 
@@ -94,6 +96,8 @@ Every inferred choice should retain:
 - any conflicting or missing evidence
 
 This keeps generated behavior reviewable and gives the questionnaire phase a clean starting point.
+
+The recorded evidence should ultimately feed the metadata bundle defined in [`docs/generated-skill-layout.md`](./generated-skill-layout.md), especially `inventory.yaml`, `decisions.yaml`, and `review.md`.
 
 ### 5. Ask Only The Necessary Follow-Up Questions
 
