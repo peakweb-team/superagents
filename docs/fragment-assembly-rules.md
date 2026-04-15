@@ -107,6 +107,16 @@ Matching rules for MVP:
 - arrays of signals in `evidence_any`, `evidence_all`, `evidence_none`, or `requires_confirmation`
   - are evaluated item by item using the same exact-match rules
 
+`selection.requires_confirmation` may reference either:
+
+- a signal condition
+  - evaluated with the same inventory-based match rules above
+- a builder decision condition such as `primary_task_tracker=jira`
+  - evaluated against `decisions.yaml`, not `inventory.yaml`
+  - matched only when the named decision exists, its value is not `null`, and the value matches exactly with the same no-coercion, case-sensitive equality rules
+
+Builders should treat signal-backed and decision-backed confirmation checks as separate paths and should not implicitly look for decisions inside `inventory.yaml` or signals inside `decisions.yaml`.
+
 Examples:
 
 - `evidence_any: [forge.github, forge.gitlab]`
@@ -116,7 +126,7 @@ Examples:
 - `evidence_none: [task_tracker.jira]`
   - matches the exclusion rule only when `task_tracker.jira` is recorded as boolean `true`
 - `requires_confirmation: [primary_task_tracker=jira]`
-  - triggers only when the decision or signal is present with the exact value `jira`
+  - triggers only when the `primary_task_tracker` decision exists in `decisions.yaml` with the exact value `jira`
 
 A fragment becomes a candidate when:
 
@@ -379,6 +389,7 @@ The lock file should record at minimum:
 - suppressed fragment version and source provenance
 - exclusivity bucket winners
 - explicit conflict resolutions
+- unresolved clarification items, including status, affected bucket or conflict, and blocking question
 - emitted behavior blocks and contributing fragments
 
 Recommended conceptual shape:
@@ -423,6 +434,14 @@ suppressed_fragments:
       ref: main@abc1234
     reason: suppressed_by_exclusivity
     bucket: primary-task-tracker
+
+needs_clarification:
+  - status: pending
+    affected_bucket: primary-task-tracker
+    blocking_question: Which task tracker should the builder treat as authoritative?
+    candidates:
+      - project-management/github-issues
+      - project-management/jira
 
 exclusive_buckets:
   primary-task-tracker:
