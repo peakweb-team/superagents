@@ -136,7 +136,7 @@ Teach the system to choose the smallest capable team and coordinate work across 
 
 Goals:
 
-- define solo vs small-team vs expanded-team heuristics
+- define canonical `solo`, `sub-agent`, and `agent-team` heuristics (see [`docs/orchestration-execution-rubric.md`](./docs/orchestration-execution-rubric.md))
 - map task characteristics to likely agent roles and specialist needs
 - define handoff expectations between implementers, reviewers, and validators
 - keep team formation proportionate to task scope and risk

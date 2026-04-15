@@ -7,6 +7,7 @@ This document defines the proposed contract for issue `#17`:
 It builds on:
 
 - the canonical capability model in [`docs/external-capability-model.md`](./external-capability-model.md)
+- the orchestration execution rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - fallback behavior in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the project integration declaration contract in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the first-wave task-system fragment contract in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
@@ -24,6 +25,8 @@ This matrix is intentionally capability-oriented:
 - rows are providers or review patterns
 - columns are canonical capability ids from `docs/external-capability-model.md`
 - support is marked as `full`, `partial`, or `unavailable`
+
+Execution-tier choices (`solo`, `sub-agent`, `agent-team`) are intentionally out of scope for this matrix and are defined in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md).
 
 ## Canonical Capability Subset Used In This Matrix
 

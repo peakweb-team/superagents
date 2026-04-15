@@ -12,6 +12,7 @@ It builds on:
 - the fragment assembly contract from issue `#16`
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
+- the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - the project integration declaration format from issue `#18`
 - the capability fallback contract from issue `#19`
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
@@ -187,16 +188,16 @@ Examples:
 
 Question goal:
 
-- determine whether the generated skill should bias toward solo execution or explicit specialist-team coordination
+- determine whether the generated skill should default to `solo`, escalate to `sub-agent` for bounded parallel work, or reserve `agent-team` for richer peer coordination cases
 
 Ask when:
 
-- the repository shape suggests cross-functional work, but the default execution mode is unclear
+- repository evidence suggests parallel or cross-functional work, but it is unclear whether bounded decomposition is enough or richer peer coordination is required
 
 Examples:
 
-- Should the generated skill default to solo execution for most tasks, or to a small specialist team?
-- Are implementation, review, and validation typically handled by separate roles here?
+- Should bounded parallel implementation default to `sub-agent` before `agent-team`?
+- Are there recurring tasks in this repo where active peer-to-peer coordination materially improves outcomes?
 
 ### Priority 4: Runtime / Budget Constraints
 
