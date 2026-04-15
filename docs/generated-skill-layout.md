@@ -137,6 +137,25 @@ The `skill.json` file should include at minimum:
 
 The goal is not to create a heavy runtime format. The goal is to make each generated skill independently understandable and traceable.
 
+Example `skill.json`:
+
+```json
+{
+  "name": "peakweb-workflow",
+  "generated_by": "skill-builder",
+  "generated_at": "2026-04-15T00:00:00Z",
+  "schema_version": 1,
+  "repository": "github.com/peakweb-team/pw-agency-agents",
+  "role": "primary orchestration",
+  "selected_fragments": [
+    "orchestration/team-sizing",
+    "project-management/github-issues",
+    "delivery/pull-request-review"
+  ],
+  "source_manifest": ".agency/skills/peakweb/manifest.yaml"
+}
+```
+
 ## Required Builder Metadata Output
 
 Besides the skill content itself, the builder should write a metadata bundle under `.agency/skills/peakweb/`.
@@ -229,6 +248,7 @@ Manual edits to generated `SKILL.md` files are allowed in MVP because human revi
 However:
 
 - direct edits should be treated as temporary unless reflected back into fragments or builder inputs
+- direct edits should be treated as temporary unless reflected into fragments or builder inputs
 - the metadata bundle should record the builder run that last generated the files
 - reviewers should expect later regenerations to overwrite untracked manual drift
 
