@@ -127,7 +127,7 @@ Expected shape:
 
 - start in `solo` with `narrow` budget
 - discover at repo root and target package only
-- deeply read only task-local files plus nearest tests
+- deeply read task-local files and nearest tests
 - implement and verify before expanding scope
 
 Example:
