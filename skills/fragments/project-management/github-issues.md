@@ -4,7 +4,7 @@ id: project-management/github-issues
 title: GitHub Issues
 fragment_type: provider
 layer: project-management
-summary: Use GitHub Issues as the system of record for task intake, progress logging, and traceability.
+summary: Use GitHub Issues as the tracked-task system of record when the project actually manages work there.
 provider: github
 capabilities:
   - task-tracker.read
@@ -38,17 +38,17 @@ composition:
 
 ## Purpose
 
-Use GitHub Issues as the system of record for task intake, progress logging, and traceability.
+Use GitHub Issues as the tracked-task system of record when the project manages implementation work there.
 
 ## Include When
 
 - The repository uses GitHub as its primary forge.
 - Issues are actively referenced in branches, commits, or PRs.
-- The team wants implementation agents to read and update issue context directly.
+- The team wants issue-backed work to be read from and summarized back to GitHub.
 
 ## Expected Behaviors
 
-- Read the issue before planning or implementation starts.
+- Read the issue before planning or implementation starts for issue-backed work.
 - Extract acceptance criteria into an explicit checklist.
 - Post meaningful status updates when the workflow spans multiple phases or agents.
 - Link PRs, validation evidence, and follow-up work back to the issue.
@@ -57,4 +57,4 @@ Use GitHub Issues as the system of record for task intake, progress logging, and
 
 - Pair well with `orchestration/team-sizing.md`.
 - Pair well with `delivery/pull-request-review.md`.
-- If GitHub is present but issues are not used, omit this fragment and prefer a lighter PR-only workflow.
+- If GitHub is present but issues are not authoritative, omit this fragment and prefer direct-brief or lighter PR-only workflow guidance.

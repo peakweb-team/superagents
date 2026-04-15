@@ -112,6 +112,7 @@ Every fragment must define the following fields.
 - Type: enum string
 - Required: yes
 - Initial values:
+  - `task-intake`
   - `project-management`
   - `delivery`
   - `orchestration`
@@ -130,6 +131,7 @@ Every fragment must define the following fields.
 - Required: yes
 - Purpose: describe the workflow capability this fragment adds
 - Example values:
+  - `task-intake.direct-brief`
   - `task-tracker.read`
   - `task-tracker.update`
   - `delivery.pr-review`
@@ -378,6 +380,37 @@ Why it is generic:
 - it supports Peakweb's adaptive-team model directly
 - it can pair with GitHub, Jira, or future task-system fragments
 
+### Example: Generic Intake Fragment
+
+```md
+---
+schema_version: 1
+id: task-intake/direct-brief
+title: Direct Brief Intake
+fragment_type: generic
+layer: task-intake
+summary: Allow work to begin from a freeform prompt instead of requiring an external ticket.
+capabilities:
+  - task-intake.direct-brief
+selection:
+  evidence_any:
+    - input.direct_brief
+    - workflow.task_tracker_optional
+  preference: 70
+composition:
+  suggests:
+    - orchestration/team-sizing
+    - runtime/context-and-model-routing
+  order: 10
+---
+```
+
+Why it is generic:
+
+- it models how work enters the system without naming a vendor
+- it supports greenfield and vibe-coding flows directly
+- it can coexist with or replace tracker-backed intake depending on project needs
+
 ### Example: Provider Fragment
 
 ```md
@@ -387,7 +420,7 @@ id: project-management/github-issues
 title: GitHub Issues
 fragment_type: provider
 layer: project-management
-summary: Use GitHub Issues as the primary task tracker for delivery work.
+summary: Use GitHub Issues as the tracked-task system of record for delivery work.
 provider: github
 capabilities:
   - task-tracker.read

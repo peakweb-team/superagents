@@ -16,6 +16,8 @@ In v1, each fragment is:
 
 ## Current Layers
 
+- `task-intake/`
+  - direct-brief and other work-entry fragments
 - `project-management/`
   - task-system and workflow-of-record fragments
 - `delivery/`

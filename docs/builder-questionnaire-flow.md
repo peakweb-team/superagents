@@ -75,6 +75,7 @@ Use `confirmed` when either:
 Examples:
 
 - GitHub Issues is selected because direct repo evidence makes it clearly primary
+- the user confirms that direct-brief bootstrap should remain available even without an authoritative tracker
 - the user confirms that CodeRabbit is part of the review loop
 
 ### `assumed`
@@ -109,6 +110,7 @@ Use `unresolved` when:
 Examples:
 
 - both GitHub Issues and Jira appear active, but primary authority is unclear
+- the repository shows no authoritative tracker, but it is unclear whether the generated skill should be direct-brief-first or tracker-optional
 - review automation is referenced, but it is unclear whether it is required or legacy
 
 An unresolved decision should usually create a follow-up question.
@@ -130,21 +132,24 @@ The builder should ask questions in priority order, not all at once.
 
 The initial MVP questionnaire should focus on the smallest set of decisions that most strongly affect fragment selection.
 
-### Priority 1: Primary Task Tracker
+### Priority 1: Work Intake Mode
 
 Question goal:
 
-- determine which system is authoritative for task intake and status tracking
+- determine whether generated skills should start from a tracked task, a direct brief, or support both
 
 Ask when:
 
-- multiple task systems are suggested by the repo, or
+- multiple task systems are suggested by the repo
 - the repo clearly uses a forge but issue authority is still unclear
+- the repo appears greenfield, light-process, or likely to benefit from direct-brief bootstrap
+- the intended UX wants a dual entry path such as `/agent-task <ticket-or-prompt>`
 
 Examples:
 
-- Is GitHub Issues the primary task tracker, or is another system authoritative?
-- If both GitHub Issues and Jira are used, which one should the builder treat as the source of truth?
+- Should the generated skill expect work to begin from a tracked task, a direct brief, or both?
+- If both GitHub Issues and Jira are used, which one should the builder treat as the source of truth for tracked-task intake?
+- Should a greenfield repo support a direct-brief bootstrap mode even if GitHub Issues exists?
 
 ### Priority 2: Review Path
 
@@ -272,7 +277,7 @@ Good pattern:
 
 Good example:
 
-- Which system should the builder treat as the primary task tracker: GitHub Issues or Jira? This changes the generated project-management fragment.
+- Should the generated skill start from tracked tasks, direct briefs, or both? This changes the intake and project-management fragments.
 
 Avoid:
 
@@ -284,22 +289,36 @@ Avoid:
 
 Builder output should preserve both the question and the resulting decision state.
 
+Canonical ID rule:
+
+- `questions[].id` should use kebab-case.
+- `decisions` keys should use snake_case.
+- The normalization rule is: lowercase the question id and convert hyphens to underscores.
+- Implementations and parsers should apply that mapping consistently when relating question records to decision records.
+
+Examples:
+
+- `work-intake-mode` -> `work_intake_mode`
+- `review-path` -> `review_path`
+- `primary-task-tracker` -> `primary_task_tracker`
+
 Recommended conceptual shape:
 
 ```yaml
 questions:
-  - id: primary-task-tracker
+  - id: work-intake-mode
     status: asked
-    prompt: Which system should the builder treat as the primary task tracker?
+    prompt: Should the generated skill start from tracked tasks, direct briefs, or both?
     options:
-      - github-issues
-      - jira
-    why: This changes the project-management fragment and issue-handling guidance.
-    answer: jira
+      - tracked-task
+      - direct-brief
+      - both
+    why: This changes the intake and project-management fragments.
+    answer: both
 decisions:
-  primary_task_tracker:
+  work_intake_mode:
     state: confirmed
-    value: jira
+    value: both
     source: user-answer
 ```
 
@@ -334,8 +353,14 @@ Recommended shape:
 
 ```yaml
 unresolved_decisions:
+  - id: work-intake-mode
+    topic: work intake mode
+    why_unresolved: The repository suggests GitHub-based delivery, but it is unclear whether direct-brief bootstrap should remain available.
+    impact: high
+    recommended_question: Should the generated skill start from tracked tasks only, direct briefs only, or both?
+    safe_to_proceed: false
   - id: task-tracker-authority
-    topic: primary task tracker
+    topic: primary task tracker for tracked-task intake
     why_unresolved: GitHub Issues and Jira are both referenced, but authority is not explicit.
     impact: high
     recommended_question: Which system should the builder treat as authoritative for task intake and status updates?
@@ -369,6 +394,12 @@ inventory:
         path: CONTRIBUTING.md
         detail: Jira ticket keys appear in workflow examples
 decisions:
+  work_intake_mode:
+    state: assumed
+    value: both
+    confidence: medium
+    source: builder-default
+    assumption: The repository appears to support delivery work but does not show a clearly authoritative tracker, so the builder kept both tracked-task and direct-brief intake available.
   primary_forge:
     state: confirmed
     value: github
@@ -389,11 +420,11 @@ decisions:
 questions:
   - id: primary-task-tracker
     status: pending
-    prompt: Which system should the builder treat as the primary task tracker?
+    prompt: Which system should the builder treat as the primary task tracker for tracked-task intake?
     why: This changes the generated project-management fragment.
 unresolved_decisions:
   - id: task-tracker-authority
-    topic: primary task tracker
+    topic: primary task tracker for tracked-task intake
     why_unresolved: GitHub Issues and Jira both appear active, but authority is unclear.
     impact: high
     recommended_question: Which system should the builder treat as authoritative?
