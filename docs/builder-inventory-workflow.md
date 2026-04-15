@@ -11,6 +11,7 @@ It builds directly on:
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
 - the project integration declaration format from issue `#18`
+- the capability fallback contract from issue `#19`
 - the roadmap goal of turning Peakweb into a workflow operating layer instead of a loose prompt library
 
 ## Why This Exists
@@ -92,6 +93,7 @@ Use one or more signals to infer builder decisions such as:
 - whether a repo-local generated skill is likely to need multiple companion fragments
 - whether existing repo-local Claude or Peakweb files should be reviewed before regeneration
 - which capability families are likely available, optional, or unsupported for this repository
+- whether degraded capability support likely implies continue, warn, manual, or fail fallback behavior
 
 The builder should infer choices only when the evidence reaches the confidence threshold defined below.
 

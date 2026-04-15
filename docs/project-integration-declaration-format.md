@@ -11,6 +11,7 @@ It builds on:
 - the builder inventory workflow in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the external capability model in [`docs/external-capability-model.md`](./external-capability-model.md)
+- the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 
 ## Why This Exists
 
@@ -118,6 +119,7 @@ capability_bindings:
     provider_ref: github
     support: partial
     decision_state: assumed
+    fallback_mode: warn
     notes: Human review is confirmed, but bot-review coverage is still assumed.
 ```
 
@@ -273,6 +275,26 @@ Optional fields:
 
 - Type: string
 - Purpose: short description of the safe alternate path if support is partial or unavailable
+
+### `fallback_mode`
+
+- Type: enum string
+- Purpose: record the selected fallback behavior for that capability
+- Allowed values:
+  - `continue`
+  - `warn`
+  - `manual`
+  - `fail`
+
+### `warning`
+
+- Type: string
+- Purpose: short operator-facing warning when degraded support should remain visible but not block execution
+
+### `manual_steps`
+
+- Type: array of strings
+- Purpose: list concrete human actions required when the capability falls back to manual mode
 
 ### `source`
 
@@ -441,6 +463,7 @@ capability_bindings:
     provider_ref: coderabbit
     support: partial
     decision_state: assumed
+    fallback_mode: warn
     fallback: Fall back to human PR review comments when CodeRabbit is unavailable.
 ```
 
@@ -452,9 +475,10 @@ For MVP:
 
 - if a capability is unavailable, it may still appear in `capability_bindings` with `support: unavailable`
 - if a workflow decision remains unresolved, the binding may use `decision_state: unresolved`
+- fallback handling should be expressed with `fallback_mode` and optional `warning` or `manual_steps` fields
 - the builder should not silently omit a required capability that materially affects workflow behavior
 
-That explicit behavior keeps the declaration honest and prepares the ground for issue `#19`.
+That explicit behavior keeps the declaration honest and aligns it with [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md).
 
 ## Recommended Builder Behavior
 
@@ -473,7 +497,7 @@ This contract intentionally does not define:
 - secrets or credentials storage
 - how a provider is authenticated
 - automatic installation or provisioning
-- the complete fallback policy for every missing capability
+- the complete provider-specific fallback policy for every missing capability
 
 It does define:
 

@@ -11,6 +11,7 @@ It builds on:
 - the builder inventory workflow in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
+- the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the roadmap direction toward a workflow operating system instead of a loose prompt library
 
 ## Why This Exists
@@ -177,6 +178,8 @@ The MVP metadata bundle should include:
   - human-readable summary of why the skills were generated this way and what should be reviewed manually
 
 These files make generated output reviewable, diffable, and regenerable.
+
+When integrations are degraded, the metadata bundle should make fallback mode, warnings, and manual steps reviewable rather than burying them in prose.
 
 ## Precedence Rules
 

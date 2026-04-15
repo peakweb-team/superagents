@@ -12,6 +12,7 @@ It builds on:
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
 - the project integration declaration format from issue `#18`
+- the capability fallback contract from issue `#19`
 
 ## Why This Exists
 
@@ -36,6 +37,7 @@ This document defines the MVP answer so the builder can stay minimal, explicit, 
 - define the builder decision states
 - define how unresolved decisions are recorded in output
 - resolve workflow choices that materially change which capability families the generated skill should rely on
+- surface when degraded integrations should continue, warn, switch to manual mode, or fail
 
 ## Non-Goals
 
@@ -83,6 +85,7 @@ Examples:
 - the user confirms that direct-brief bootstrap should remain available even without an authoritative tracker
 - the user confirms that CodeRabbit is part of the review loop
 - the user confirms that tracked-task updates are required even though direct briefs remain allowed
+- the user confirms that a missing task-tracker update path should be treated as manual mode rather than a blocker
 
 ### `assumed`
 
@@ -119,6 +122,7 @@ Examples:
 - the repository shows no authoritative tracker, but it is unclear whether the generated skill should be direct-brief-first or tracker-optional
 - review automation is referenced, but it is unclear whether it is required or legacy
 - the project clearly needs PR delivery, but it is unclear whether hosted delivery-status signals are required for completion
+- the project may proceed without automated ticket updates, but it is unclear whether that should warn, require manual completion steps, or block the workflow
 
 An unresolved decision should usually create a follow-up question.
 
