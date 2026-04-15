@@ -86,6 +86,38 @@ For each fragment in the library:
 3. evaluate `selection.evidence_none`
 4. note any `selection.requires_confirmation` triggers
 
+Signal matching should be interpreted strictly and without type coercion.
+
+A signal counts as a match only when:
+
+- the signal id exists in `inventory.yaml`
+- the recorded value is not `null`
+- the fragment condition and the recorded value agree exactly under the rules below
+
+Matching rules for MVP:
+
+- bare signal ids such as `forge.github`
+  - match only when the recorded value is the boolean `true`
+  - do not match when the value is `false`, `null`, missing, the string `"true"`, or the number `1`
+- string or enum-valued signals
+  - match only by exact, case-sensitive string equality
+  - example: `work_intake_mode=both` matches `both`, but not `Both`
+- missing signals
+  - count as not matched
+- arrays of signals in `evidence_any`, `evidence_all`, `evidence_none`, or `requires_confirmation`
+  - are evaluated item by item using the same exact-match rules
+
+Examples:
+
+- `evidence_any: [forge.github, forge.gitlab]`
+  - matches when either signal is recorded as boolean `true`
+- `evidence_all: [workflow.pull_requests, review.coderabbit]`
+  - matches only when both are recorded as boolean `true`
+- `evidence_none: [task_tracker.jira]`
+  - matches the exclusion rule only when `task_tracker.jira` is recorded as boolean `true`
+- `requires_confirmation: [primary_task_tracker=jira]`
+  - triggers only when the decision or signal is present with the exact value `jira`
+
 A fragment becomes a candidate when:
 
 - at least one `evidence_any` signal matches, or `evidence_any` is empty
@@ -144,9 +176,20 @@ Bucket resolution priority should be:
 2. fragment aligned with an `assumed` builder decision
 3. fragment with higher decision confidence from inventory or questionnaire inputs
 4. higher `selection.preference`
-5. lexicographically smaller `id`
+5. if multiple fragments are still tied, check whether auto-selecting any one of them would be unsafe or misleading
+6. lexicographically smaller `id`
 
-If two fragments remain tied after these steps, the builder should choose the lexicographically smaller `id` and record the tie-break explicitly in `review.md`.
+The safety gate in step 5 should prefer `needs-clarification` over a forced winner when:
+
+- the remaining tied fragments would materially change the generated workflow
+- no safe default exists
+- the questionnaire has not already resolved the ambiguity
+
+Example:
+
+- if `project-management/github-issues` and `project-management/jira` remain tied in `primary-task-tracker`, and selecting either one would redefine the system of record, the bucket should become `needs-clarification` instead of falling through to an `id` tie-break
+
+If a bucket falls through to step 6, the builder should choose the lexicographically smaller `id` and record the tie-break attempt explicitly in `review.md`.
 
 Non-winning fragments in the bucket should be marked:
 
@@ -325,7 +368,9 @@ Assembly decisions should stay reviewable.
 The lock file should record at minimum:
 
 - selected fragments in final order
+- selected fragment version and source provenance
 - suppressed fragments and suppression reason
+- suppressed fragment version and source provenance
 - exclusivity bucket winners
 - explicit conflict resolutions
 - emitted behavior blocks and contributing fragments

@@ -41,7 +41,7 @@ That means fragment metadata should help the builder answer:
 - what it commonly pairs with
 - where it belongs in assembled output
 
-The concrete rules for exclusivity buckets, conflict handling, and emitted behavior blocks are defined in `docs/fragment-assembly-rules.md`.
+The concrete rules for exclusivity buckets, conflict handling, and emitted behavior blocks are defined in [`docs/fragment-assembly-rules.md`](../../docs/fragment-assembly-rules.md).
 
 Capability names should use the canonical vocabulary from `docs/external-capability-model.md` so provider fragments stay comparable and direct-brief workflows remain first-class.
 
