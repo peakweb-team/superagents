@@ -29,6 +29,10 @@ That means the system should understand:
 - how context and models should be used efficiently
 - how validation evidence is gathered, stored, and linked back to human workflow systems
 
+## Direct-Brief Bootstrap
+
+Direct-brief bootstrap is a delivery flow that starts from a human brief without a formal ticket system, then progressively structures execution, review, and validation artifacts as the work becomes more concrete.
+
 ## Core Contract
 
 Peakweb Agency Agents will **not** auto-configure third-party tools.
@@ -111,7 +115,7 @@ Provide a strong starting point for the most common software-delivery platforms 
 Goals:
 
 - support major task systems such as GitHub Issues, Jira, Linear, Azure Boards, and GitLab Issues
-- support direct-brief bootstrap flows for greenfield or light-process projects alongside task-system-backed delivery
+- support [direct-brief bootstrap](#direct-brief-bootstrap) flows for greenfield or light-process projects alongside task-system-backed delivery
 - support major code-hosting and PR systems such as GitHub, GitLab, and Bitbucket
 - support common review patterns such as native review, CodeRabbit, and layered review automation
 - make provider selection part of builder output rather than hardcoded defaults
@@ -181,7 +185,7 @@ Goals:
 
 - document the product boundary clearly, especially around integrations
 - provide example generated skills for representative stacks and workflows
-- provide examples for GitHub-heavy, Jira-heavy, mixed-tool, and direct-brief bootstrap environments
+- provide examples for GitHub-heavy, Jira-heavy, mixed-tool, and [direct-brief bootstrap](#direct-brief-bootstrap) environments
 - make it easy for users to understand why Peakweb differs from the upstream project
 
 Non-goals:
@@ -219,6 +223,10 @@ Goals:
 - define probabilistic or agentic testing patterns that use browser MCP or similar tooling
 - define how screenshots and other proof artifacts are stored in a durable external location and linked back into issues, tickets, or PRs
 - define how validation evidence influences PR readiness, review, and task completion behavior
+- define a minimum evidence set for reviewable completion, such as screenshots or recordings for UI changes, deterministic test or CI artifacts, and concise execution logs or summaries for agentic validation paths
+- define retention expectations for stored evidence, such as a default 90-day retention window or an equivalent project-configured object-store policy
+- define traceability requirements so evidence artifacts carry stable ids and links back to the related PR, issue, ticket, or brief
+- define how evidence completeness and quality map to reviewer checklists, PR readiness, and task-completion gates
 
 Non-goals:
 
