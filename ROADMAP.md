@@ -269,7 +269,7 @@ Once the roadmap is agreed, the first issue batch should likely focus on:
 4. Define builder inventory workflow and confidence model.
 5. Define builder questionnaire and unresolved-decision flow.
 6. Define fragment assembly and conflict-resolution rules.
-7. Draft provider matrix for major delivery platforms and review tools.
+7. Draft provider matrix for major delivery platforms and review tools (see [`docs/provider-matrix.md`](./docs/provider-matrix.md)).
 
 ## Explicit Non-Goals For V1
 
