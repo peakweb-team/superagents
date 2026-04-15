@@ -119,6 +119,7 @@ Goals:
 - keep task-system provider fragments optional companions to direct-brief intake rather than a hard prerequisite
 - support major code-hosting and PR systems such as GitHub, GitLab, and Bitbucket
 - support common review patterns such as native review, CodeRabbit, and layered review automation
+- keep first-wave provider-fragment guidance split between task-system and code-host/review contracts (see [`docs/task-system-provider-fragment-set.md`](./docs/task-system-provider-fragment-set.md) and [`docs/code-host-review-provider-fragment-set.md`](./docs/code-host-review-provider-fragment-set.md))
 - make provider selection part of builder output rather than hardcoded defaults
 
 Non-goals:

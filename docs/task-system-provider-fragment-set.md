@@ -11,6 +11,7 @@ It builds on:
 - integration declaration mapping in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - fragment metadata and composition contracts in [`docs/fragment-schema.md`](./fragment-schema.md) and [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md)
 - first-wave provider prioritization in [`docs/provider-matrix.md`](./provider-matrix.md)
+- first-wave code-host/review provider fragments in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 
 ## Why This Exists
 
@@ -29,7 +30,7 @@ This document defines task-system provider fragments for:
 
 It does not redefine code-host or review-system fragments.
 
-Those remain covered by existing provider-matrix and capability docs.
+Those remain covered by existing provider-matrix and capability docs, plus the first-wave code-host/review fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md).
 
 ## Core Rules
 

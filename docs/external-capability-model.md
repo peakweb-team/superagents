@@ -13,6 +13,7 @@ It builds on:
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the first-wave task-system fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
+- the first-wave code-host/review fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 - the roadmap direction toward capability-oriented workflow behavior instead of vendor-bound prompts
 
 ## Why This Exists

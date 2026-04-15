@@ -10,6 +10,7 @@ It builds on:
 - fallback behavior in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the project integration declaration contract in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the first-wave task-system fragment contract in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
+- the first-wave code-host/review fragment contract in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 - the delivery-platform coverage goals in [`ROADMAP.md`](../ROADMAP.md)
 
 ## Why This Exists
@@ -89,6 +90,11 @@ Use these criteria together:
 2. Jira as additional task-system provider for mixed Jira/GitHub organizations.
 3. CodeRabbit as optional layered review provider on top of native host review.
 4. Local direct-brief intake remains always-on baseline (`task-intake.*`), independent of external systems.
+
+First-wave provider-fragment guidance is split into:
+
+- task-system fragments in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
+- code-host and review fragments in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 
 ### Out Of First Wave (Defer)
 

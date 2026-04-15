@@ -15,6 +15,7 @@ It builds on:
 - the project integration declaration format from issue `#18`
 - the capability fallback contract from issue `#19`
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
+- the first-wave code-host/review provider fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 
 ## Why This Exists
 
