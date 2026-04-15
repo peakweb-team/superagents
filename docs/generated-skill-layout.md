@@ -247,7 +247,6 @@ Manual edits to generated `SKILL.md` files are allowed in MVP because human revi
 
 However:
 
-- direct edits should be treated as temporary unless reflected back into fragments or builder inputs
 - direct edits should be treated as temporary unless reflected into fragments or builder inputs
 - the metadata bundle should record the builder run that last generated the files
 - reviewers should expect later regenerations to overwrite untracked manual drift
