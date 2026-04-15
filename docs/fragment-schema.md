@@ -10,6 +10,7 @@ It is intentionally shaped by:
 - the external capability model from issue `#13`
 - the workflow-discipline lessons from issue `#31`
 - the product direction in [`ROADMAP.md`](../ROADMAP.md)
+- the assembly contract in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md)
 
 The goal is not to make fragments abstract for abstraction's sake. The goal is to give Peakweb a small, deterministic contract that can support:
 
@@ -274,6 +275,8 @@ These fields are optional in v1, but they are the preferred extension points whe
 
 This gives the builder a way to reason about overlap without requiring full assembly logic in v1.
 
+The full v1 assembly behavior now lives in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md).
+
 ## Generic vs Provider Fragments
 
 This distinction must stay explicit.
@@ -323,7 +326,7 @@ Provider fragments should not:
 
 ## Minimum Deterministic Selection Contract
 
-Issue `#11` does not define full assembly logic, but it does need enough structure for deterministic selection.
+Issue `#11` does not define the full assembly engine, but it does define the fragment metadata that the assembly engine depends on.
 
 The builder must be able to do the following from metadata alone:
 
@@ -334,7 +337,9 @@ The builder must be able to do the following from metadata alone:
 5. Prevent invalid combinations using `composition.conflicts` and `composition.exclusive_within`.
 6. Assemble output in a stable order using `composition.order`, then `id` as the final tie-breaker.
 
-That is enough for MVP selection discipline without locking us into a premature full-blown rule engine.
+That is enough for MVP selection discipline.
+
+The corresponding selection, suppression, exclusivity, and emitted-block rules are defined in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md).
 
 ## Body Structure Expectations
 

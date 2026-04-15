@@ -8,6 +8,7 @@ It builds on:
 
 - the Claude-first MVP direction from issue `#29`
 - the fragment metadata contract in [`docs/fragment-schema.md`](./fragment-schema.md)
+- the fragment assembly contract in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md)
 - the builder inventory workflow in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
@@ -173,11 +174,13 @@ The MVP metadata bundle should include:
 - `decisions.yaml`
   - confirmed, assumed, unresolved, and not-applicable decisions from the questionnaire phase
 - `fragments.lock.yaml`
-  - exact selected fragments, composition order, and fragment versions or source refs
+  - exact selected fragments, suppression reasons, exclusivity winners, emitted behavior blocks, and fragment versions or source refs
 - `review.md`
   - human-readable summary of why the skills were generated this way and what should be reviewed manually
 
 These files make generated output reviewable, diffable, and regenerable.
+
+The rules that produce this lock file now live in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md).
 
 When integrations are degraded, the metadata bundle should make fallback mode, warnings, and manual steps reviewable rather than burying them in prose.
 
@@ -233,6 +236,8 @@ Every builder run should produce a `review.md` file that highlights:
 - which decisions were assumed instead of confirmed
 - any unresolved decisions still affecting the generated skill set
 - fragments that were added, removed, or replaced
+- fragments that were suppressed by exclusivity or explicit conflicts
+- any warnings introduced by degraded or fallback-aware assembly
 
 This review file should make doc-only PR review practical.
 
