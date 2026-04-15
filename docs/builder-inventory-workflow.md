@@ -11,6 +11,7 @@ It builds directly on:
 - the fragment assembly contract from issue `#16`
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
+- the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - the project integration declaration format from issue `#18`
 - the capability fallback contract from issue `#19`
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
@@ -76,6 +77,8 @@ Example normalized signals:
 - `repo.monorepo`
 - `workflow.pull_requests`
 - `workflow.parallel_agents`
+- `workflow.parallel_work_bounded`
+- `workflow.peer_coordination_required`
 - `workflow.model_budget_matters`
 - `review.coderabbit`
 - `docs.references_jira_workflows`
@@ -245,6 +248,8 @@ Common signals:
 - `repo.multi_package`
 - `repo.multi_language`
 - `repo.cross_functional_changes_likely`
+- `workflow.parallel_work_bounded`
+- `workflow.peer_coordination_required`
 - `repo.local_skills_present`
 
 Typical evidence sources:

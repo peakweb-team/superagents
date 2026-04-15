@@ -11,6 +11,7 @@ It builds on:
 - the fragment metadata contract in [`docs/fragment-schema.md`](./fragment-schema.md)
 - the builder inventory workflow in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
+- the orchestration execution rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the first-wave task-system fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the first-wave code-host/review fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
@@ -31,6 +32,8 @@ It gives generated skills and fragments a shared vocabulary for:
 - delivery and validation signal retrieval
 
 This keeps the builder capability-oriented while still leaving room for provider-specific mappings later.
+
+Execution-tier sizing (`solo`, `sub-agent`, `agent-team`) is a separate internal orchestration concern and is defined in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md).
 
 ## Goals
 

@@ -10,6 +10,7 @@ It builds on:
 - the generated-skill layout contract in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
 - the builder inventory workflow in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
+- the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
@@ -333,6 +334,8 @@ A typical generated `SKILL.md` may therefore read like:
 3. PR and review loop
 4. team-sizing heuristics
 5. context and model-routing rules
+
+Team-sizing block content should apply the canonical `solo` -> `sub-agent` -> `agent-team` escalation rules from [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md).
 
 Companion skills may project a subset of the same assembled fragment plan, but they should inherit the same conflict-resolution results rather than rerunning selection independently.
 

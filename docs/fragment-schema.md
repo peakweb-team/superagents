@@ -10,6 +10,7 @@ It is intentionally shaped by:
 - the external capability model from issue `#13`
 - the workflow-discipline lessons from issue `#31`
 - the product direction in [`ROADMAP.md`](../ROADMAP.md)
+- the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - the assembly contract in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md)
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the first-wave code-host/review provider fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
@@ -300,6 +301,7 @@ Generic fragments should:
 
 - express capabilities in neutral workflow language
 - describe heuristics, sequencing, and operating rules
+- keep execution-tier guidance aligned with [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - avoid assuming a specific vendor surface unless the body is explicitly calling out an optional example
 
 Generic fragments should not:
