@@ -13,6 +13,7 @@ It builds on:
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
+- the first-wave code-host/review provider fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 - the Claude-first MVP direction in [`docs/claude-first-mvp-strategy.md`](./claude-first-mvp-strategy.md)
 
 ## Why This Exists
