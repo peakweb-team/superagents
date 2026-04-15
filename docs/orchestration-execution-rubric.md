@@ -143,7 +143,7 @@ This rubric is the canonical sizing source for:
 - generated review metadata that explains why a tier was chosen
 - role and handoff behavior that follows the selected tier (see [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md))
 
-Model-tier routing and bounded subtask-splitting heuristics are canonical in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md). This rubric should define tier selection, while runtime guidance defines how work is routed inside the selected tier.
+Model-tier routing, progressive context loading (`discover` -> `select` -> `deepen` -> `execute` -> `verify`), candidate-file budgeting, and bounded subtask-splitting heuristics are canonical in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md). This rubric should define tier selection, while runtime guidance defines how work is routed inside the selected tier.
 
 Related contracts should reference this document rather than redefining tier boundaries independently.
 

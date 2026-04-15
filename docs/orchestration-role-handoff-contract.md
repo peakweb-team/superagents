@@ -129,7 +129,7 @@ Every handoff should include:
 - `requested_action`: expected receiver action (`implement`, `review`, `validate`, `integrate`, or `decide`)
 - `acceptance_criteria`: concrete completion bar for this handoff
 - `status`: `proposed`, `accepted`, `needs-clarification`, `blocked`, or `complete`
-- `context_scope`: optional but recommended summary of what was read, what was intentionally not read, and whether broader context escalation is requested
+- `context_scope`: optional but recommended summary of what was read, what was intentionally not read, and whether broader context escalation is requested (see staged runtime rules in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md))
 
 Suggested minimal shape:
 
@@ -164,6 +164,11 @@ context_scope:
     - apps/api/test/issues/normalize.test.ts
   intentionally_not_read:
     - apps/web/**
+  stage:
+    current: deepen
+    completed:
+      - discover
+      - select
   escalation_requested: false
 ```
 
