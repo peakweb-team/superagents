@@ -41,6 +41,8 @@ The generated-skill output, naming, and precedence contract now lives in [`docs/
 
 The external capability vocabulary that fragments and generated skills should rely on now lives in [`docs/external-capability-model.md`](../docs/external-capability-model.md).
 
+The repo-local provider and capability binding format now lives in [`docs/project-integration-declaration-format.md`](../docs/project-integration-declaration-format.md).
+
 ## Intended Flow
 
 1. Peakweb Agency Agents is installed into the user's home directory with the base agent roster and reusable skill fragments.

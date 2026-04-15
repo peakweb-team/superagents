@@ -10,6 +10,7 @@ It builds on:
 - the fragment metadata contract in [`docs/fragment-schema.md`](./fragment-schema.md)
 - the builder inventory workflow in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
+- the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the roadmap direction toward a workflow operating system instead of a loose prompt library
 
 ## Why This Exists
@@ -164,6 +165,8 @@ The MVP metadata bundle should include:
 
 - `manifest.yaml`
   - top-level summary of the builder run, generated skills, and schema versions
+- `integrations.yaml`
+  - repo-local declaration of which configured integration satisfies each external capability
 - `inventory.yaml`
   - normalized signals, evidence sources, and confidence levels from the inventory phase
 - `decisions.yaml`
@@ -271,6 +274,7 @@ However:
   skills/
     peakweb/
       manifest.yaml
+      integrations.yaml
       inventory.yaml
       decisions.yaml
       fragments.lock.yaml

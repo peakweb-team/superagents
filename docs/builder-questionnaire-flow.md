@@ -11,6 +11,7 @@ It builds on:
 - the builder inventory and confidence model from issue `#14`
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
+- the project integration declaration format from issue `#18`
 
 ## Why This Exists
 
@@ -55,6 +56,8 @@ That means:
 - record uncertainty explicitly
 
 That recorded uncertainty should appear in the builder metadata bundle and review handoff defined in [`docs/generated-skill-layout.md`](./generated-skill-layout.md).
+
+It should also be reflected in provider and capability mapping state inside [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md).
 
 In a Claude-first MVP, the builder should prefer safe defaults when the impact is low, but it should not guess silently on high-impact workflow choices.
 

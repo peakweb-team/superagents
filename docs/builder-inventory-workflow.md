@@ -10,6 +10,7 @@ It builds directly on:
 - the fragment schema from issue `#11`
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
+- the project integration declaration format from issue `#18`
 - the roadmap goal of turning Peakweb into a workflow operating layer instead of a loose prompt library
 
 ## Why This Exists
@@ -107,6 +108,8 @@ Every inferred choice should retain:
 This keeps generated behavior reviewable and gives the questionnaire phase a clean starting point.
 
 The recorded evidence should ultimately feed the metadata bundle defined in [`docs/generated-skill-layout.md`](./generated-skill-layout.md), especially `inventory.yaml`, `decisions.yaml`, and `review.md`.
+
+That same evidence should also feed the provider and capability bindings recorded in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md).
 
 ### 5. Ask Only The Necessary Follow-Up Questions
 
