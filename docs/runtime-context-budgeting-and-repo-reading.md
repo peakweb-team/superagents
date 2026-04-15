@@ -440,16 +440,10 @@ Ledger flow in collaborative tiers:
 After escalation, update both `budget_range` and `escalation_count` before adding new files.
 This ledger complements `context_scope.read` from the handoff contract: `context_scope.read` captures what was read, while the ledger captures selection boundaries, deep-read subset, and escalation history.
 
-## Progressive-Context Escalation Triggers
+## Progressive-Context Escalation Reporting
 
-Escalate from `narrow` to `medium` or `wide` only when at least one trigger is true:
-
-- unresolved ambiguity blocks safe implementation
-- validation evidence conflicts with current assumptions
-- ownership boundaries reveal hidden cross-domain dependency
-- reviewer/validator finds a correctness risk requiring broader synthesis
-
-Generated review metadata should summarize these escalations in human-readable form.
+Use the canonical trigger and escalation-discipline rules in [Wider Context Escalation (`narrow` -> `medium` -> `wide`)](#wider-context-escalation-narrow---medium---wide).
+Generated review metadata should summarize each escalation in human-readable form, including trigger evidence and resulting scope changes.
 
 ## Good Patterns
 
