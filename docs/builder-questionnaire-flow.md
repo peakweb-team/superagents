@@ -289,6 +289,19 @@ Avoid:
 
 Builder output should preserve both the question and the resulting decision state.
 
+Canonical ID rule:
+
+- `questions[].id` should use kebab-case.
+- `decisions` keys should use snake_case.
+- The normalization rule is: lowercase the question id and convert hyphens to underscores.
+- Implementations and parsers should apply that mapping consistently when relating question records to decision records.
+
+Examples:
+
+- `work-intake-mode` -> `work_intake_mode`
+- `review-path` -> `review_path`
+- `primary-task-tracker` -> `primary_task_tracker`
+
 Recommended conceptual shape:
 
 ```yaml
