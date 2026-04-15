@@ -65,8 +65,8 @@ No repository should be forced to use an external task tracker as a precondition
 
 | Fragment id | Provider | Fragment type | Layer | Canonical capabilities | Primary role |
 | --- | --- | --- | --- | --- | --- |
-| `project-management/github-issues-task-tracker` | GitHub Issues | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.update` | Resolve issue references, read issue context, and post durable status updates in GitHub Issues. |
-| `project-management/jira-task-tracker` | Jira | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.update` | Resolve Jira keys/URLs, read Jira ticket context, and post durable status updates in Jira. |
+| `project-management/github-issues` | GitHub Issues | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.update` | Resolve issue references, read issue context, and post durable status updates in GitHub Issues. |
+| `project-management/jira` | Jira | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.update` | Resolve Jira keys/URLs, read Jira ticket context, and post durable status updates in Jira. |
 
 Both fragments should use `composition.exclusive_within: primary-task-tracker` so assembly chooses at most one tracker-of-record path.
 
@@ -153,7 +153,9 @@ capability_bindings:
     support: partial
     decision_state: confirmed
     fallback_mode: manual
-    notes: Ticket writeback is manual in this project due to workflow permissions.
+    manual_steps:
+      - Post milestone progress and completion status in Jira manually.
+      - Add PR and validation links to the Jira ticket before closing.
 ```
 
 ## Builder Selection And Questionnaire Alignment
