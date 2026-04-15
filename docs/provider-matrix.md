@@ -56,6 +56,12 @@ The provider matrix focuses on external-provider capabilities:
 
 `delivery-status.read` and `validation-signal.read` are often sourced from code-host checks + CI/deploy systems, so this matrix calls out contribution level rather than pretending a review tool is the single source of truth.
 
+Contribution scoring:
+
+- `full`: capability coverage is reliable and directly actionable in normal workflows.
+- `partial`: useful signals exist, but external systems or manual reconciliation are commonly still required.
+- `unavailable`: no meaningful or dependable capability signal is expected from that review system alone.
+
 | Review system | review-feedback.read | review-feedback.respond | code-host.pr.status-read contribution | delivery-status.read contribution | validation-signal.read contribution | Notes on asymmetry |
 | --- | --- | --- | --- | --- | --- | --- |
 | Native review (host-only) | full | full | full | partial | partial | Most reliable baseline; delivery/validation depth depends on connected CI/deploy tooling. |
