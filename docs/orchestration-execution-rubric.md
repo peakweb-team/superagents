@@ -12,6 +12,7 @@ It builds on:
 - the builder inventory and confidence model in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the generated-skill layout contract in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
+- the role and handoff contract in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md)
 - the Claude-first MVP constraints and implementation reality in [`docs/claude-first-mvp-strategy.md`](./claude-first-mvp-strategy.md)
 
 ## Why This Exists
@@ -135,6 +136,7 @@ This rubric is the canonical sizing source for:
 - orchestration fragment behavior (`orchestration/team-sizing`)
 - builder decisions about execution defaults
 - generated review metadata that explains why a tier was chosen
+- role and handoff behavior that follows the selected tier (see [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md))
 
 Related contracts should reference this document rather than redefining tier boundaries independently.
 

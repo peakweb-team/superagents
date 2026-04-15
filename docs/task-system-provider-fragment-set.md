@@ -54,6 +54,8 @@ External task updates should include milestone-level progress, handoff outcomes,
 
 Internal planning details, agent handoffs, subtask chatter, and execution coordination should stay in the local runtime and generated workflow instructions.
 
+Role ownership and handoff payload expectations for that local coordination are defined in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md).
+
 ### Task-System Fragments Are Optional Companions To Direct-Brief Intake
 
 Task-system fragments are additive.

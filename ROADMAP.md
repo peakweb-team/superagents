@@ -138,7 +138,7 @@ Goals:
 
 - define canonical `solo`, `sub-agent`, and `agent-team` heuristics (see [`docs/orchestration-execution-rubric.md`](./docs/orchestration-execution-rubric.md))
 - map task characteristics to likely agent roles and specialist needs
-- define handoff expectations between implementers, reviewers, and validators
+- define handoff expectations between implementers, reviewers, and validators (see [`docs/orchestration-role-handoff-contract.md`](./docs/orchestration-role-handoff-contract.md))
 - keep team formation proportionate to task scope and risk
 
 Non-goals:
