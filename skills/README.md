@@ -35,11 +35,13 @@ That document defines which repo signals the builder should look for, how it sho
 
 The questionnaire and unresolved-decision contract now lives in [`docs/builder-questionnaire-flow.md`](../docs/builder-questionnaire-flow.md).
 
+The generated-skill output, naming, and precedence contract now lives in [`docs/generated-skill-layout.md`](../docs/generated-skill-layout.md).
+
 ## Intended Flow
 
 1. Peakweb Agency Agents is installed into the user's home directory with the base agent roster and reusable skill fragments.
 2. The user runs the `skill-builder` skill inside a target project.
 3. The builder inspects the repo, confirms any missing details through a short questionnaire, and selects the relevant fragments.
-4. The builder assembles one or more project-local skills under a versioned project directory such as `.agency/skills/`.
+4. The builder assembles one primary skill and any needed companion skills under `.claude/skills/peakweb/`, then writes reviewable builder metadata under `.agency/skills/peakweb/`.
 
 This is scaffolding for the first iteration, not the final packaging or install behavior.

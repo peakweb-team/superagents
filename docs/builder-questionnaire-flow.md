@@ -9,6 +9,7 @@ It builds on:
 - the Claude-first MVP stance from issue `#29`
 - the fragment schema from issue `#11`
 - the builder inventory and confidence model from issue `#14`
+- the generated-skill layout contract from issue `#12`
 
 ## Why This Exists
 
@@ -50,6 +51,8 @@ That means:
 - infer second
 - ask third
 - record uncertainty explicitly
+
+That recorded uncertainty should appear in the builder metadata bundle and review handoff defined in [`docs/generated-skill-layout.md`](./generated-skill-layout.md).
 
 In a Claude-first MVP, the builder should prefer safe defaults when the impact is low, but it should not guess silently on high-impact workflow choices.
 
@@ -93,6 +96,8 @@ An assumed decision must always include:
 - the supporting evidence
 - the reason it was not escalated to a question
 
+Assumed decisions must also be written into the generated review artifacts so a reviewer can see why the builder proceeded.
+
 ### `unresolved`
 
 Use `unresolved` when:
@@ -107,6 +112,8 @@ Examples:
 - review automation is referenced, but it is unclear whether it is required or legacy
 
 An unresolved decision should usually create a follow-up question.
+
+If the builder still ends with an unresolved decision after the questionnaire phase, it should surface that clearly in `decisions.yaml` and `review.md` rather than burying it inside the generated skill text.
 
 ### `not-applicable`
 

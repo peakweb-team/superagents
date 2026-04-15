@@ -58,9 +58,11 @@ Choose the smallest useful set of fragments from `skills/fragments/`. For each s
 - what evidence supported it
 - any assumptions or unresolved risks
 
+Follow the generated output contract in `docs/generated-skill-layout.md` for naming, folder layout, precedence, and required review artifacts.
+
 ### Phase 4: Skill Assembly
 
-Generate one or more project-local skills under `.agency/skills/`. Favor:
+Generate one primary skill and any needed companion skills under `.claude/skills/peakweb/`, and write builder metadata under `.agency/skills/peakweb/`. Favor:
 
 - one primary orchestration skill for task execution
 - small companion skills only when they reduce complexity
@@ -72,6 +74,8 @@ Each generated skill must:
 - define team-sizing heuristics
 - define context/model usage expectations
 - prefer repo-local conventions over user-level defaults
+
+The builder metadata bundle must include the inventory record, decision record, fragment lock information, and a human-readable review summary.
 
 ### Phase 5: Handoff
 
@@ -90,3 +94,4 @@ Provide:
 - Do not invent integrations that were not detected or confirmed.
 - Keep the generated output editable by humans.
 - Treat project-local skills as the authoritative override layer for that repository.
+- Keep generated skill names in the `peakweb-` namespace so repo-local overrides stay explicit and predictable.
