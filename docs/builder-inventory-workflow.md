@@ -8,6 +8,7 @@ It builds directly on:
 
 - the Claude-first MVP stance from issue `#29`
 - the fragment schema from issue `#11`
+- the fragment assembly contract from issue `#16`
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
 - the project integration declaration format from issue `#18`
@@ -39,7 +40,7 @@ This document defines the MVP answer.
 - implementing the full builder runtime
 - detecting every possible tool or provider in v1
 - replacing human confirmation when the evidence is genuinely ambiguous
-- encoding full fragment assembly rules here
+- encoding the fragment assembly engine here
 
 ## MVP Workflow
 
@@ -110,6 +111,8 @@ Every inferred choice should retain:
 This keeps generated behavior reviewable and gives the questionnaire phase a clean starting point.
 
 The recorded evidence should ultimately feed the metadata bundle defined in [`docs/generated-skill-layout.md`](./generated-skill-layout.md), especially `inventory.yaml`, `decisions.yaml`, and `review.md`.
+
+That recorded evidence is also the input to the assembly phase defined in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md).
 
 That same evidence should also feed the provider and capability bindings recorded in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md).
 

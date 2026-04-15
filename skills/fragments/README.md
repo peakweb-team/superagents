@@ -7,6 +7,7 @@ This directory contains the reusable fragment source material that the Peakweb b
 Fragments now follow a canonical metadata contract documented here:
 
 - [docs/fragment-schema.md](../../docs/fragment-schema.md)
+- [docs/fragment-assembly-rules.md](../../docs/fragment-assembly-rules.md)
 - [docs/external-capability-model.md](../../docs/external-capability-model.md)
 
 In v1, each fragment is:
@@ -39,6 +40,8 @@ That means fragment metadata should help the builder answer:
 - what it conflicts with
 - what it commonly pairs with
 - where it belongs in assembled output
+
+The concrete rules for exclusivity buckets, conflict handling, and emitted behavior blocks are defined in `docs/fragment-assembly-rules.md`.
 
 Capability names should use the canonical vocabulary from `docs/external-capability-model.md` so provider fragments stay comparable and direct-brief workflows remain first-class.
 

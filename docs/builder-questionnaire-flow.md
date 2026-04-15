@@ -9,6 +9,7 @@ It builds on:
 - the Claude-first MVP stance from issue `#29`
 - the fragment schema from issue `#11`
 - the builder inventory and confidence model from issue `#14`
+- the fragment assembly contract from issue `#16`
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
 - the project integration declaration format from issue `#18`
@@ -44,7 +45,7 @@ This document defines the MVP answer so the builder can stay minimal, explicit, 
 - creating a long setup interview
 - asking the user about facts already visible in the repo
 - replacing repository inspection with questionnaires
-- defining the full fragment assembly engine
+- redefining the fragment assembly engine
 
 ## Core Principle
 
@@ -127,6 +128,8 @@ Examples:
 An unresolved decision should usually create a follow-up question.
 
 If the builder still ends with an unresolved decision after the questionnaire phase, it should surface that clearly in `decisions.yaml` and `review.md` rather than burying it inside the generated skill text.
+
+Those unresolved decisions should also block exclusive-fragment resolution when the assembly rules in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md) would otherwise force a misleading winner.
 
 ### `not-applicable`
 
@@ -460,6 +463,8 @@ Together, `#14` and `#15` form the MVP builder decision loop:
 3. assign confidence to candidate decisions
 4. ask only the necessary questions
 5. record confirmed, assumed, and unresolved outcomes explicitly
+
+Issue `#16` then consumes those recorded outcomes to assemble a coherent fragment set and emitted behavior blocks.
 
 ## Practical Guidance For MVP
 
