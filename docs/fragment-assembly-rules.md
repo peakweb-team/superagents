@@ -542,6 +542,8 @@ Final emitted block order:
 
 The meaning of `context-budgeting` should follow the canonical runtime contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md) rather than ad hoc file-reading guidance.
 
+The meaning of `model-routing-rules` should also follow that runtime contract, including provider-neutral tier semantics, escalation triggers, and bounded subtask-splitting rules.
+
 Outcome:
 
 - the generated workflow starts from a brief
