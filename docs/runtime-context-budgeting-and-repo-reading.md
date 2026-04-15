@@ -52,6 +52,43 @@ Default sequence:
 4. execute
 5. verify
 
+Each stage should produce one explicit output before moving to the next:
+
+- `discover`: bounded map of relevant directories/packages and likely entry points
+- `select`: candidate-file list with priorities and exclusions
+- `deepen`: focused notes from full reads of selected files and immediate dependencies
+- `execute`: implementation or doc edits limited to current scope
+- `verify`: evidence summary (tests/checks/manual review) plus pass/block status
+
+Generated skills should treat stage outputs as local checkpoints.
+If a stage output is missing, execution should not silently skip to later stages.
+
+#### Stage Output Recording
+
+Stage outputs should be recorded in a lightweight structured format so checkpoint validation is explicit.
+
+Recommended stage output shapes:
+
+- `discover`
+  - bounded map keyed by directory/package, with likely entry points and short provenance notes
+- `select`
+  - prioritized candidate-file list with include/exclude rationale
+- `deepen`
+  - per-file focused notes, dependency links, and read status
+- `execute`
+  - scoped change payload describing touched files and intended acceptance criteria
+- `verify`
+  - evidence bundle with checks performed plus pass/block outcome
+
+Recommended storage locations:
+
+- local execution logs
+- handoff payloads (required for non-trivial `sub-agent` and `agent-team` transitions)
+- builder metadata artifacts when available
+
+Before advancing stages, one validator (lead, owner-of-record, or equivalent runtime check) should confirm the current stage output is complete enough for the next stage.
+If stage output is missing or incomplete, halt progression and request clarification or escalate explicitly.
+
 ### Smallest Useful Read Wins
 
 Agents should read the minimum material required to make the next correct decision.
@@ -74,6 +111,24 @@ Examples of acceptable constraints:
 - number of directories scanned before escalating to broader discovery
 - maximum re-read loops before requesting clarification
 
+## Deterministic Progressive-Loading Rules
+
+Generated skills should enforce the following default runtime algorithm:
+
+1. run one discovery pass before any deep file reads
+2. derive a bounded candidate-file set from discovery evidence
+3. deep-read only candidate files and immediate dependencies
+4. execute one scoped implementation pass
+5. verify against explicit acceptance criteria
+6. escalate context only when escalation triggers are met
+
+Deterministic guardrails:
+
+- do not deep-read files outside the candidate set unless escalation is triggered
+- do not add a new package/domain during `execute`; return to `discover` first
+- do not run more than two `select` -> `deepen` loops without either escalating or requesting clarification
+- do not mark `verify` complete when unresolved ambiguity still affects correctness claims
+
 ## Context Budget Levels
 
 Generated skills should use these qualitative budget levels:
@@ -90,6 +145,33 @@ Budget selection should align with the orchestration tier:
 - `solo`: start `narrow`, escalate to `medium` only with explicit trigger
 - `sub-agent`: lead may use `medium`; specialists should usually start `narrow`
 - `agent-team`: allow `medium` to `wide`, but require explicit ownership boundaries and scoped handoff payloads
+
+## Candidate-File Discovery Budgets
+
+Candidate-file budgets keep selective reading bounded and reviewable while staying provider-neutral.
+In this contract, an execution `slice` means one owner-of-record work portion:
+
+- `solo`: one aggregate slice for the task
+- `sub-agent`: one slice per specialist
+- `agent-team`: one slice per owner-of-record role
+
+Default discovery budgets:
+
+- `solo` + `narrow`: start with 3-8 candidate files
+- `solo` + `medium`: start with 8-15 candidate files
+- `sub-agent` lead: 8-20 candidate files across shared context
+- `sub-agent` specialist: 3-10 candidate files per specialist slice
+- `agent-team` owner-of-record role: 5-15 candidate files per role slice
+
+Escalation rule:
+
+- if evidence remains insufficient after the current budget is exhausted, escalate one budget level and record:
+  - trigger condition
+  - newly added directories/packages
+  - revised candidate-file ceiling
+
+These ranges are guidance ceilings for first-pass selection, not mandatory deep-read targets.
+Reading fewer files is preferred when confidence is already sufficient.
 
 ## Model-Tier Vocabulary
 
@@ -198,6 +280,18 @@ Selection priorities:
 
 Avoid deep-reading unrelated sibling packages during this phase.
 
+Candidate-selection stop rule:
+
+- stop adding files once the current budget range is met unless a defined escalation trigger is already present
+- record intentionally skipped siblings so later reviewers can verify boundary decisions
+
+Example escalation-trigger exception:
+
+- validation uncovers cross-package coupling after the budget limit is reached
+- continue adding only files needed for the coupled package
+- record skipped siblings and the trigger evidence
+- formally escalate and re-run `discover` and `select`
+
 ### Deep-Reading Phase
 
 Perform full-content reads only for files in the current candidate set and immediate dependencies.
@@ -209,6 +303,11 @@ Escalate to broader reading only when one of the following occurs:
 - risk signals indicate high blast radius
 
 When escalating, record what triggered broader reading and which new areas were added.
+
+Re-read limits:
+
+- do not deep-read the same file more than twice per execution cycle (one complete `discover` -> `select` -> `deepen` -> `execute` -> `verify` cycle) unless new evidence changed assumptions
+- if repeated re-reads are required, escalate and document what new dependency or ambiguity was introduced
 
 ## Escalation Triggers
 
@@ -233,6 +332,21 @@ Escalate collaboration tier when at least one trigger is true and lower tiers ar
 - integration churn shows that bounded hub-and-spoke delegation is no longer stabilizing outcomes
 
 If `sub-agent` remains viable with explicit bounded handoffs, do not escalate to `agent-team`.
+
+### Wider Context Escalation (`narrow` -> `medium` -> `wide`)
+
+Escalate context budget level only when at least one trigger is true:
+
+- two focused `select` -> `deepen` passes failed to resolve implementation ambiguity
+- verification failed due to missing cross-package or cross-domain evidence
+- reviewer/validator identified a potential correctness issue outside the current scope boundary
+- handoff payloads repeatedly request context outside assigned ownership boundaries
+
+Escalation discipline:
+
+- escalate one level at a time
+- re-run `discover` and `select` after each escalation before further deep reads
+- if `wide` still fails to resolve correctness-critical ambiguity, request explicit clarification instead of continuing blind
 
 ## Small Task Vs Large Repo Behavior
 
@@ -301,6 +415,30 @@ Generated skills should include these explicit runtime rules:
 4. For code, read call sites and tests nearest to the change before reading transitive dependencies.
 5. Stop broad discovery once enough evidence exists to pick a bounded execution slice.
 6. Re-open previously read files only when new evidence invalidates earlier assumptions.
+7. Keep one candidate-file ledger per execution slice to avoid duplicate broad discovery across specialists.
+
+### Candidate-File Ledger Format
+
+Each execution slice ledger should track:
+
+- `files_in_candidate_set`
+  - all files currently selected for the slice
+- `files_deeply_read`
+  - subset that received full-content reads
+- `budget_range`
+  - active discovery budget for the slice (for example `3-8`)
+- `escalation_count`
+  - number of context-budget escalations for the slice
+
+Ledger flow in collaborative tiers:
+
+- lead shares initial ledger state in delegation handoff payloads
+- specialists update slice ledgers during execution
+- specialists return updated ledgers in completion handoffs
+- lead merges ledgers for integration and review reporting
+
+After escalation, update both `budget_range` and `escalation_count` before adding new files.
+This ledger complements `context_scope.read` from the handoff contract: `context_scope.read` captures what was read, while the ledger captures selection boundaries, deep-read subset, and escalation history.
 
 ## Progressive-Context Escalation Triggers
 
@@ -318,7 +456,7 @@ Generated review metadata should summarize these escalations in human-readable f
 ### Good Pattern: Bounded Discovery Before Editing
 
 - list repo structure and search for target symbols
-- select 3-8 candidate files
+- select a bounded candidate set for the current budget level
 - deep-read only selected files
 - implement, verify, and stop
 
@@ -380,6 +518,16 @@ Why this is bad:
 
 - multiplies context cost with little quality gain
 - undermines lead ownership and structured handoffs
+
+### Anti-Pattern: Unbounded Candidate Creep
+
+- candidate-file set keeps growing during execution without explicit escalation
+
+Why this is bad:
+
+- hides scope drift
+- defeats selective-reading guarantees
+- makes evidence and review metadata hard to trust
 
 ### Anti-Pattern: Correctness-Critical Team Pinning
 
