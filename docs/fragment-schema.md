@@ -11,6 +11,7 @@ It is intentionally shaped by:
 - the workflow-discipline lessons from issue `#31`
 - the product direction in [`ROADMAP.md`](../ROADMAP.md)
 - the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
+- the runtime context-budgeting and repo-reading contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md)
 - the assembly contract in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md)
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the first-wave code-host/review provider fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)

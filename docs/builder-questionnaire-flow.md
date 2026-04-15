@@ -14,6 +14,7 @@ It builds on:
 - the external capability model from issue `#13`
 - the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - the role and handoff contract in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md)
+- the runtime context-budgeting and repo-reading contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md)
 - the project integration declaration format from issue `#18`
 - the capability fallback contract from issue `#19`
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
@@ -206,6 +207,8 @@ Examples:
 Question goal:
 
 - capture constraints that materially change runtime/model-routing guidance
+
+These answers should shape runtime behavior using the canonical context-budgeting and repo-reading contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md).
 
 Ask when:
 

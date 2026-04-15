@@ -8,6 +8,7 @@ It builds on:
 
 - the roadmap orchestration direction in [`ROADMAP.md`](../ROADMAP.md)
 - the tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
+- the runtime context-budgeting and repo-reading contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md)
 - task-system external update boundaries in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - code-host/review external update boundaries in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 - builder output and review metadata expectations in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
@@ -126,6 +127,7 @@ Every handoff should include:
 - `requested_action`: expected receiver action (`implement`, `review`, `validate`, `integrate`, or `decide`)
 - `acceptance_criteria`: concrete completion bar for this handoff
 - `status`: `proposed`, `accepted`, `needs-clarification`, `blocked`, or `complete`
+- `context_scope`: optional but recommended summary of what was read, what was intentionally not read, and whether broader context escalation is requested
 
 Suggested minimal shape:
 
@@ -154,6 +156,13 @@ requested_action: integrate
 acceptance_criteria:
   - "Lead confirms fallback behavior alignment."
 status: proposed
+context_scope:
+  read:
+    - apps/api/src/issues/normalize.ts
+    - apps/api/test/issues/normalize.test.ts
+  intentionally_not_read:
+    - apps/web/**
+  escalation_requested: false
 ```
 
 ### Ownership Transfer Rules

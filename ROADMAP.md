@@ -151,6 +151,10 @@ Non-goals:
 
 Add shared rules for context use, task scoping, and model selection across generated skills.
 
+Canonical contract:
+
+- [`docs/runtime-context-budgeting-and-repo-reading.md`](./docs/runtime-context-budgeting-and-repo-reading.md)
+
 Goals:
 
 - define efficient file-reading and context-loading behavior
