@@ -13,6 +13,7 @@ It builds on:
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
 - the role and handoff contract in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md)
+- the runtime context-budgeting and repo-reading contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md)
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the release versioning and upgrade contract in [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md)
@@ -253,6 +254,7 @@ Every builder run should produce a `review.md` file that highlights:
 - any warnings introduced by degraded or fallback-aware assembly
 - the chosen orchestration tier (`solo`, `sub-agent`, or `agent-team`) and why that sizing was selected
 - any handoff contract exceptions, blocked handoffs, or unresolved role-ownership questions that require manual follow-up
+- any context-budget escalations (for example `narrow` -> `medium` or `wide`) and the trigger for each escalation
 
 This review file should make doc-only PR review practical.
 

@@ -13,6 +13,7 @@ It builds on:
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the generated-skill layout contract in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
 - the role and handoff contract in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md)
+- the runtime context-budgeting and repo-reading contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md)
 - the Claude-first MVP constraints and implementation reality in [`docs/claude-first-mvp-strategy.md`](./claude-first-mvp-strategy.md)
 
 ## Why This Exists
@@ -149,6 +150,7 @@ Generated skills should:
 - treat `sub-agent` as the default middle tier for bounded parallel work
 - require explicit rationale before `agent-team` selection
 - preserve the model-assignment caveat for `agent-team`
+- apply context budgets progressively using the runtime contract instead of front-loading full-repo reads
 
 Generated skills should not:
 

@@ -12,6 +12,7 @@ It builds directly on:
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
 - the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
+- the runtime context-budgeting and repo-reading contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md)
 - the project integration declaration format from issue `#18`
 - the capability fallback contract from issue `#19`
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
@@ -283,6 +284,8 @@ Typical evidence sources:
 ### Team And Runtime Signals
 
 These matter for adaptive specialist-team selection and efficient execution rules.
+
+Runtime signals should feed context-budget defaults using the canonical rules in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md).
 
 Common signals:
 
