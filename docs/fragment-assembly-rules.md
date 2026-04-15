@@ -296,6 +296,12 @@ In MVP, a behavior block is:
 - backed by one or more selected fragments
 - traceable in metadata
 
+`composition.emits` is the canonical metadata path for this field.
+
+Builders and docs should not introduce a parallel `fragment.emits` key in v1.
+
+If an implementation encounters legacy data that exposes `fragment.emits`, it should map that value to `composition.emits`, prefer `composition.emits` when both are present, and record the normalization in review metadata.
+
 Behavior blocks should be recorded in `fragments.lock.yaml` with:
 
 - the block name
@@ -380,37 +386,83 @@ Recommended conceptual shape:
 ```yaml
 selected_fragments:
   - id: task-intake/direct-brief
+    version: 1.0.0
+    source:
+      type: repo-path
+      path: skills/fragments/task-intake/direct-brief.md
+      ref: main@abc1234
     order: 10
   - id: orchestration/team-sizing
+    version: 1.0.0
+    source:
+      type: repo-path
+      path: skills/fragments/orchestration/team-sizing.md
+      ref: main@abc1234
     order: 40
   - id: delivery/pull-request-review
+    version: 1.0.0
+    source:
+      type: repo-path
+      path: skills/fragments/delivery/pull-request-review.md
+      ref: main@abc1234
     order: 60
   - id: runtime/context-and-model-routing
+    version: 1.0.0
+    source:
+      type: repo-path
+      path: skills/fragments/runtime/context-and-model-routing.md
+      ref: main@abc1234
     order: 80
 
 suppressed_fragments:
   - id: project-management/github-issues
+    version: 1.0.0
+    source:
+      type: repo-path
+      path: skills/fragments/project-management/github-issues.md
+      ref: main@abc1234
     reason: suppressed_by_exclusivity
     bucket: primary-task-tracker
 
 exclusive_buckets:
   primary-task-tracker:
     winner: project-management/jira
+    winner_version: 1.0.0
+    winner_source:
+      type: repo-path
+      path: skills/fragments/project-management/jira.md
+      ref: main@abc1234
     suppressed:
       - project-management/github-issues
     basis: confirmed decision primary_task_tracker=jira
 
 behavior_blocks:
   - name: task-intake
+    source_fragments:
+      - id: task-intake/direct-brief
+        version: 1.0.0
+        ref: main@abc1234
     contributors:
       - task-intake/direct-brief
   - name: review-loop
+    source_fragments:
+      - id: delivery/pull-request-review
+        version: 1.0.0
+        ref: main@abc1234
     contributors:
       - delivery/pull-request-review
   - name: team-sizing-rules
+    source_fragments:
+      - id: orchestration/team-sizing
+        version: 1.0.0
+        ref: main@abc1234
     contributors:
       - orchestration/team-sizing
   - name: context-budgeting
+    source_fragments:
+      - id: runtime/context-and-model-routing
+        version: 1.0.0
+        ref: main@abc1234
     contributors:
       - runtime/context-and-model-routing
 ```
