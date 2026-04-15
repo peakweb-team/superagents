@@ -20,11 +20,18 @@ to:
 
 That means the system should understand:
 
-- what task system the team uses
+- what task system the team uses, if any
+- what work is available across the current ticket or brief portfolio
+- how task dependencies and readiness affect execution order
 - where code review happens
 - how PRs are raised and reviewed
 - how many agents a task really needs
 - how context and models should be used efficiently
+- how validation evidence is gathered, stored, and linked back to human workflow systems
+
+## Direct-Brief Bootstrap
+
+Direct-brief bootstrap is a delivery flow that starts from a human brief without a formal ticket system, then progressively structures execution, review, and validation artifacts as the work becomes more concrete.
 
 ## Core Contract
 
@@ -108,6 +115,7 @@ Provide a strong starting point for the most common software-delivery platforms 
 Goals:
 
 - support major task systems such as GitHub Issues, Jira, Linear, Azure Boards, and GitLab Issues
+- support [direct-brief bootstrap](#direct-brief-bootstrap) flows for greenfield or light-process projects alongside task-system-backed delivery
 - support major code-hosting and PR systems such as GitHub, GitLab, and Bitbucket
 - support common review patterns such as native review, CodeRabbit, and layered review automation
 - make provider selection part of builder output rather than hardcoded defaults
@@ -177,7 +185,7 @@ Goals:
 
 - document the product boundary clearly, especially around integrations
 - provide example generated skills for representative stacks and workflows
-- provide examples for GitHub-heavy, Jira-heavy, and mixed-tool environments
+- provide examples for GitHub-heavy, Jira-heavy, mixed-tool, and [direct-brief bootstrap](#direct-brief-bootstrap) environments
 - make it easy for users to understand why Peakweb differs from the upstream project
 
 Non-goals:
@@ -186,12 +194,51 @@ Non-goals:
 - documenting only Peakweb's internal setup
 - assuming users will infer the builder workflow from fragments alone
 
+### Epic 9: Portfolio Execution And Dependency-Aware Orchestration
+
+Move beyond single-task execution so Peakweb can reason over a queue of available work, respect dependencies, and drive progress across multiple tickets or briefs.
+
+Goals:
+
+- define a higher-level orchestration model that can inspect available work across a project or delivery scope
+- define dependency-aware planning and execution-order rules
+- define how portfolio-level orchestration invokes lower-level task executors such as `/agent-task` or `/agent-issue`
+- define human-authorization boundaries for automating PR progression, review gates, and task completion steps
+- support both task-system-backed portfolios and direct-brief work queues where appropriate
+
+Non-goals:
+
+- removing humans from prioritization or authorization-sensitive decisions
+- assuming every team wants fully autonomous backlog execution
+- collapsing portfolio planning and task execution into one opaque workflow
+
+### Epic 10: Autonomous Validation, Preview Environments, And Evidence
+
+Add stronger validation loops that can run against deploy previews, gather proof artifacts, and attach durable evidence to the human workflow even when the task system has poor native media support.
+
+Goals:
+
+- define how generated workflows leverage preview environments such as Vercel for validation
+- define deterministic test execution patterns such as unit, integration, E2E, and Playwright-based flows
+- define probabilistic or agentic testing patterns that use browser MCP or similar tooling
+- define how screenshots and other proof artifacts are stored in a durable external location and linked back into issues, tickets, or PRs
+- define how validation evidence influences PR readiness, review, and task completion behavior
+- define a minimum evidence set for reviewable completion, such as screenshots or recordings for UI changes, deterministic test or CI artifacts, and concise execution logs or summaries for agentic validation paths
+- define retention expectations for stored evidence, such as a default 90-day retention window or an equivalent project-configured object-store policy
+- define traceability requirements so evidence artifacts carry stable ids and links back to the related PR, issue, ticket, or brief
+- define how evidence completeness and quality map to reviewer checklists, PR readiness, and task-completion gates
+
+Non-goals:
+
+- hardcoding one hosting provider or evidence store as the only supported path
+- replacing deterministic testing with screenshot-based review alone
+- assuming every repository is ready for fully autonomous validation from day one
+
 ## Recommended Sequencing
 
 ### Phase 1
 
 - Issue `#29` should be treated as a front-of-queue decision gate for MVP platform stance.
-- Issue `#31` should be treated as a workflow-pattern reference review for fragment design and builder behavior.
 - Epic 1: Skill Builder Foundation
 - Epic 2: Fragment And Assembly Architecture
 - Epic 3: External Integration Contract
@@ -206,6 +253,11 @@ Non-goals:
 
 - Epic 7: Installation, Packaging, And Adoption
 - Epic 8: Documentation, Examples, And Reference Projects
+
+### Phase 4
+
+- Epic 9: Portfolio Execution And Dependency-Aware Orchestration
+- Epic 10: Autonomous Validation, Preview Environments, And Evidence
 
 ## First Issue Candidates
 
