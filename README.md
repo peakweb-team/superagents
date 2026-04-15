@@ -29,7 +29,7 @@ The core agent library remains valuable because each agent is:
 The original `agency-agents` project is a strong source library. Peakweb Agency Agents is intended to add the missing execution layer.
 
 - **Composable skills, not one giant prompt**: We want project-specific behavior to be assembled from reusable fragments.
-- **Project-aware orchestration**: Skills can adapt to whether a team uses GitHub Issues, Jira, CodeRabbit, or other delivery tooling.
+- **Project-aware orchestration**: Skills can adapt to whether a team uses GitHub Issues, Jira, CodeRabbit, other delivery tooling, or a direct-brief bootstrap flow.
 - **Better team sizing**: Tasks should start with the smallest capable team instead of always behaving like a single agent or a fixed swarm.
 - **PR and reviewer workflows**: Opening PRs, coordinating review, and responding to feedback should be part of the system, not ad hoc operator work.
 - **Context and model efficiency**: Large repos need routing rules for what to read, when to parallelize, and when to spend on stronger models.
@@ -47,7 +47,7 @@ Instead of expecting every team to use the same giant skill, the builder is inte
 
 - inspect a repository for clues about its stack, workflow, and tooling
 - ask a short follow-up questionnaire only when the repo cannot answer something confidently
-- choose the right strategy fragments for that team, such as GitHub Issues, Jira, CodeRabbit, team-sizing rules, and runtime/model routing
+- choose the right strategy fragments for that team, such as GitHub Issues, Jira, direct-brief intake, CodeRabbit, team-sizing rules, and runtime/model routing
 - assemble one or more project-local skills that live with the codebase and can be versioned alongside it
 
 This is the core difference from the original project. Peakweb Agency Agents is not just a bigger roster of personas; it is trying to generate the **right operating layer for each project**.

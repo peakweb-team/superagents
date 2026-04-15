@@ -4,7 +4,7 @@ id: project-management/jira
 title: Jira
 fragment_type: provider
 layer: project-management
-summary: Use Jira as the planning and delivery source of truth while keeping implementation behavior aligned with ticket discipline.
+summary: Use Jira as the tracked-task source of truth when the project manages delivery through Jira.
 provider: jira
 capabilities:
   - task-tracker.read
@@ -38,7 +38,7 @@ composition:
 
 ## Purpose
 
-Use Jira as the planning and delivery source of truth while keeping implementation behavior aligned with ticket discipline.
+Use Jira as the tracked-task source of truth when the project manages delivery through Jira.
 
 ## Include When
 
@@ -48,12 +48,12 @@ Use Jira as the planning and delivery source of truth while keeping implementati
 
 ## Expected Behaviors
 
-- Resolve the active Jira issue before making implementation decisions.
+- Resolve the active Jira issue before making implementation decisions for tracked-task work.
 - Preserve ticket keys in branch and PR metadata.
 - Translate Jira acceptance criteria into an implementation checklist.
 - Report blockers, status changes, and review readiness in Jira-compatible language.
 
 ## Builder Notes
 
-- Prefer this over the GitHub Issues fragment when Jira is the authoritative tracker.
+- Prefer this over the GitHub Issues fragment when Jira is the authoritative tracker for tracked-task intake.
 - If both Jira and GitHub Issues are used, define one as primary and the other as reference-only.

@@ -51,6 +51,7 @@ Inspect the repository and its immediate execution context for durable clues suc
 - docs and contribution guides
 - existing local agent, skill, or workflow files
 - package-manager and workspace manifests
+- user-supplied entry context such as a task reference or direct bootstrap brief
 
 The builder should prefer local evidence over assumptions and prefer durable config over incidental text.
 
@@ -60,6 +61,8 @@ Convert raw findings into a stable signal vocabulary that fragments and later bu
 
 Example normalized signals:
 
+- `input.task_reference`
+- `input.direct_brief`
 - `forge.github`
 - `task_tracker.github_issues`
 - `task_tracker.jira`
@@ -76,7 +79,8 @@ Signals are the bridge between repository inspection and fragment selection.
 
 Use one or more signals to infer builder decisions such as:
 
-- primary task tracker
+- work intake mode
+- primary task tracker, if tracker-backed intake is in scope
 - review loop shape
 - whether team-sizing guidance is needed
 - whether runtime/model-routing guidance is needed
@@ -138,6 +142,24 @@ Recommended signal fields:
 
 The builder should prioritize signal categories that materially affect fragment selection and questionnaire behavior.
 
+### Intake Mode Signals
+
+These determine whether generated skills should expect work to arrive from a tracked task, a direct brief, or both.
+
+Common signals:
+
+- `input.task_reference`
+- `input.direct_brief`
+- `workflow.bootstrap_greenfield_likely`
+- `workflow.task_tracker_optional`
+
+Typical evidence sources:
+
+- explicit CLI or slash-command design such as `/agent-task <ticket-or-prompt>`
+- starter-repo or greenfield language in docs
+- absence of authoritative task-tracker evidence in an otherwise active repo
+- user-provided brief at builder runtime
+
 ### Forge And Code Host Signals
 
 These help identify the primary hosting environment and likely PR workflow.
@@ -159,7 +181,7 @@ Typical evidence sources:
 
 ### Task Tracker Signals
 
-These drive provider-fragment selection for project-management behavior.
+These drive provider-fragment selection when the generated skill should integrate with an external task system.
 
 Common signals:
 
@@ -379,7 +401,8 @@ The builder should ask a follow-up question when all three of the following are 
 
 In practice, the builder should usually ask when deciding:
 
-- the primary task tracker
+- the work intake mode
+- the primary task tracker, if tracked-task intake is enabled
 - the primary PR/review loop
 - whether Jira or GitHub Issues is authoritative
 - whether review automation such as CodeRabbit is actually active
@@ -429,6 +452,14 @@ inventory:
         path: CONTRIBUTING.md
         detail: review mentions automation generally but no CodeRabbit config was found
   decisions:
+    work_intake_mode:
+      value: both
+      confidence: medium
+      supported_by:
+        - forge.github
+        - workflow.pull_requests
+      conflicts_with: []
+      assumption: The repository looks delivery-oriented, but no authoritative tracker was detected, so direct-brief intake remains available.
     primary_task_tracker:
       value: github-issues
       confidence: medium
@@ -446,6 +477,9 @@ inventory:
         - workflow.review_checklist_present
       conflicts_with: []
   unresolved_questions:
+    - id: work-intake-mode
+      prompt: Should the generated skill start from tracked tasks, direct briefs, or both?
+      why: The repository shows delivery workflow signals, but does not make the intake mode explicit.
     - id: task-tracker-authority
       prompt: Is GitHub Issues the primary tracker, or is another system authoritative?
       why: The repository shows GitHub delivery flow, but issue authority is not explicit.
@@ -476,6 +510,7 @@ Below is a sample Markdown-form inventory summary suitable for an MVP builder ha
 ### Inferred Decisions
 
 - Primary forge: GitHub (`high`)
+- Work intake mode: both tracked-task and direct-brief (`medium`)
 - Primary task tracker: GitHub Issues (`medium`)
 - Delivery model: PR-based review (`high`)
 - Team sizing guidance needed: yes (`high`)
@@ -483,11 +518,13 @@ Below is a sample Markdown-form inventory summary suitable for an MVP builder ha
 
 ### Assumptions
 
+- Direct-brief intake remains available because no authoritative tracker policy was found.
 - GitHub Issues is assumed to be the primary tracker until contradicted.
 - No review automation provider is assumed because none was directly detected.
 
 ### Follow-Up Questions
 
+- Confirm whether the generated skill should start from tracked tasks, direct briefs, or both.
 - Confirm whether GitHub Issues is the authoritative tracker or just a mirror for another system.
 ```
 
