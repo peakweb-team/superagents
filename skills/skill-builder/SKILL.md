@@ -36,6 +36,8 @@ Normalize those findings into explicit builder signals and assign confidence to 
 
 Use those findings to infer which capability families are available for this project under `docs/external-capability-model.md`.
 
+Use the resulting decisions to declare repo-local provider and capability bindings under `docs/project-integration-declaration-format.md`.
+
 Summarize what was detected and what is still unknown.
 
 ### Phase 2: Targeted Questionnaire
@@ -83,6 +85,8 @@ Each generated skill must:
 - prefer repo-local conventions over user-level defaults
 
 The builder metadata bundle must include the inventory record, decision record, fragment lock information, and a human-readable review summary.
+
+When integrations are in scope, the metadata bundle must also include `integrations.yaml` so provider mappings are reviewable and versioned with the project.
 
 ### Phase 5: Handoff
 

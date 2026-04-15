@@ -336,7 +336,7 @@ Examples:
 - GitHub Pull Requests may satisfy `code-host.pr.open`, `code-host.pr.update`, `code-host.pr.review-request`, `code-host.pr.status-read`, `review-feedback.read`, and `review-feedback.respond`
 - local prompt input satisfies `task-intake.direct-brief` without any external provider at all
 
-This document defines the capability semantics, not the declaration format for those mappings. The declaration shape belongs to issue `#18`.
+This document defines the capability semantics, not the declaration format for those mappings. The declaration shape now lives in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md).
 
 ## Unsupported-Capability Behavior
 
