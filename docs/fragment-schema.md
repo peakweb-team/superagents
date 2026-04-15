@@ -7,6 +7,7 @@ This document defines the canonical fragment contract for issue `#11`:
 It is intentionally shaped by:
 
 - the Claude-first MVP stance from issue `#29`
+- the external capability model from issue `#13`
 - the workflow-discipline lessons from issue `#31`
 - the product direction in [`ROADMAP.md`](../ROADMAP.md)
 
@@ -132,13 +133,21 @@ Every fragment must define the following fields.
 - Purpose: describe the workflow capability this fragment adds
 - Example values:
   - `task-intake.direct-brief`
+  - `task-intake.assumption-capture`
+  - `task-tracker.lookup`
   - `task-tracker.read`
   - `task-tracker.update`
+  - `code-host.pr.open`
+  - `code-host.pr.review-request`
+  - `review-feedback.read`
+  - `validation-signal.read`
   - `delivery.pr-review`
   - `orchestration.team-sizing`
   - `runtime.context-routing`
 
 This is the main place where Peakweb stays capability-oriented instead of hardcoding vendor logic everywhere.
+
+The canonical capability semantics live in [`docs/external-capability-model.md`](./external-capability-model.md).
 
 ### `selection`
 

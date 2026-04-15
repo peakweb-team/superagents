@@ -34,13 +34,16 @@ Inspect the repository for signals such as:
 
 Normalize those findings into explicit builder signals and assign confidence to the resulting project choices. Follow the contract in `docs/builder-inventory-workflow.md`.
 
+Use those findings to infer which capability families are available for this project under `docs/external-capability-model.md`.
+
 Summarize what was detected and what is still unknown.
 
 ### Phase 2: Targeted Questionnaire
 
 Ask only the unresolved questions that materially affect skill composition. Prioritize:
 
-- Project management system: GitHub Issues, Jira, Linear, or other
+- Work intake mode: direct brief, tracked task, or both
+- Project management system when tracked-task intake is in scope: GitHub Issues, Jira, Linear, or other
 - Review tooling: CodeRabbit, human-only review, custom CI gates
 - Whether tasks should default to solo execution or team orchestration
 - Any budget or model constraints
@@ -49,6 +52,8 @@ Ask only the unresolved questions that materially affect skill composition. Prio
 If the repository already answers a question with high confidence, do not ask it again.
 If a high-impact workflow decision remains below high confidence, ask a focused follow-up question instead of guessing silently.
 Record each resulting decision as confirmed, assumed, unresolved, or not-applicable. Follow `docs/builder-questionnaire-flow.md` for questionnaire priority and unresolved-decision handling.
+
+Be explicit about whether the generated skill should rely on direct-brief intake, tracked-task capabilities, or both.
 
 ### Phase 3: Fragment Selection
 
@@ -59,6 +64,8 @@ Choose the smallest useful set of fragments from `skills/fragments/`. For each s
 - any assumptions or unresolved risks
 
 Follow the generated output contract in `docs/generated-skill-layout.md` for naming, folder layout, precedence, and required review artifacts.
+
+When describing selected fragments, use the canonical capability vocabulary from `docs/external-capability-model.md` instead of provider-specific API language.
 
 ### Phase 4: Skill Assembly
 

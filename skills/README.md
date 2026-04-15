@@ -12,6 +12,8 @@ This directory is the starting point for the Peakweb skills layer.
 
 - `skill-builder/`
   - Interactive builder skill that inventories a repo, asks a targeted questionnaire, and assembles project-specific skills.
+- `fragments/task-intake/`
+  - Work-entry fragments for direct-brief and other intake modes.
 - `fragments/project-management/`
   - Strategy fragments for issue systems such as GitHub Issues and Jira.
 - `fragments/orchestration/`
@@ -36,6 +38,8 @@ That document defines which repo signals the builder should look for, how it sho
 The questionnaire and unresolved-decision contract now lives in [`docs/builder-questionnaire-flow.md`](../docs/builder-questionnaire-flow.md).
 
 The generated-skill output, naming, and precedence contract now lives in [`docs/generated-skill-layout.md`](../docs/generated-skill-layout.md).
+
+The external capability vocabulary that fragments and generated skills should rely on now lives in [`docs/external-capability-model.md`](../docs/external-capability-model.md).
 
 ## Intended Flow
 
