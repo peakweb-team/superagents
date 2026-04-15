@@ -13,6 +13,8 @@ It builds on:
 - code-host/review external update boundaries in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 - builder output and review metadata expectations in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
 
+Model-routing and bounded subtask-splitting heuristics are defined in the runtime contract above; this document focuses on role ownership and handoff behavior once a tier and routing plan are chosen.
+
 ## Why This Exists
 
 Issue `#22` established *when* to use `solo`, `sub-agent`, or `agent-team`.

@@ -4,6 +4,10 @@ This document defines the proposed contract for issue `#22`:
 
 - [#22 Define solo, sub-agent, and agent-team heuristics](https://github.com/peakweb-team/pw-agency-agents/issues/22)
 
+Related runtime routing follow-on:
+
+- [#25 Define model-routing and subtask-splitting heuristics](https://github.com/peakweb-team/pw-agency-agents/issues/25)
+
 It builds on:
 
 - the roadmap orchestration direction in [`ROADMAP.md`](../ROADMAP.md)
@@ -138,6 +142,8 @@ This rubric is the canonical sizing source for:
 - builder decisions about execution defaults
 - generated review metadata that explains why a tier was chosen
 - role and handoff behavior that follows the selected tier (see [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md))
+
+Model-tier routing and bounded subtask-splitting heuristics are canonical in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md). This rubric should define tier selection, while runtime guidance defines how work is routed inside the selected tier.
 
 Related contracts should reference this document rather than redefining tier boundaries independently.
 
