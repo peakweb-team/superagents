@@ -62,6 +62,8 @@ External review/system-of-record updates should include reviewer-visible progres
 
 Internal planning, subtask routing, handoffs between local agents, and execution-level chatter should remain in local runtime coordination.
 
+Role ownership and local handoff payload expectations for that coordination are defined in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md).
+
 ### Native Review Is Baseline Record; Layered Automation Is Additive
 
 Native code-host review remains the baseline review system of record in this first set.

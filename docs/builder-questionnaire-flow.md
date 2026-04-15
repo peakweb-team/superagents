@@ -13,6 +13,7 @@ It builds on:
 - the generated-skill layout contract from issue `#12`
 - the external capability model from issue `#13`
 - the orchestration tiering rubric in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md)
+- the role and handoff contract in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md)
 - the project integration declaration format from issue `#18`
 - the capability fallback contract from issue `#19`
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
@@ -189,6 +190,7 @@ Examples:
 Question goal:
 
 - determine whether the generated skill should default to `solo`, escalate to `sub-agent` for bounded parallel work, or reserve `agent-team` for richer peer coordination cases
+- ensure generated role ownership and handoff behavior follows the canonical local coordination contract
 
 Ask when:
 
