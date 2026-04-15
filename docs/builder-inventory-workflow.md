@@ -13,6 +13,7 @@ It builds directly on:
 - the external capability model from issue `#13`
 - the project integration declaration format from issue `#18`
 - the capability fallback contract from issue `#19`
+- the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the roadmap goal of turning Peakweb into a workflow operating layer instead of a loose prompt library
 
 ## Why This Exists

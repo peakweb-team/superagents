@@ -12,6 +12,7 @@ It builds on:
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
+- the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the Claude-first MVP direction in [`docs/claude-first-mvp-strategy.md`](./claude-first-mvp-strategy.md)
 
 ## Why This Exists

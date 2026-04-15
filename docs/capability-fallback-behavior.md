@@ -10,6 +10,7 @@ It builds on:
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the builder inventory workflow in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
+- the first-wave task-system fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the generated-skill layout contract in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
 
 ## Why This Exists

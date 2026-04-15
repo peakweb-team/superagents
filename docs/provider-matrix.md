@@ -9,6 +9,7 @@ It builds on:
 - the canonical capability model in [`docs/external-capability-model.md`](./external-capability-model.md)
 - fallback behavior in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the project integration declaration contract in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
+- the first-wave task-system fragment contract in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the delivery-platform coverage goals in [`ROADMAP.md`](../ROADMAP.md)
 
 ## Why This Exists
