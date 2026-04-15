@@ -66,6 +66,7 @@ Goals:
 - define the builder workflow from repo inventory through generated output
 - define where generated skills live and how they override user-level skills
 - define how the builder records assumptions, confidence, and unresolved questions
+- define how framework releases and repo-local generated skills participate in a safe upgrade/regeneration flow
 - generate project-local skills that are understandable and versionable
 
 Non-goals:
@@ -73,6 +74,7 @@ Non-goals:
 - building a universal one-size-fits-all skill
 - generating opaque machine-only output
 - auto-configuring external systems
+- treating repo-local generated-skill upgrades as blind file replacement without compatibility review
 
 ### Epic 2: Fragment And Assembly Architecture
 

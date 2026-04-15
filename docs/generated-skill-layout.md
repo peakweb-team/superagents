@@ -13,6 +13,7 @@ It builds on:
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
+- the release versioning and upgrade contract in [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md)
 - the roadmap direction toward a workflow operating system instead of a loose prompt library
 
 ## Why This Exists
@@ -132,10 +133,12 @@ The `skill.json` file should include at minimum:
 - `name`
 - `generated_by`
 - `generated_at`
+- `framework_release`
 - `schema_version`
 - `repository`
 - `role`
 - `selected_fragments`
+- `contract_versions`
 - `source_manifest`
 
 The goal is not to create a heavy runtime format. The goal is to make each generated skill independently understandable and traceable.
@@ -147,6 +150,7 @@ Example `skill.json`:
   "name": "peakweb-workflow",
   "generated_by": "skill-builder",
   "generated_at": "2026-04-15T00:00:00Z",
+  "framework_release": "v1.0.0",
   "schema_version": 1,
   "repository": "github.com/peakweb-team/pw-agency-agents",
   "role": "primary orchestration",
@@ -155,6 +159,11 @@ Example `skill.json`:
     "project-management/github-issues",
     "delivery/pull-request-review"
   ],
+  "contract_versions": {
+    "generated_skill_layout": 1,
+    "fragment_schema": 1,
+    "integration_declaration": 1
+  },
   "source_manifest": ".agency/skills/peakweb/manifest.yaml"
 }
 ```
@@ -166,7 +175,7 @@ Besides the skill content itself, the builder should write a metadata bundle und
 The MVP metadata bundle should include:
 
 - `manifest.yaml`
-  - top-level summary of the builder run, generated skills, and schema versions
+  - top-level summary of the builder run, generated skills, framework release, compatibility status, and schema versions
 - `integrations.yaml`
   - repo-local declaration of which configured integration satisfies each external capability
 - `inventory.yaml`
@@ -179,6 +188,8 @@ The MVP metadata bundle should include:
   - human-readable summary of why the skills were generated this way and what should be reviewed manually
 
 These files make generated output reviewable, diffable, and regenerable.
+
+The release/upgrade rules that interpret this metadata now live in [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md).
 
 The rules that produce this lock file now live in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md).
 
@@ -251,6 +262,8 @@ Regeneration is expected when:
 - the team intentionally wants to revise project-local operating behavior
 
 The builder should aim for deterministic output so regenerations produce clean diffs.
+
+When the generating Peakweb release changes, regeneration review should also surface whether the bundle is merely behind, regeneration-recommended, or regeneration-required under the release upgrade contract.
 
 ### Manual Edit Expectations
 
