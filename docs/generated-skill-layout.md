@@ -257,6 +257,8 @@ Every builder run should produce a `review.md` file that highlights:
 - any context-budget escalations (for example `narrow` -> `medium` or `wide`) and the trigger for each escalation
 - whether execution followed the staged runtime sequence (`discover` -> `select` -> `deepen` -> `execute` -> `verify`) and any stage skips with rationale
 - candidate-file budget ranges used per execution slice and reasons for any widened ranges
+  - for `solo`, report one aggregate slice for the full task (or explicitly note no per-slice breakdown)
+  - for `sub-agent` and `agent-team`, report per specialist/role slice
 - any model-tier escalations (for example `economy` -> `balanced` -> `strong`) and why lower tiers were insufficient
 - any delegation boundary choices that affected overlap risk, context reuse, or decision to stay in `solo` vs escalate
 

@@ -63,6 +63,32 @@ Each stage should produce one explicit output before moving to the next:
 Generated skills should treat stage outputs as local checkpoints.
 If a stage output is missing, execution should not silently skip to later stages.
 
+#### Stage Output Recording
+
+Stage outputs should be recorded in a lightweight structured format so checkpoint validation is explicit.
+
+Recommended stage output shapes:
+
+- `discover`
+  - bounded map keyed by directory/package, with likely entry points and short provenance notes
+- `select`
+  - prioritized candidate-file list with include/exclude rationale
+- `deepen`
+  - per-file focused notes, dependency links, and read status
+- `execute`
+  - scoped change payload describing touched files and intended acceptance criteria
+- `verify`
+  - evidence bundle with checks performed plus pass/block outcome
+
+Recommended storage locations:
+
+- local execution logs
+- handoff payloads (required for non-trivial `sub-agent` and `agent-team` transitions)
+- builder metadata artifacts when available
+
+Before advancing stages, one validator (lead, owner-of-record, or equivalent runtime check) should confirm the current stage output is complete enough for the next stage.
+If stage output is missing or incomplete, halt progression and request clarification or escalate explicitly.
+
 ### Smallest Useful Read Wins
 
 Agents should read the minimum material required to make the next correct decision.
@@ -123,14 +149,19 @@ Budget selection should align with the orchestration tier:
 ## Candidate-File Discovery Budgets
 
 Candidate-file budgets keep selective reading bounded and reviewable while staying provider-neutral.
+In this contract, an execution `slice` means one owner-of-record work portion:
+
+- `solo`: one aggregate slice for the task
+- `sub-agent`: one slice per specialist
+- `agent-team`: one slice per owner-of-record role
 
 Default discovery budgets:
 
 - `solo` + `narrow`: start with 3-8 candidate files
 - `solo` + `medium`: start with 8-15 candidate files
 - `sub-agent` lead: 8-20 candidate files across shared context
-- `sub-agent` specialist slice: 3-10 candidate files per slice
-- `agent-team` role slice: 5-15 candidate files per owner-of-record slice
+- `sub-agent` specialist: 3-10 candidate files per specialist slice
+- `agent-team` owner-of-record role: 5-15 candidate files per role slice
 
 Escalation rule:
 
@@ -254,6 +285,13 @@ Candidate-selection stop rule:
 - stop adding files once the current budget range is met unless a defined escalation trigger is already present
 - record intentionally skipped siblings so later reviewers can verify boundary decisions
 
+Example escalation-trigger exception:
+
+- validation uncovers cross-package coupling after the budget limit is reached
+- continue adding only files needed for the coupled package
+- record skipped siblings and the trigger evidence
+- formally escalate and re-run `discover` and `select`
+
 ### Deep-Reading Phase
 
 Perform full-content reads only for files in the current candidate set and immediate dependencies.
@@ -268,7 +306,7 @@ When escalating, record what triggered broader reading and which new areas were 
 
 Re-read limits:
 
-- do not deep-read the same file more than twice in one execution pass unless new evidence changed assumptions
+- do not deep-read the same file more than twice per execution cycle (one complete `discover` -> `select` -> `deepen` -> `execute` -> `verify` cycle) unless new evidence changed assumptions
 - if repeated re-reads are required, escalate and document what new dependency or ambiguity was introduced
 
 ## Escalation Triggers
@@ -378,6 +416,29 @@ Generated skills should include these explicit runtime rules:
 5. Stop broad discovery once enough evidence exists to pick a bounded execution slice.
 6. Re-open previously read files only when new evidence invalidates earlier assumptions.
 7. Keep one candidate-file ledger per execution slice to avoid duplicate broad discovery across specialists.
+
+### Candidate-File Ledger Format
+
+Each execution slice ledger should track:
+
+- `files_in_candidate_set`
+  - all files currently selected for the slice
+- `files_deeply_read`
+  - subset that received full-content reads
+- `budget_range`
+  - active discovery budget for the slice (for example `3-8`)
+- `escalation_count`
+  - number of context-budget escalations for the slice
+
+Ledger flow in collaborative tiers:
+
+- lead shares initial ledger state in delegation handoff payloads
+- specialists update slice ledgers during execution
+- specialists return updated ledgers in completion handoffs
+- lead merges ledgers for integration and review reporting
+
+After escalation, update both `budget_range` and `escalation_count` before adding new files.
+This ledger complements `context_scope.read` from the handoff contract: `context_scope.read` captures what was read, while the ledger captures selection boundaries, deep-read subset, and escalation history.
 
 ## Progressive-Context Escalation Triggers
 
