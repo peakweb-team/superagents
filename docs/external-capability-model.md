@@ -324,6 +324,8 @@ This mode allows the generated skill to start from either a direct brief or a tr
 
 Provider mapping work should translate a concrete system into one or more of the canonical capabilities above.
 
+The initial provider coverage posture now lives in [`docs/provider-matrix.md`](./provider-matrix.md).
+
 That later mapping should answer:
 
 - which capabilities the provider satisfies
