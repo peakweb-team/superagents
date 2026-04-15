@@ -9,6 +9,7 @@ It builds directly on:
 - the Claude-first MVP stance from issue `#29`
 - the fragment schema from issue `#11`
 - the generated-skill layout contract from issue `#12`
+- the external capability model from issue `#13`
 - the roadmap goal of turning Peakweb into a workflow operating layer instead of a loose prompt library
 
 ## Why This Exists
@@ -29,6 +30,7 @@ This document defines the MVP answer.
 - define a confidence model for inferred choices
 - define the threshold for follow-up questions
 - define what evidence the builder should record in its output
+- make it possible to infer which capability families a generated skill can rely on
 
 ## Non-Goals
 
@@ -75,6 +77,8 @@ Example normalized signals:
 
 Signals are the bridge between repository inspection and fragment selection.
 
+They are also the bridge between repository inspection and later capability-mapping decisions defined in [`docs/external-capability-model.md`](./external-capability-model.md).
+
 ### 3. Infer Project Choices
 
 Use one or more signals to infer builder decisions such as:
@@ -86,6 +90,7 @@ Use one or more signals to infer builder decisions such as:
 - whether runtime/model-routing guidance is needed
 - whether a repo-local generated skill is likely to need multiple companion fragments
 - whether existing repo-local Claude or Peakweb files should be reviewed before regeneration
+- which capability families are likely available, optional, or unsupported for this repository
 
 The builder should infer choices only when the evidence reaches the confidence threshold defined below.
 

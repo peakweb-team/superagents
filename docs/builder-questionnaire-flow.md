@@ -10,6 +10,7 @@ It builds on:
 - the fragment schema from issue `#11`
 - the builder inventory and confidence model from issue `#14`
 - the generated-skill layout contract from issue `#12`
+- the external capability model from issue `#13`
 
 ## Why This Exists
 
@@ -33,6 +34,7 @@ This document defines the MVP answer so the builder can stay minimal, explicit, 
 - define when a question should be skipped
 - define the builder decision states
 - define how unresolved decisions are recorded in output
+- resolve workflow choices that materially change which capability families the generated skill should rely on
 
 ## Non-Goals
 
@@ -77,6 +79,7 @@ Examples:
 - GitHub Issues is selected because direct repo evidence makes it clearly primary
 - the user confirms that direct-brief bootstrap should remain available even without an authoritative tracker
 - the user confirms that CodeRabbit is part of the review loop
+- the user confirms that tracked-task updates are required even though direct briefs remain allowed
 
 ### `assumed`
 
@@ -112,6 +115,7 @@ Examples:
 - both GitHub Issues and Jira appear active, but primary authority is unclear
 - the repository shows no authoritative tracker, but it is unclear whether the generated skill should be direct-brief-first or tracker-optional
 - review automation is referenced, but it is unclear whether it is required or legacy
+- the project clearly needs PR delivery, but it is unclear whether hosted delivery-status signals are required for completion
 
 An unresolved decision should usually create a follow-up question.
 
