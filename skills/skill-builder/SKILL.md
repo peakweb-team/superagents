@@ -38,6 +38,8 @@ Use those findings to infer which capability families are available for this pro
 
 Use the resulting decisions to declare repo-local provider and capability bindings under `docs/project-integration-declaration-format.md`.
 
+Use `docs/capability-fallback-behavior.md` to decide whether degraded capability support should continue, warn, switch to manual mode, or fail.
+
 Summarize what was detected and what is still unknown.
 
 ### Phase 2: Targeted Questionnaire
@@ -87,6 +89,8 @@ Each generated skill must:
 The builder metadata bundle must include the inventory record, decision record, fragment lock information, and a human-readable review summary.
 
 When integrations are in scope, the metadata bundle must also include `integrations.yaml` so provider mappings are reviewable and versioned with the project.
+
+If a capability is degraded or unavailable, the metadata bundle must make the fallback mode and any manual steps visible.
 
 ### Phase 5: Handoff
 

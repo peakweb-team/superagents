@@ -11,6 +11,7 @@ It builds on:
 - the fragment metadata contract in [`docs/fragment-schema.md`](./fragment-schema.md)
 - the builder inventory workflow in [`docs/builder-inventory-workflow.md`](./builder-inventory-workflow.md)
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
+- the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the roadmap direction toward capability-oriented workflow behavior instead of vendor-bound prompts
 
 ## Why This Exists
@@ -375,11 +376,11 @@ Examples:
 - a tracked-task-only workflow without `task-tracker.read`
 - a review-driven PR workflow without any usable review-feedback path
 
-### 5. Leave Detailed Fallback Policy To Follow-On Work
+### 5. Use The Shared Fallback Contract
 
 This document defines the baseline behavior only.
 
-The more detailed fallback matrix belongs to issue `#19`.
+The detailed fallback matrix now lives in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md).
 
 ## Recommended Capability Vocabulary For Fragments
 
