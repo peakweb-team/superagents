@@ -12,6 +12,7 @@ It builds on:
 - the builder questionnaire flow in [`docs/builder-questionnaire-flow.md`](./builder-questionnaire-flow.md)
 - the external capability model in [`docs/external-capability-model.md`](./external-capability-model.md)
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
+- the first-wave task-system fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 
 ## Why This Exists
 

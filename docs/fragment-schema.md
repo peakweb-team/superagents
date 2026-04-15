@@ -11,6 +11,7 @@ It is intentionally shaped by:
 - the workflow-discipline lessons from issue `#31`
 - the product direction in [`ROADMAP.md`](../ROADMAP.md)
 - the assembly contract in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md)
+- the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 
 The goal is not to make fragments abstract for abstraction's sake. The goal is to give Peakweb a small, deterministic contract that can support:
 

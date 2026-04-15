@@ -116,6 +116,7 @@ Goals:
 
 - support major task systems such as GitHub Issues, Jira, Linear, Azure Boards, and GitLab Issues
 - support [direct-brief bootstrap](#direct-brief-bootstrap) flows for greenfield or light-process projects alongside task-system-backed delivery
+- keep task-system provider fragments optional companions to direct-brief intake rather than a hard prerequisite
 - support major code-hosting and PR systems such as GitHub, GitLab, and Bitbucket
 - support common review patterns such as native review, CodeRabbit, and layered review automation
 - make provider selection part of builder output rather than hardcoded defaults
