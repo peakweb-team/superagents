@@ -7,6 +7,7 @@ This document defines the canonical install/packaging contract for issue `#26`:
 It aligns with:
 
 - the generated-skill layout and precedence rules in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
+- the builder usage and repo-local precedence contract in [`docs/builder-usage-and-repo-local-precedence-contract.md`](./builder-usage-and-repo-local-precedence-contract.md)
 - the release and upgrade contract in [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md)
 - the Phase 3 packaging/adoption milestone in [`ROADMAP.md`](../ROADMAP.md)
 

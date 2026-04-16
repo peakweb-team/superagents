@@ -60,7 +60,9 @@ The intended flow looks like this:
 2. Run the `skill-builder` skill inside a target repository.
 3. Let it inspect the repo and confirm only the missing workflow details.
 4. Generate project-local skills from reusable fragments.
-5. Commit those generated skills with the project so the team can review and evolve them over time.
+5. Commit generated output roots (`.claude/skills/peakweb/` and `.agency/skills/peakweb/`) with the project so the team can review and evolve them over time.
+
+For a step-by-step usage runbook and deterministic precedence rules, see [`docs/builder-usage-and-repo-local-precedence-contract.md`](docs/builder-usage-and-repo-local-precedence-contract.md).
 
 That gives teams a practical path from generic specialist agents to a repeatable delivery system tailored to how they actually work.
 
@@ -104,6 +106,8 @@ Browse the agents below and copy/adapt the ones you need!
 Project-specific skills are starting to live in [`skills/`](skills/README.md). The long-term direction is for a builder skill to assemble repo-specific skills from reusable fragments and place the generated result inside the target project.
 
 The fragment metadata contract for that builder is documented in [`docs/fragment-schema.md`](docs/fragment-schema.md).
+
+Builder usage flow, repo-local precedence, and review/versioning expectations are documented in [`docs/builder-usage-and-repo-local-precedence-contract.md`](docs/builder-usage-and-repo-local-precedence-contract.md).
 
 ### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code)
 

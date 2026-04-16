@@ -8,6 +8,7 @@ It builds on:
 
 - the generated output contract in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
 - the install/packaging contract for reusable fragments in [`docs/install-packaging-skill-fragments-contract.md`](./install-packaging-skill-fragments-contract.md)
+- the builder usage and repo-local precedence contract in [`docs/builder-usage-and-repo-local-precedence-contract.md`](./builder-usage-and-repo-local-precedence-contract.md)
 - the fragment metadata contract in [`docs/fragment-schema.md`](./fragment-schema.md)
 - the fragment assembly contract in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md)
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
