@@ -40,6 +40,25 @@ Without this contract, large repos risk wasteful full-repo reading, small tasks 
 - replacing tier-selection or handoff contracts
 - assuming static per-agent model pinning is guaranteed in `agent-team`
 
+## Issue-Scope Boundaries
+
+To keep this combined runtime contract explicit and reviewable:
+
+- issue `#24` is normative for:
+  - progressive context loading (`discover` -> `select` -> `deepen` -> `execute` -> `verify`)
+  - candidate-file budgeting and repo-reading behavior
+  - small-task vs large-repo execution differences
+- issue `#25` is normative for:
+  - model-tier routing and bounded subtask-splitting policy
+- issue `#55` is normative for:
+  - reasoning-effort tiers and token-budget profile policy
+
+When sections overlap, execution should keep `#24` constraints as hard guardrails:
+
+- do not bypass staged context loading to compensate for model or effort choices
+- do not widen repo-reading scope without explicit context-escalation evidence
+- do not claim correctness from stronger model/effort settings when context evidence is incomplete
+
 ## Core Policy
 
 ### Progressive Context First
@@ -450,6 +469,18 @@ De-escalation discipline:
 
 ## Small Task Vs Large Repo Behavior
 
+Generated skills should classify each execution slice into one of these operating modes before deep reads.
+
+| Dimension | Small task / bounded scope | Large repo / multi-package scope |
+| --- | --- | --- |
+| default collaboration tier | `solo` | `sub-agent` when bounded decomposition is available |
+| default context budget | `narrow` | `medium` |
+| discovery scope | repo root + target package | explicit package/app map before candidate selection |
+| candidate-file start range | 3-8 (`solo` + `narrow`) | 8-20 lead shared context; 3-10 per specialist slice |
+| deep-read behavior | task-local files + nearest tests | per-slice deep reads only, with lead-owned integration synthesis |
+| escalation trigger style | repeated local ambiguity or failed verification | cross-package coupling, integration churn, or high-risk ambiguity |
+| coordination expectation | single owner-of-record end to end | lead-owned handoffs with bounded specialist ownership |
+
 ### Small Task Behavior
 
 Expected shape:
@@ -483,6 +514,16 @@ Example:
 - lead maps impacted packages (`apps/api`, `apps/cli`, `docs`)
 - specialists own disjoint slices with explicit acceptance criteria
 - lead escalates to wider reading only when integration tests reveal cross-package assumptions
+
+## Cross-Contract Alignment Invariants
+
+Generated runtime behavior should preserve all of the following:
+
+1. `context budget` controls how much is read; `model tier` controls capability; `effort tier` controls reasoning depth.
+2. Escalate one dimension at a time unless risk requires multi-dimension escalation, and record why each dimension changed.
+3. Subtask splitting must reduce duplicated discovery/read cost; if it increases duplicate context loading, reduce split count or return to `solo`.
+4. `strong` model or `high` effort never waives candidate-file budgets, staged loading, or verification evidence requirements.
+5. Small-task mode should not jump to large-repo behavior without an explicit context-escalation trigger and updated stage outputs.
 
 ## Sub-Agent Routing By Task Type
 

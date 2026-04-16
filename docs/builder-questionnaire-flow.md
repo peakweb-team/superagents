@@ -206,7 +206,7 @@ Examples:
 
 Question goal:
 
-- capture constraints that materially change runtime/model-routing guidance
+- capture constraints that materially change runtime context-budgeting, repo-reading, and model-routing guidance
 
 These answers should shape runtime behavior using the canonical context-budgeting and repo-reading contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md).
 
@@ -218,6 +218,7 @@ Examples:
 
 - Should the generated skill optimize aggressively for low token/tool cost, or favor stronger reasoning effort by default?
 - Are there model, reasoning-effort, or budget constraints the builder should encode in runtime guidance?
+- Should this repo default to small-task `narrow` context budgets, or start at large-repo `medium` budgeting with package-mapping first?
 
 ### Priority 5: PR And Branching Conventions
 
