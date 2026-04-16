@@ -262,6 +262,7 @@ Every builder run should produce a `review.md` file that highlights:
   - for `solo`, report one aggregate slice for the full task (or explicitly note no per-slice breakdown)
   - for `sub-agent` and `agent-team`, report per specialist/role slice
 - any model-tier escalations (for example `economy` -> `balanced` -> `strong`) and why lower tiers were insufficient
+- any reasoning-effort and token-budget profile changes (for example effort `low` -> `medium` -> `high`, profile `lean` -> `standard` -> `expanded`) and what triggered escalation or de-escalation
 - any delegation boundary choices that affected overlap risk, context reuse, or decision to stay in `solo` vs escalate
 
 This review file should make doc-only PR review practical.

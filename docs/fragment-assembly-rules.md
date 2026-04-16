@@ -539,10 +539,14 @@ Final emitted block order:
 4. `review-loop`
 5. `context-budgeting`
 6. `model-routing-rules`
+7. `reasoning-effort-rules`
+8. `token-budgeting-rules`
 
 The meaning of `context-budgeting` should follow the canonical runtime contract in [`docs/runtime-context-budgeting-and-repo-reading.md`](./runtime-context-budgeting-and-repo-reading.md) rather than ad hoc file-reading guidance.
 
 The meaning of `model-routing-rules` should also follow that runtime contract, including provider-neutral tier semantics, escalation triggers, and bounded subtask-splitting rules.
+
+The meaning of `reasoning-effort-rules` and `token-budgeting-rules` should follow that runtime contract as well, including provider-neutral defaults, escalation/de-escalation triggers, and provider-mapping boundaries.
 
 Outcome:
 
