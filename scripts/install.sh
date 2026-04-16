@@ -10,7 +10,7 @@
 #   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
 #
 # Tools:
-#   claude-code  -- Copy agents to ~/.claude/agents/
+#   claude-code  -- Copy agents to ~/.claude/agents/ and Peakweb skill bundle to ~/.claude/skills/peakweb-skill-builder/
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
@@ -105,6 +105,7 @@ ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor a
 
 # Standard agent category directories under agents/ (keep sorted, sync with convert.sh / lint-agents.sh)
 AGENTS_ROOT="$REPO_ROOT/agents"
+SKILLS_ROOT="$REPO_ROOT/skills"
 AGENT_DIRS=(
   academic design engineering finance game-development marketing paid-media product project-management
   sales spatial-computing specialized strategy support testing
@@ -305,7 +306,11 @@ interactive_select() {
 
 install_claude_code() {
   local dest="${HOME}/.claude/agents"
+  local skills_dest="${HOME}/.claude/skills/peakweb-skill-builder"
+  local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
+  local fragments_src="$SKILLS_ROOT/fragments"
   local count=0
+  local fragment_count=0
   mkdir -p "$dest"
   local dir f first_line
   for dir in "${AGENT_DIRS[@]}"; do
@@ -317,7 +322,26 @@ install_claude_code() {
       (( count++ )) || true
     done < <(find "$AGENTS_ROOT/$dir" -name "*.md" -type f -print0)
   done
+  [[ -f "$builder_src" ]] || { err "skills/skill-builder/SKILL.md missing."; return 1; }
+  [[ -d "$fragments_src" ]] || { err "skills/fragments missing."; return 1; }
+
+  mkdir -p "$skills_dest"
+  cp "$builder_src" "$skills_dest/SKILL.md"
+
+  # Rebuild the fragment bundle on each install so removals are reflected deterministically.
+  rm -rf "$skills_dest/fragments"
+  mkdir -p "$skills_dest/fragments"
+  while IFS= read -r -d '' f; do
+    local rel dest_dir
+    rel="${f#"$fragments_src"/}"
+    dest_dir="$(dirname "$skills_dest/fragments/$rel")"
+    mkdir -p "$dest_dir"
+    cp "$f" "$skills_dest/fragments/$rel"
+    (( fragment_count++ )) || true
+  done < <(find "$fragments_src" -name "*.md" -type f -print0)
+
   ok "Claude Code: $count agents -> $dest"
+  ok "Claude Code: skill-builder + $fragment_count fragments -> $skills_dest"
 }
 
 install_copilot() {
