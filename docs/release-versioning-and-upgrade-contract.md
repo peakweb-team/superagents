@@ -7,6 +7,7 @@ This document defines the proposed contract for issue `#48`:
 It builds on:
 
 - the generated output contract in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
+- the install/packaging contract for reusable fragments in [`docs/install-packaging-skill-fragments-contract.md`](./install-packaging-skill-fragments-contract.md)
 - the fragment metadata contract in [`docs/fragment-schema.md`](./fragment-schema.md)
 - the fragment assembly contract in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md)
 - the project integration declaration format in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md)
@@ -55,6 +56,8 @@ Installed Peakweb files and repo-local generated skills are two different upgrad
 The installed framework may update through GitHub releases.
 
 The repo-local generated bundle must be evaluated against that release instead of being silently assumed current.
+
+The installed framework now includes both the agent roster and the reusable skill-fragment bundle described in [`docs/install-packaging-skill-fragments-contract.md`](./install-packaging-skill-fragments-contract.md).
 
 ## Version Layers
 

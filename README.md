@@ -602,7 +602,7 @@ The Agency works natively with Claude Code, and ships conversion + install scrip
 
 ### Supported Tools
 
-- **[Claude Code](https://claude.ai/code)** — native `.md` agents, no conversion needed → `~/.claude/agents/`
+- **[Claude Code](https://claude.ai/code)** — native `.md` agents plus Peakweb reusable skill bundle → `~/.claude/agents/` and `~/.claude/skills/peakweb-skill-builder/`
 - **[GitHub Copilot](https://github.com/copilot)** — native `.md` agents, no conversion needed → `~/.github/agents/` + `~/.copilot/agents/`
 - **[Antigravity](https://github.com/google-gemini/antigravity)** — `SKILL.md` per agent → `~/.gemini/antigravity/skills/`
 - **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** — extension + `SKILL.md` files → `~/.gemini/extensions/agency-agents/`
@@ -687,6 +687,11 @@ The installer scans your system for installed tools, shows a checkbox UI, and le
 
 Agents are copied directly from the repo into `~/.claude/agents/` -- no conversion needed.
 
+The same install also ships the reusable Peakweb skill bundle to:
+
+- `~/.claude/skills/peakweb-skill-builder/SKILL.md`
+- `~/.claude/skills/peakweb-skill-builder/fragments/**/*.md`
+
 ```bash
 ./scripts/install.sh --tool claude-code
 ```
@@ -697,6 +702,8 @@ Use the Frontend Developer agent to review this component.
 ```
 
 See [integrations/claude-code/README.md](integrations/claude-code/README.md) for details.
+
+Installation/packaging migration expectations for this reusable fragment bundle are defined in [docs/install-packaging-skill-fragments-contract.md](docs/install-packaging-skill-fragments-contract.md).
 </details>
 
 <details>

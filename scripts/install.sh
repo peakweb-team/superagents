@@ -10,7 +10,7 @@
 #   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
 #
 # Tools:
-#   claude-code  -- Copy agents to ~/.claude/agents/
+#   claude-code  -- Copy agents to ~/.claude/agents/ and Peakweb skill bundle to ~/.claude/skills/peakweb-skill-builder/
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
@@ -105,6 +105,7 @@ ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode openclaw cursor a
 
 # Standard agent category directories under agents/ (keep sorted, sync with convert.sh / lint-agents.sh)
 AGENTS_ROOT="$REPO_ROOT/agents"
+SKILLS_ROOT="$REPO_ROOT/skills"
 AGENT_DIRS=(
   academic design engineering finance game-development marketing paid-media product project-management
   sales spatial-computing specialized strategy support testing
@@ -134,6 +135,13 @@ check_integrations() {
     err "integrations/ not found. Run ./scripts/convert.sh first."
     exit 1
   fi
+}
+
+tool_requires_integrations() {
+  case "$1" in
+    claude-code|copilot) return 1 ;;
+    *) return 0 ;;
+  esac
 }
 
 # ---------------------------------------------------------------------------
@@ -305,9 +313,55 @@ interactive_select() {
 
 install_claude_code() {
   local dest="${HOME}/.claude/agents"
+  local skills_parent="${HOME}/.claude/skills"
+  local skills_dest="${HOME}/.claude/skills/peakweb-skill-builder"
+  local skills_backup="${HOME}/.claude/skills/peakweb-skill-builder.bak"
+  local skills_stage=""
+  local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
+  local fragments_src="$SKILLS_ROOT/fragments"
   local count=0
+  local fragment_count=0
+  local dir f first_line rel dest_dir
+
+  [[ -f "$builder_src" ]] || { err "skills/skill-builder/SKILL.md missing."; return 1; }
+  [[ -d "$fragments_src" ]] || { err "skills/fragments missing."; return 1; }
+
+  mkdir -p "$skills_parent"
+  skills_stage="$(mktemp -d "$skills_parent/peakweb-skill-builder.tmp.XXXXXX")"
+  trap '[[ -n "$skills_stage" && -d "$skills_stage" ]] && rm -rf "$skills_stage"' RETURN
+  cp "$builder_src" "$skills_stage/SKILL.md"
+  mkdir -p "$skills_stage/fragments"
+
+  # Stage fragment copies first; only replace the live bundle after a full successful copy.
+  while IFS= read -r -d '' f; do
+    rel="${f#"$fragments_src"/}"
+    dest_dir="$(dirname "$skills_stage/fragments/$rel")"
+    mkdir -p "$dest_dir"
+    cp "$f" "$skills_stage/fragments/$rel"
+    (( fragment_count++ )) || true
+  done < <(find "$fragments_src" -name "*.md" -type f -print0)
+  if (( fragment_count == 0 )); then
+    rm -rf "$skills_stage"
+    err "skills/fragments contains no .md files."
+    return 1
+  fi
+  rm -rf "$skills_backup"
+  if [[ -d "$skills_dest" ]]; then
+    mv "$skills_dest" "$skills_backup"
+  fi
+  if ! mv "$skills_stage" "$skills_dest"; then
+    err "failed to activate staged skill bundle at $skills_dest"
+    rm -rf "$skills_dest"
+    if [[ -d "$skills_backup" ]]; then
+      mv "$skills_backup" "$skills_dest"
+    fi
+    return 1
+  fi
+  rm -rf "$skills_backup"
+  skills_stage=""
+  trap - RETURN
+
   mkdir -p "$dest"
-  local dir f first_line
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$AGENTS_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
@@ -317,7 +371,9 @@ install_claude_code() {
       (( count++ )) || true
     done < <(find "$AGENTS_ROOT/$dir" -name "*.md" -type f -print0)
   done
+
   ok "Claude Code: $count agents -> $dest"
+  ok "Claude Code: skill-builder + $fragment_count fragments -> $skills_dest"
 }
 
 install_copilot() {
@@ -557,8 +613,6 @@ main() {
     esac
   done
 
-  check_integrations
-
   # Validate explicit tool
   if [[ "$tool" != "all" ]]; then
     local valid=false t
@@ -606,6 +660,18 @@ main() {
     dim "  Tip: use --tool <name> to force-install a specific tool."
     dim "  Available: ${ALL_TOOLS[*]}"
     exit 0
+  fi
+
+  local needs_integrations=false
+  local t
+  for t in "${SELECTED_TOOLS[@]}"; do
+    if tool_requires_integrations "$t"; then
+      needs_integrations=true
+      break
+    fi
+  done
+  if $needs_integrations; then
+    check_integrations
   fi
 
   # When parent runs install.sh --parallel, it spawns workers with AGENCY_INSTALL_WORKER=1
