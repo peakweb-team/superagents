@@ -256,6 +256,7 @@ Every builder run should produce a `review.md` file that highlights:
 - any warnings introduced by degraded or fallback-aware assembly
 - the chosen orchestration tier (`solo`, `sub-agent`, or `agent-team`) and why that sizing was selected
 - any handoff contract exceptions, blocked handoffs, or unresolved role-ownership questions that require manual follow-up
+- the selected runtime operating mode (`small-task` or `large-repo/multi-package`) and the evidence used to choose it
 - any context-budget escalations (for example `narrow` -> `medium` or `wide`) and the trigger for each escalation
 - whether execution followed the staged runtime sequence (`discover` -> `select` -> `deepen` -> `execute` -> `verify`) and any stage skips with rationale
 - candidate-file budget ranges used per execution slice and reasons for any widened ranges
