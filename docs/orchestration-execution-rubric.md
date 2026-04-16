@@ -4,9 +4,10 @@ This document defines the proposed contract for issue `#22`:
 
 - [#22 Define solo, sub-agent, and agent-team heuristics](https://github.com/peakweb-team/pw-agency-agents/issues/22)
 
-Related runtime routing follow-on:
+Related runtime routing follow-ons:
 
 - [#25 Define model-routing and subtask-splitting heuristics](https://github.com/peakweb-team/pw-agency-agents/issues/25)
+- [#55 Define reasoning-effort and token-budget heuristics](https://github.com/peakweb-team/pw-agency-agents/issues/55)
 
 It builds on:
 
