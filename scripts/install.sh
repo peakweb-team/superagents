@@ -313,14 +313,43 @@ interactive_select() {
 
 install_claude_code() {
   local dest="${HOME}/.claude/agents"
+  local skills_parent="${HOME}/.claude/skills"
   local skills_dest="${HOME}/.claude/skills/peakweb-skill-builder"
+  local skills_stage=""
   local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
   local fragments_src="$SKILLS_ROOT/fragments"
-  local fragments_stage=""
   local count=0
   local fragment_count=0
+  local dir f first_line rel dest_dir
+
+  [[ -f "$builder_src" ]] || { err "skills/skill-builder/SKILL.md missing."; return 1; }
+  [[ -d "$fragments_src" ]] || { err "skills/fragments missing."; return 1; }
+
+  mkdir -p "$skills_parent"
+  skills_stage="$(mktemp -d "$skills_parent/peakweb-skill-builder.tmp.XXXXXX")"
+  trap '[[ -n "$skills_stage" && -d "$skills_stage" ]] && rm -rf "$skills_stage"' RETURN
+  cp "$builder_src" "$skills_stage/SKILL.md"
+  mkdir -p "$skills_stage/fragments"
+
+  # Stage fragment copies first; only replace the live bundle after a full successful copy.
+  while IFS= read -r -d '' f; do
+    rel="${f#"$fragments_src"/}"
+    dest_dir="$(dirname "$skills_stage/fragments/$rel")"
+    mkdir -p "$dest_dir"
+    cp "$f" "$skills_stage/fragments/$rel"
+    (( fragment_count++ )) || true
+  done < <(find "$fragments_src" -name "*.md" -type f -print0)
+  if (( fragment_count == 0 )); then
+    rm -rf "$skills_stage"
+    err "skills/fragments contains no .md files."
+    return 1
+  fi
+  rm -rf "$skills_dest"
+  mv "$skills_stage" "$skills_dest"
+  skills_stage=""
+  trap - RETURN
+
   mkdir -p "$dest"
-  local dir f first_line
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$AGENTS_ROOT/$dir" ]] || continue
     while IFS= read -r -d '' f; do
@@ -330,29 +359,6 @@ install_claude_code() {
       (( count++ )) || true
     done < <(find "$AGENTS_ROOT/$dir" -name "*.md" -type f -print0)
   done
-  [[ -f "$builder_src" ]] || { err "skills/skill-builder/SKILL.md missing."; return 1; }
-  [[ -d "$fragments_src" ]] || { err "skills/fragments missing."; return 1; }
-
-  mkdir -p "$skills_dest"
-  cp "$builder_src" "$skills_dest/SKILL.md"
-
-  # Stage fragment copies first; only replace the live bundle after a full successful copy.
-  fragments_stage="$(mktemp -d "$skills_dest/fragments.tmp.XXXXXX")"
-  while IFS= read -r -d '' f; do
-    local rel dest_dir
-    rel="${f#"$fragments_src"/}"
-    dest_dir="$(dirname "$fragments_stage/$rel")"
-    mkdir -p "$dest_dir"
-    cp "$f" "$fragments_stage/$rel"
-    (( fragment_count++ )) || true
-  done < <(find "$fragments_src" -name "*.md" -type f -print0)
-  if (( fragment_count == 0 )); then
-    rm -rf "$fragments_stage"
-    err "skills/fragments contains no .md files."
-    return 1
-  fi
-  rm -rf "$skills_dest/fragments"
-  mv "$fragments_stage" "$skills_dest/fragments"
 
   ok "Claude Code: $count agents -> $dest"
   ok "Claude Code: skill-builder + $fragment_count fragments -> $skills_dest"
