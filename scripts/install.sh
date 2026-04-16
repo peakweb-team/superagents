@@ -315,6 +315,7 @@ install_claude_code() {
   local dest="${HOME}/.claude/agents"
   local skills_parent="${HOME}/.claude/skills"
   local skills_dest="${HOME}/.claude/skills/peakweb-skill-builder"
+  local skills_backup="${HOME}/.claude/skills/peakweb-skill-builder.bak"
   local skills_stage=""
   local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
   local fragments_src="$SKILLS_ROOT/fragments"
@@ -344,8 +345,19 @@ install_claude_code() {
     err "skills/fragments contains no .md files."
     return 1
   fi
-  rm -rf "$skills_dest"
-  mv "$skills_stage" "$skills_dest"
+  rm -rf "$skills_backup"
+  if [[ -d "$skills_dest" ]]; then
+    mv "$skills_dest" "$skills_backup"
+  fi
+  if ! mv "$skills_stage" "$skills_dest"; then
+    err "failed to activate staged skill bundle at $skills_dest"
+    rm -rf "$skills_dest"
+    if [[ -d "$skills_backup" ]]; then
+      mv "$skills_backup" "$skills_dest"
+    fi
+    return 1
+  fi
+  rm -rf "$skills_backup"
   skills_stage=""
   trap - RETURN
 
