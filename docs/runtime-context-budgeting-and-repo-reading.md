@@ -191,6 +191,36 @@ Generated guidance should use provider-neutral model tiers:
 
 Generated skills may map local/provider model names onto these tiers, but runtime behavior should reason in terms of these tier semantics.
 
+## Reasoning-Effort Tier Vocabulary
+
+Generated guidance should use provider-neutral effort tiers that are independent from provider parameter names:
+
+- `low`
+  - minimal deliberate reasoning overhead; best for clear, low-risk, bounded steps
+- `medium`
+  - default effort for most implementation and verification work
+- `high`
+  - deeper deliberate reasoning for ambiguous, high-risk, or cross-domain synthesis
+
+Effort-tier rules:
+
+- effort tier is a runtime-budget lever, not a quality guarantee by itself
+- higher effort does not replace missing context or weak acceptance criteria
+- model tier and effort tier should be selected together, but escalated independently when triggers differ
+
+## Token-Budget Profiles
+
+Generated skills should use provider-neutral token-budget profiles as qualitative operating intent:
+
+- `lean`
+  - prioritize lower cost/latency with concise reasoning and tighter retries
+- `standard`
+  - default profile balancing quality, latency, and cost
+- `expanded`
+  - allow broader reasoning/verification loops for correctness-critical synthesis
+
+Token-budget profiles should guide behavior (retry depth, synthesis breadth, and escalation tolerance), not promise exact provider token counts.
+
 ## Model-Routing Heuristics By Collaboration Tier
 
 ### `solo`
@@ -225,6 +255,39 @@ Advisory-only caveat:
 
 - generated skills must not rely on static per-agent model pinning in `agent-team` for correctness-critical behavior
 - if correctness would fail without strict pinning, route through `sub-agent` with explicit bounded handoffs instead
+
+## Reasoning-Effort And Token-Budget Defaults By Task Category
+
+Generated skills should apply the following default heuristics before custom project overrides:
+
+- drafting
+  - default: effort `low`, token profile `lean`, model tier `economy` or `balanced`
+  - escalate when requirements are contradictory or audience constraints are high-risk
+- planning
+  - default: effort `low`, token profile `lean`, model tier `economy`
+  - escalate to effort `medium` when decomposition has non-trivial dependencies or risk
+- implementation
+  - default: effort `medium`, token profile `standard`, model tier `balanced`
+  - downgrade to effort `low` for straightforward edits with tight tests
+  - escalate to effort `high` only when correctness depends on deep algorithmic or cross-domain reasoning
+- debugging
+  - default: effort `medium`, token profile `standard`, model tier `balanced`
+  - escalate to effort `high` when root cause remains unresolved after one focused hypothesis/test pass
+- review
+  - default: effort `medium`, token profile `standard`, model tier `balanced`
+  - escalate to effort `high` for contentious, security-sensitive, or architecture-level findings
+- validation
+  - default: effort `medium`, token profile `standard`, model tier `balanced`
+  - escalate to effort `high` and token profile `expanded` only for release-gating ambiguity or conflicting evidence
+- synthesis
+  - default: effort `medium`, token profile `standard`, model tier `balanced`
+  - escalate to effort `high` with model tier `strong` when reconciling conflicting outputs across slices/domains
+
+Guidance alignment rules:
+
+- escalate model tier first when failure signals indicate capability limits rather than reasoning-depth limits
+- escalate effort first when model tier is already appropriate but reasoning depth appears insufficient
+- escalate token profile only when evidence quality requires broader reasoning or validation loops
 
 ## Subtask-Splitting And Delegation Rules
 
@@ -356,6 +419,35 @@ Escalation discipline:
 - re-run `discover` and `select` after each escalation before further deep reads
 - if `wide` still fails to resolve correctness-critical ambiguity, request explicit clarification instead of continuing blind
 
+### Higher Effort Escalation (`low` -> `medium` -> `high`)
+
+Escalate effort tier when at least one trigger is true:
+
+- one focused pass at the current effort tier fails due to unresolved reasoning ambiguity
+- reviewer/validator feedback indicates logic quality gaps rather than missing context
+- risk is `high` and completion claims require stronger argument quality
+- cross-slice synthesis repeatedly produces conflicting conclusions
+
+Escalation discipline:
+
+- do not jump directly from `low` to `high` unless risk is already `high`
+- do not escalate effort to compensate for missing discovery/select/deepen steps
+- record the trigger and failed prior attempt in handoff or review metadata
+
+### Effort And Budget De-Escalation Triggers
+
+De-escalate effort tier and/or token-budget profile when one of the following is true:
+
+- two consecutive slices pass validation without ambiguity at the current elevated setting
+- the task phase shifts from ambiguity-heavy synthesis to routine bounded edits
+- reviewer/validator confirms risk has dropped from `high` to `medium` or `low`
+
+De-escalation discipline:
+
+- step down one level at a time (`high` -> `medium` -> `low`; `expanded` -> `standard` -> `lean`)
+- preserve elevated settings for unresolved high-risk slices while de-escalating routine slices
+- record de-escalation rationale so reviewers can confirm budget intent
+
 ## Small Task Vs Large Repo Behavior
 
 ### Small Task Behavior
@@ -394,24 +486,56 @@ Example:
 
 ## Sub-Agent Routing By Task Type
 
-Use task type, not only task size, to route model tiers.
+Use task type, not only task size, to route model tiers, effort tiers, and token-budget profiles.
 
 - planning
-  - default: `economy` for clear bounded planning
-  - escalate: `balanced` or `strong` when decomposition is high-risk or ambiguous
+  - default: model `economy`, effort `low`, token profile `lean`
+  - escalate: model `balanced` and effort `medium` when decomposition is high-risk or ambiguous
 - implementation
-  - default: `balanced`
-  - downgrade: `economy` for straightforward refactors with clear acceptance tests
-  - escalate: `strong` for tricky algorithms, migrations, or cross-domain coupling
-- validation
-  - default: `balanced`
-  - escalate: `strong` for flaky/conflicting evidence or high-impact release gates
+  - default: model `balanced`, effort `medium`, token profile `standard`
+  - downgrade: model `economy` and effort `low` for straightforward refactors with clear acceptance tests
+  - escalate: model `strong` and effort `high` for tricky algorithms, migrations, or cross-domain coupling
+- debugging
+  - default: model `balanced`, effort `medium`, token profile `standard`
+  - escalate: model `strong` and effort `high` when one focused root-cause pass fails
+- review/validation
+  - default: model `balanced`, effort `medium`, token profile `standard`
+  - escalate: model `strong`, effort `high`, and token profile `expanded` for conflicting evidence or release-gate findings
 - synthesis/integration
-  - default: lead at `balanced`
-  - escalate: lead at `strong` when conflicting slice outputs need deep reconciliation
+  - default: lead at model `balanced`, effort `medium`, token profile `standard`
+  - escalate: lead at model `strong` and effort `high` when conflicting slice outputs need deep reconciliation
 - ambiguity/risk triage
-  - default: lead at `balanced`
-  - escalate: `strong` when unresolved ambiguity can affect correctness or safety claims
+  - default: lead at model `balanced`, effort `medium`, token profile `standard`
+  - escalate: model `strong` and effort `high` when unresolved ambiguity can affect correctness or safety claims
+
+## Providers Without Explicit Effort Controls
+
+When a provider/runtime lacks an explicit effort parameter:
+
+- keep provider-neutral effort-tier selection in generated guidance (`low`/`medium`/`high`)
+- implement effort intent via adjacent levers:
+  - context-stage strictness (`discover`/`select`/`deepen` breadth)
+  - model-tier routing (`economy`/`balanced`/`strong`)
+  - validation depth (number and strictness of checks before completion claims)
+  - bounded retry/clarification loops
+- record in metadata that effort intent was applied indirectly due to provider surface limits
+
+Generated skills should not claim "effort unsupported" and skip reasoning-budget discipline entirely.
+
+## Provider Mapping Examples (Non-Normative)
+
+These examples are implementation guidance only.
+Core generated contract text should remain provider-neutral.
+
+- Claude example
+  - effort tiers: `low` -> `effort: low`, `medium` -> `effort: medium`, `high` -> `effort: high`
+  - token profile intent remains independent; profile changes should still be reflected in context breadth and verification depth
+- Provider with no effort knob example
+  - effort tiers remain in runtime metadata
+  - map `low`/`medium`/`high` primarily through model tier and validation-depth controls
+- Future-provider example
+  - if provider exposes a differently named reasoning parameter, map it to `low`/`medium`/`high` semantics in provider adapter notes
+  - do not rename core tiers per provider
 
 ## File-Discovery And Selective-Reading Rules
 
@@ -549,7 +673,7 @@ Why this is bad:
 
 ## Integration With Existing Contracts
 
-This document is the canonical runtime contract for context budgeting, repo reading, model routing, and subtask splitting.
+This document is the canonical runtime contract for context budgeting, repo reading, model routing, reasoning-effort budgeting, and subtask splitting.
 
 Related docs should reference it rather than redefining these rules:
 

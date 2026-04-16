@@ -216,8 +216,8 @@ Ask when:
 
 Examples:
 
-- Should the generated skill optimize aggressively for low token/tool cost, or favor stronger reasoning by default?
-- Are there model or budget constraints the builder should encode in runtime guidance?
+- Should the generated skill optimize aggressively for low token/tool cost, or favor stronger reasoning effort by default?
+- Are there model, reasoning-effort, or budget constraints the builder should encode in runtime guidance?
 
 ### Priority 5: PR And Branching Conventions
 
@@ -391,7 +391,7 @@ unresolved_decisions:
     topic: runtime budget preference
     why_unresolved: The repo suggests complex work, but no explicit budget preference was found.
     impact: medium
-    recommended_question: Should the generated skill optimize for lower cost or stronger reasoning by default?
+    recommended_question: Should the generated skill optimize for lower cost or stronger reasoning effort by default?
     safe_to_proceed: true
 ```
 
