@@ -97,6 +97,14 @@ Commit both roots in the same change:
 
 Committing both preserves what will execute and why it was assembled that way.
 
+### Step 6: Compare Against Reference Scenarios When Needed
+
+When reviewing generated output for a new repository or unusual workflow mix, compare against the reference bundles in [`examples/generated-skills/`](../examples/generated-skills/README.md) for:
+
+- GitHub-heavy dual-intake with layered review
+- Jira-heavy mixed delivery with dual intake
+- direct-brief-first bootstrap with explicit fallback/manual boundaries
+
 ## Precedence Rules (User-Level Vs Repo-Local)
 
 Precedence is repository-scoped and deterministic.

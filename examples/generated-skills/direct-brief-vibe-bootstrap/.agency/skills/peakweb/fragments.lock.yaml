@@ -1,0 +1,26 @@
+schema_version: 1
+generated_at: 2026-04-16T14:47:00Z
+selected:
+  - id: task-intake/direct-brief
+    decision_state: confirmed
+    order: 10
+  - id: orchestration/team-sizing
+    decision_state: confirmed
+    order: 40
+  - id: delivery/pull-request-review
+    decision_state: assumed
+    order: 60
+  - id: runtime/context-and-model-routing
+    decision_state: confirmed
+    order: 80
+suppressed:
+  - id: project-management/github-issues
+    reason: not_applicable
+  - id: project-management/jira
+    reason: not_applicable
+emitted_blocks:
+  - task-intake
+  - assumption-capture
+  - team-sizing-rules
+  - review-loop
+  - context-budgeting

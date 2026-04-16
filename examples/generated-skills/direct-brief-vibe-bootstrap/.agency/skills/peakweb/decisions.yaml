@@ -1,0 +1,24 @@
+schema_version: 1
+generated_at: 2026-04-16T14:47:00Z
+decisions:
+  work_intake_mode:
+    value: direct-brief
+    decision_state: confirmed
+
+  primary_task_tracker:
+    value: none
+    decision_state: confirmed
+    rationale: External tracker intentionally optional for this repository stage.
+
+  tracker_escalation_policy:
+    value: on-demand
+    decision_state: confirmed
+    rationale: Create or link ticket only when team requests durable external traceability.
+
+  primary_code_host_review:
+    value: github-pull-requests
+    decision_state: assumed
+
+  runtime_context_budget:
+    value: narrow
+    decision_state: confirmed
