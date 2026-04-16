@@ -172,6 +172,10 @@ Non-goals:
 
 Make the new skills layer installable, understandable, and usable alongside the existing agent roster.
 
+Canonical install/packaging contract:
+
+- [`docs/install-packaging-skill-fragments-contract.md`](./docs/install-packaging-skill-fragments-contract.md)
+
 Goals:
 
 - ship the base agents and reusable skill fragments together
