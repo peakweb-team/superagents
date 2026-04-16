@@ -316,6 +316,7 @@ install_claude_code() {
   local skills_dest="${HOME}/.claude/skills/peakweb-skill-builder"
   local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
   local fragments_src="$SKILLS_ROOT/fragments"
+  local fragments_stage=""
   local count=0
   local fragment_count=0
   mkdir -p "$dest"
@@ -335,17 +336,23 @@ install_claude_code() {
   mkdir -p "$skills_dest"
   cp "$builder_src" "$skills_dest/SKILL.md"
 
-  # Rebuild the fragment bundle on each install so removals are reflected deterministically.
-  rm -rf "$skills_dest/fragments"
-  mkdir -p "$skills_dest/fragments"
+  # Stage fragment copies first; only replace the live bundle after a full successful copy.
+  fragments_stage="$(mktemp -d "$skills_dest/fragments.tmp.XXXXXX")"
   while IFS= read -r -d '' f; do
     local rel dest_dir
     rel="${f#"$fragments_src"/}"
-    dest_dir="$(dirname "$skills_dest/fragments/$rel")"
+    dest_dir="$(dirname "$fragments_stage/$rel")"
     mkdir -p "$dest_dir"
-    cp "$f" "$skills_dest/fragments/$rel"
+    cp "$f" "$fragments_stage/$rel"
     (( fragment_count++ )) || true
   done < <(find "$fragments_src" -name "*.md" -type f -print0)
+  if (( fragment_count == 0 )); then
+    rm -rf "$fragments_stage"
+    err "skills/fragments contains no .md files."
+    return 1
+  fi
+  rm -rf "$skills_dest/fragments"
+  mv "$fragments_stage" "$skills_dest/fragments"
 
   ok "Claude Code: $count agents -> $dest"
   ok "Claude Code: skill-builder + $fragment_count fragments -> $skills_dest"
