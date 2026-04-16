@@ -137,6 +137,13 @@ check_integrations() {
   fi
 }
 
+tool_requires_integrations() {
+  case "$1" in
+    claude-code|copilot) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
 # ---------------------------------------------------------------------------
 # Tool detection
 # ---------------------------------------------------------------------------
@@ -581,8 +588,6 @@ main() {
     esac
   done
 
-  check_integrations
-
   # Validate explicit tool
   if [[ "$tool" != "all" ]]; then
     local valid=false t
@@ -630,6 +635,18 @@ main() {
     dim "  Tip: use --tool <name> to force-install a specific tool."
     dim "  Available: ${ALL_TOOLS[*]}"
     exit 0
+  fi
+
+  local needs_integrations=false
+  local t
+  for t in "${SELECTED_TOOLS[@]}"; do
+    if tool_requires_integrations "$t"; then
+      needs_integrations=true
+      break
+    fi
+  done
+  if $needs_integrations; then
+    check_integrations
   fi
 
   # When parent runs install.sh --parallel, it spawns workers with AGENCY_INSTALL_WORKER=1
