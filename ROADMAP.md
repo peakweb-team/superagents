@@ -172,9 +172,10 @@ Non-goals:
 
 Make the new skills layer installable, understandable, and usable alongside the existing agent roster.
 
-Canonical install/packaging contract:
+Canonical install/packaging and builder-usage contracts:
 
 - [`docs/install-packaging-skill-fragments-contract.md`](./docs/install-packaging-skill-fragments-contract.md)
+- [`docs/builder-usage-and-repo-local-precedence-contract.md`](./docs/builder-usage-and-repo-local-precedence-contract.md)
 
 Goals:
 
