@@ -39,6 +39,8 @@ The questionnaire and unresolved-decision contract now lives in [`docs/builder-q
 
 The generated-skill output, naming, and precedence contract now lives in [`docs/generated-skill-layout.md`](../docs/generated-skill-layout.md).
 
+The user-facing builder usage flow, repo-local precedence behavior, and review/versioning guidance now live in [`docs/builder-usage-and-repo-local-precedence-contract.md`](../docs/builder-usage-and-repo-local-precedence-contract.md).
+
 The user-level installation and packaging contract for reusable fragments now lives in [`docs/install-packaging-skill-fragments-contract.md`](../docs/install-packaging-skill-fragments-contract.md).
 
 The external capability vocabulary that fragments and generated skills should rely on now lives in [`docs/external-capability-model.md`](../docs/external-capability-model.md).
@@ -53,6 +55,7 @@ The fallback rules for unavailable, partial, or manual-only capabilities now liv
 2. The user runs the `skill-builder` skill inside a target project.
 3. The builder inspects the repo, confirms any missing details through a short questionnaire, and selects the relevant fragments.
 4. The builder assembles one primary skill and any needed companion skills under `.claude/skills/peakweb/`, then writes reviewable builder metadata under `.agency/skills/peakweb/`.
+5. The repo commits both generated roots together and treats repo-local generated output as authoritative over user-level defaults for that repository.
 
 User-level installation for the reusable fragment source bundle is now deterministic via `./scripts/install.sh --tool claude-code`:
 

@@ -42,3 +42,7 @@ Reusable skill bundle path:
 Install/packaging and migration contract:
 
 - [`docs/install-packaging-skill-fragments-contract.md`](../../docs/install-packaging-skill-fragments-contract.md)
+
+Builder usage flow, repo-local precedence rules, and generated-skill review/versioning guidance:
+
+- [`docs/builder-usage-and-repo-local-precedence-contract.md`](../../docs/builder-usage-and-repo-local-precedence-contract.md)

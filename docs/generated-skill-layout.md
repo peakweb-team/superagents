@@ -18,6 +18,7 @@ It builds on:
 - the capability fallback contract in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - the release versioning and upgrade contract in [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md)
 - the user-level install and packaging contract for reusable fragments in [`docs/install-packaging-skill-fragments-contract.md`](./install-packaging-skill-fragments-contract.md)
+- the user-facing builder usage and precedence contract in [`docs/builder-usage-and-repo-local-precedence-contract.md`](./builder-usage-and-repo-local-precedence-contract.md)
 - the roadmap direction toward a workflow operating system instead of a loose prompt library
 
 ## Why This Exists
