@@ -316,6 +316,14 @@ However:
       review.md
 ```
 
+## Reference Scenarios
+
+For complete, reviewable example bundles that follow this layout contract, see:
+
+- [`examples/generated-skills/github-heavy-dual-intake-coderabbit/`](../examples/generated-skills/github-heavy-dual-intake-coderabbit/)
+- [`examples/generated-skills/jira-heavy-mixed-delivery/`](../examples/generated-skills/jira-heavy-mixed-delivery/)
+- [`examples/generated-skills/direct-brief-vibe-bootstrap/`](../examples/generated-skills/direct-brief-vibe-bootstrap/)
+
 ## MVP Boundary
 
 This contract is intentionally narrow for v1.

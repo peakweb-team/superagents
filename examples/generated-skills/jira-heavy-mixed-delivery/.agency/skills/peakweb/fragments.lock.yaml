@@ -1,0 +1,28 @@
+schema_version: 1
+generated_at: 2026-04-16T14:35:00Z
+selected:
+  - id: task-intake/direct-brief
+    decision_state: confirmed
+    order: 10
+  - id: project-management/jira
+    decision_state: confirmed
+    order: 20
+  - id: orchestration/team-sizing
+    decision_state: confirmed
+    order: 40
+  - id: delivery/pull-request-review
+    decision_state: confirmed
+    order: 60
+  - id: runtime/context-and-model-routing
+    decision_state: assumed
+    order: 80
+suppressed:
+  - id: project-management/github-issues
+    reason: suppressed_by_exclusivity
+    bucket: primary-task-tracker
+emitted_blocks:
+  - task-intake
+  - task-status-updates
+  - team-sizing-rules
+  - review-loop
+  - context-budgeting

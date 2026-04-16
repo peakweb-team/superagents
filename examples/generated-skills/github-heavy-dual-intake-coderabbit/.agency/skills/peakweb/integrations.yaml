@@ -1,0 +1,79 @@
+schema_version: 1
+generated_by: skill-builder
+generated_at: 2026-04-16T14:20:00Z
+providers:
+  local-direct-brief:
+    provider: local
+    kind: local
+    decision_state: confirmed
+    notes: Direct brief is allowed as first-class intake.
+
+  github:
+    provider: github
+    kind: external
+    decision_state: confirmed
+    notes: GitHub is task tracker and code host of record.
+
+  coderabbit:
+    provider: coderabbit
+    kind: external
+    decision_state: confirmed
+    notes: Layered review automation is additive to native GitHub review.
+
+capability_bindings:
+  task-intake.direct-brief:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: confirmed
+
+  task-intake.assumption-capture:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: confirmed
+
+  task-tracker.lookup:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  task-tracker.read:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  task-tracker.update:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  code-host.pr.open:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  code-host.pr.update:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  code-host.pr.review-request:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  code-host.pr.status-read:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  review-feedback.read:
+    provider_ref: coderabbit
+    support: partial
+    decision_state: confirmed
+    fallback_mode: warn
+    notes: Use GitHub human review queue as baseline source of truth.
+
+  review-feedback.respond:
+    provider_ref: github
+    support: full
+    decision_state: confirmed

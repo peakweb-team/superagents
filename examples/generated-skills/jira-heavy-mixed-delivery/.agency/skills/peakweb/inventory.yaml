@@ -1,0 +1,22 @@
+schema_version: 1
+repository: github.com/example/billing-gateway
+generated_at: 2026-04-16T14:34:00Z
+signals:
+  forge.github: true
+  workflow.pull_requests: true
+  task_tracker.jira: true
+  repo.references_jira_keys: true
+  workflow.task_tracker_optional: true
+  input.direct_brief: true
+  review.coderabbit: false
+  repo.multi_step_delivery: true
+  workflow.model_budget_matters: true
+evidence:
+  - source: docs/release-process.md
+    supports:
+      - task_tracker.jira
+      - repo.references_jira_keys
+  - source: .github/pull_request_template.md
+    supports:
+      - workflow.pull_requests
+      - forge.github

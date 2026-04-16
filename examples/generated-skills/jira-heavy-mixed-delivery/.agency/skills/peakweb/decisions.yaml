@@ -1,0 +1,24 @@
+schema_version: 1
+generated_at: 2026-04-16T14:35:00Z
+decisions:
+  work_intake_mode:
+    value: both
+    decision_state: confirmed
+    rationale: Team allows direct-brief spikes but requires Jira linkage for durable delivery.
+
+  primary_task_tracker:
+    value: jira
+    decision_state: confirmed
+
+  primary_code_host_review:
+    value: github-pull-requests
+    decision_state: confirmed
+
+  jira_update_mode:
+    value: manual-assist
+    decision_state: confirmed
+    rationale: Automation can read Jira but update permissions vary across projects.
+
+  runtime_context_budget:
+    value: medium
+    decision_state: assumed

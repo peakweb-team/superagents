@@ -1,0 +1,25 @@
+schema_version: 1
+repository: github.com/example/atlas-portal
+generated_at: 2026-04-16T14:19:00Z
+signals:
+  forge.github: true
+  workflow.pull_requests: true
+  review.coderabbit: true
+  task_tracker.github_issues: true
+  repo.references_issue_numbers: true
+  workflow.task_tracker_optional: true
+  input.direct_brief: true
+  repo.multi_step_delivery: true
+  workflow.model_budget_matters: true
+evidence:
+  - source: .github/workflows/pr.yml
+    supports:
+      - workflow.pull_requests
+      - forge.github
+  - source: docs/contributing.md
+    supports:
+      - repo.references_issue_numbers
+      - task_tracker.github_issues
+  - source: .coderabbit.yaml
+    supports:
+      - review.coderabbit

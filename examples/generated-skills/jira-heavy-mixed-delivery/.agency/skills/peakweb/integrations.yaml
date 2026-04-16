@@ -1,0 +1,81 @@
+schema_version: 1
+generated_by: skill-builder
+generated_at: 2026-04-16T14:35:00Z
+providers:
+  local-direct-brief:
+    provider: local
+    kind: local
+    decision_state: confirmed
+    notes: Direct brief is enabled for bootstrap work.
+
+  jira:
+    provider: jira
+    kind: external
+    decision_state: confirmed
+    notes: Jira is tracked-task system of record.
+
+  github:
+    provider: github
+    kind: external
+    decision_state: confirmed
+    notes: GitHub is code-host review-of-record.
+
+capability_bindings:
+  task-intake.direct-brief:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: confirmed
+
+  task-intake.assumption-capture:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: confirmed
+
+  task-tracker.lookup:
+    provider_ref: jira
+    support: full
+    decision_state: confirmed
+
+  task-tracker.read:
+    provider_ref: jira
+    support: full
+    decision_state: confirmed
+
+  task-tracker.update:
+    provider_ref: jira
+    support: partial
+    decision_state: confirmed
+    fallback_mode: manual
+    manual_steps:
+      - Post milestone progress and completion comments in Jira manually.
+      - Add PR link and validation evidence before closing the Jira ticket.
+
+  code-host.pr.open:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  code-host.pr.update:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  code-host.pr.review-request:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  code-host.pr.status-read:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  review-feedback.read:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  review-feedback.respond:
+    provider_ref: github
+    support: full
+    decision_state: confirmed

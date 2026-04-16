@@ -49,6 +49,8 @@ The repo-local provider and capability binding format now lives in [`docs/projec
 
 The fallback rules for unavailable, partial, or manual-only capabilities now live in [`docs/capability-fallback-behavior.md`](../docs/capability-fallback-behavior.md).
 
+Concrete generated-skill reference scenarios live in [`examples/generated-skills/`](../examples/generated-skills/README.md).
+
 ## Intended Flow
 
 1. Peakweb Agency Agents is installed into the user's home directory with the base agent roster and reusable skill fragments.

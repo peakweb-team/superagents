@@ -1,0 +1,22 @@
+schema_version: 1
+repository: github.com/example/greenfield-studio
+generated_at: 2026-04-16T14:46:00Z
+signals:
+  input.direct_brief: true
+  workflow.bootstrap_greenfield_likely: true
+  workflow.task_tracker_optional: true
+  workflow.pull_requests: true
+  forge.github: true
+  task_tracker.github_issues: false
+  task_tracker.jira: false
+  repo.multi_step_delivery: true
+  workflow.model_budget_matters: true
+evidence:
+  - source: README.md
+    supports:
+      - workflow.bootstrap_greenfield_likely
+      - workflow.task_tracker_optional
+  - source: .github/pull_request_template.md
+    supports:
+      - workflow.pull_requests
+      - forge.github

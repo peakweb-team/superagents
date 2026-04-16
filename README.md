@@ -64,6 +64,8 @@ The intended flow looks like this:
 
 For a step-by-step usage runbook and deterministic precedence rules, see [`docs/builder-usage-and-repo-local-precedence-contract.md`](docs/builder-usage-and-repo-local-precedence-contract.md).
 
+For concrete generated outputs across GitHub-heavy, Jira-heavy/mixed, and direct-brief bootstrap workflows, see [`examples/generated-skills/`](examples/generated-skills/README.md).
+
 That gives teams a practical path from generic specialist agents to a repeatable delivery system tailored to how they actually work.
 
 ---
@@ -108,6 +110,8 @@ Project-specific skills are starting to live in [`skills/`](skills/README.md). T
 The fragment metadata contract for that builder is documented in [`docs/fragment-schema.md`](docs/fragment-schema.md).
 
 Builder usage flow, repo-local precedence, and review/versioning expectations are documented in [`docs/builder-usage-and-repo-local-precedence-contract.md`](docs/builder-usage-and-repo-local-precedence-contract.md).
+
+Reference generated-skill scenarios are available in [`examples/generated-skills/`](examples/generated-skills/README.md).
 
 ### Option 3: Use with Other Tools (GitHub Copilot, Antigravity, Gemini CLI, OpenCode, OpenClaw, Cursor, Aider, Windsurf, Kimi Code)
 

@@ -1,0 +1,22 @@
+{
+  "name": "peakweb-workflow",
+  "generated_by": "skill-builder",
+  "generated_at": "2026-04-16T14:20:00Z",
+  "framework_release": "v1.1.0",
+  "schema_version": 1,
+  "repository": "github.com/example/atlas-portal",
+  "role": "primary orchestration",
+  "selected_fragments": [
+    "task-intake/direct-brief",
+    "project-management/github-issues",
+    "orchestration/team-sizing",
+    "delivery/pull-request-review",
+    "runtime/context-and-model-routing"
+  ],
+  "contract_versions": {
+    "generated_skill_layout": 1,
+    "fragment_schema": 1,
+    "integration_declaration": 1
+  },
+  "source_manifest": ".agency/skills/peakweb/manifest.yaml"
+}

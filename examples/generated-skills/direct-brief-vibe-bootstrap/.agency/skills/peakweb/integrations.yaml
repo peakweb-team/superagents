@@ -1,0 +1,83 @@
+schema_version: 1
+generated_by: skill-builder
+generated_at: 2026-04-16T14:47:00Z
+providers:
+  local-direct-brief:
+    provider: local
+    kind: local
+    decision_state: confirmed
+    notes: Direct brief is the primary intake path.
+
+  github:
+    provider: github
+    kind: external
+    decision_state: assumed
+    notes: GitHub PR workflow inferred from repository conventions.
+
+capability_bindings:
+  task-intake.direct-brief:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: confirmed
+
+  task-intake.assumption-capture:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: confirmed
+
+  task-tracker.lookup:
+    provider_ref: local-direct-brief
+    support: unavailable
+    decision_state: confirmed
+    fallback_mode: continue
+    notes: Tracker lookup is optional in this direct-brief-first scenario.
+
+  task-tracker.read:
+    provider_ref: local-direct-brief
+    support: unavailable
+    decision_state: confirmed
+    fallback_mode: continue
+    notes: Continue using local brief artifacts as source of truth.
+
+  task-tracker.update:
+    provider_ref: local-direct-brief
+    support: unavailable
+    decision_state: confirmed
+    fallback_mode: manual
+    manual_steps:
+      - If a tracker is introduced later, post milestone summary and evidence manually.
+
+  code-host.pr.open:
+    provider_ref: github
+    support: full
+    decision_state: assumed
+
+  code-host.pr.update:
+    provider_ref: github
+    support: full
+    decision_state: assumed
+
+  code-host.pr.review-request:
+    provider_ref: github
+    support: partial
+    decision_state: assumed
+    fallback_mode: manual
+    manual_steps:
+      - Request reviewer assignment manually when automation is not configured.
+
+  code-host.pr.status-read:
+    provider_ref: github
+    support: partial
+    decision_state: assumed
+    fallback_mode: warn
+    notes: Verify final check state in host UI when status surfaces are incomplete.
+
+  review-feedback.read:
+    provider_ref: github
+    support: full
+    decision_state: assumed
+
+  review-feedback.respond:
+    provider_ref: github
+    support: full
+    decision_state: assumed
