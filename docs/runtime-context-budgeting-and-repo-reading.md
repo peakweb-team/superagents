@@ -4,6 +4,7 @@ This document defines the proposed contracts for issues:
 
 - [#24 Define context-budgeting and repo-reading rules](https://github.com/peakweb-team/pw-agency-agents/issues/24)
 - [#25 Define model-routing and subtask-splitting heuristics](https://github.com/peakweb-team/pw-agency-agents/issues/25)
+- [#55 Define reasoning-effort and token-budget heuristics](https://github.com/peakweb-team/pw-agency-agents/issues/55)
 
 It builds on:
 
@@ -17,9 +18,9 @@ It builds on:
 
 ## Why This Exists
 
-Generated skills need one provider-neutral runtime policy for how much context to load, how to read repositories efficiently, how to split subtasks, and how to route model strength.
+Generated skills need one provider-neutral runtime policy for how much context to load, how to read repositories efficiently, how to split subtasks, how to route model strength, and how to tune reasoning effort when the runtime exposes that control.
 
-Without this contract, large repos risk wasteful full-repo reading, small tasks risk unnecessary orchestration overhead, and model selection becomes inconsistent and costly.
+Without this contract, large repos risk wasteful full-repo reading, small tasks risk unnecessary orchestration overhead, and model or effort selection becomes inconsistent and costly.
 
 ## Goals
 
@@ -28,6 +29,7 @@ Without this contract, large repos risk wasteful full-repo reading, small tasks 
 - define file-discovery and selective-reading behavior before deep file ingestion
 - define progressive context-expansion rules that are deterministic and reviewable
 - define provider-neutral model-routing heuristics for each collaboration tier
+- define provider-neutral reasoning-effort heuristics that complement model routing without replacing it
 - define bounded subtask-splitting rules that minimize overlap and duplicate context loading
 - include concrete examples and anti-patterns for generated execution behavior
 
@@ -100,6 +102,12 @@ When uncertainty remains high after selective reading, widen scope deliberately 
 Generated skills should route to the least expensive model tier that can still satisfy correctness and delivery-risk needs for the current step.
 
 Escalate model strength only when explicit triggers fire, and record escalation reasons in review metadata.
+
+### Lowest Sufficient Effort Wins
+
+When a provider exposes an explicit reasoning-effort control, generated skills should start with the lowest effort setting likely to satisfy the task and escalate only when task risk, ambiguity, or prior failure signals justify spending more.
+
+Effort selection should complement model-tier routing and context budgeting rather than override them.
 
 ### Provider-Neutral Budgeting
 

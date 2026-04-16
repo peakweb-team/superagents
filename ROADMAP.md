@@ -52,7 +52,7 @@ This is an important boundary. We can help users connect systems, but we are not
 - **Composable over monolithic**: use small fragments that can be assembled into project-specific skills.
 - **Repo-local precedence**: generated skills should live in the project and override user-level defaults.
 - **Smallest capable team**: orchestration should start with the minimum agent team needed for the task.
-- **Efficient by default**: context use, model routing, and subtask boundaries should minimize waste.
+- **Efficient by default**: context use, model routing, reasoning effort, and subtask boundaries should minimize waste.
 - **Human-reviewable output**: generated skills should be easy to understand, edit, and version.
 
 ## Epics
@@ -256,6 +256,7 @@ Non-goals:
 - Epic 4: Delivery Workflow Coverage
 - Epic 5: Team Sizing And Orchestration Strategy
 - Epic 6: Runtime Efficiency And Model Routing
+  - Includes context budgeting, model routing, reasoning-effort tuning, and bounded subtask delegation as separate but related runtime levers.
 
 ### Phase 3
 
