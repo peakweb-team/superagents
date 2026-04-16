@@ -86,7 +86,7 @@ Review generated artifacts as normal project files, including:
 
 - generated `SKILL.md` and `skill.json` files under `.claude/skills/peakweb/`
 - metadata files under `.agency/skills/peakweb/`
-- `review.md` for assumptions, unresolved decisions, compatibility notes, and warnings
+- `.agency/skills/peakweb/review.md` for assumptions, unresolved decisions, compatibility notes, and warnings
 
 ### Step 5: Commit Generated Output Together
 
