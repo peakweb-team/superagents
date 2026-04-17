@@ -149,8 +149,8 @@ Typical loop:
 Example:
 
 ```bash
-git worktree add ../repo-issue-101 -b feat/issue-101 origin/main
-git worktree add ../repo-issue-102 -b feat/issue-102 origin/main
+git worktree add ../repo-issue-101 -b feat/issue-101 origin/HEAD
+git worktree add ../repo-issue-102 -b feat/issue-102 origin/HEAD
 ```
 
 Use one worktree per issue/team stream to reduce conflicts and keep execution isolated.
@@ -170,6 +170,7 @@ Use one worktree per issue/team stream to reduce conflicts and keep execution is
 - [docs/builder-inventory-workflow.md](docs/builder-inventory-workflow.md)
 - [docs/builder-questionnaire-flow.md](docs/builder-questionnaire-flow.md)
 - [docs/generated-skill-layout.md](docs/generated-skill-layout.md)
+- [docs/spec-builder-contract.md](docs/spec-builder-contract.md)
 - [docs/builder-usage-and-repo-local-precedence-contract.md](docs/builder-usage-and-repo-local-precedence-contract.md)
 - [docs/install-packaging-skill-fragments-contract.md](docs/install-packaging-skill-fragments-contract.md)
 - [docs/runtime-context-budgeting-and-repo-reading.md](docs/runtime-context-budgeting-and-repo-reading.md)
