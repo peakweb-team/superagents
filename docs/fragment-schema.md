@@ -400,7 +400,7 @@ composition:
 Why it is generic:
 
 - it expresses specialist-team behavior without naming a vendor
-- it supports Superagents's adaptive-team model directly
+- it supports Superagents' adaptive-team model directly
 - it can pair with GitHub, Jira, or future task-system fragments
 
 ### Example: Generic Intake Fragment
