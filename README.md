@@ -111,7 +111,12 @@ In your target project:
 cd /path/to/target-repo
 ```
 
-Then invoke `peakweb-skill-builder` in your coding assistant and ask it to generate Peakweb project-local skills for the current repo.
+Then invoke `peakweb-skill-builder` in your coding assistant.
+
+Example invocation:
+
+- type `/peakweb-skill-builder`, or select `peakweb-skill-builder` from your assistant skill menu
+- prompt: `Generate Peakweb project-local skills for this repository`
 
 Expected generated roots:
 
@@ -126,10 +131,18 @@ Full contract: [docs/builder-usage-and-repo-local-precedence-contract.md](docs/b
 
 Typical loop:
 
-1. Run work from a target repo with generated Peakweb skills.
-2. Let skills drive intake, planning, implementation, review, and validation behavior.
-3. Regenerate when workflow/tooling assumptions change.
-4. Review and commit generated diff updates like normal project configuration changes.
+1. Activate the repo-local Peakweb skill before starting issue work.
+   Example: select the generated skill from your assistant skill list (under `.claude/skills/peakweb/`) or invoke it by command if your assistant supports slash-commands.
+   What to expect: the skill frames intake inputs (issue/brief), constraints, and required context.
+2. Start implementation from the target repo with a concrete task prompt.
+   Example prompt: `Implement issue #123 in this repository using the active Peakweb workflow.`
+   What to expect: a scoped plan, execution steps, and explicit handoffs between implementation and review.
+3. Run review and validation as separate completion gates.
+   Example prompt: `Run Peakweb review and validation for the current branch and summarize any blockers.`
+   What to expect: a findings list, validation evidence, and a clear pass/fail recommendation for merge.
+4. Regenerate and commit skills when workflow/tooling assumptions change.
+   Example trigger: switching task systems, review tooling, or orchestration strategy.
+   What to expect: updates in `.claude/skills/peakweb/` and `.agency/skills/peakweb/` that should be reviewed and committed together.
 
 ### 4. Run Multiple Workstreams In Parallel (Worktrees)
 
