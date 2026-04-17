@@ -15,6 +15,16 @@ decisions:
     decision_state: confirmed
     rationale: Create or link ticket only when team requests durable external traceability.
 
+  worktree_strategy_default:
+    value: off
+    decision_state: confirmed
+    rationale: Team usually handles one scoped brief at a time and prefers minimal Git workflow overhead.
+
+  worktree_allow_task_override:
+    value: true
+    decision_state: confirmed
+    rationale: High-risk tasks may still request `manual` or `auto` isolation.
+
   primary_code_host_review:
     value: github-pull-requests
     decision_state: assumed

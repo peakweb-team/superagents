@@ -115,6 +115,76 @@ When generated guidance references per-agent model assignment in `agent-team` se
 
 Generated skills should avoid promising strict static per-agent model enforcement for `agent-team` execution.
 
+## Worktree Isolation Strategy (Configurable)
+
+Worktree isolation should be configurable, not universally forced.
+
+Generated guidance should support exactly three modes:
+
+1. `off`
+2. `manual`
+3. `auto`
+
+### `off`
+
+- do not create or manage worktrees
+- execute in the current repository checkout
+- default choice when no strong parallel-work signal exists
+
+### `manual`
+
+- do not create worktrees automatically
+- emit explicit operator instructions for creating or selecting the task worktree
+- continue only after the operator confirms the expected branch/worktree context
+
+### `auto`
+
+- create or reuse a task-scoped worktree automatically
+- create or switch to the task branch in that worktree
+- keep concurrent tasks isolated by branch and filesystem path
+
+## Worktree Strategy Precedence
+
+Worktree strategy resolution should be deterministic:
+
+1. task-level override (if provided and valid)
+2. repository default from generated metadata
+3. safe fallback default: `off`
+
+Generated review output should report both:
+
+- the configured repository default
+- the resolved per-task mode used for execution
+
+## Deterministic Naming And Reuse Rules
+
+When `auto` mode is active, generated guidance should use stable naming and reuse rules:
+
+- derive a `task_slug` from issue/ticket id when available; otherwise use a sanitized short task label
+- branch naming should stay deterministic for the same task input (for example `feat/<task_slug>`)
+- worktree path should stay deterministic for the same task input under a configured root
+- if the deterministic path already exists and points to the expected branch/task context, reuse it
+- if the path exists but maps to a different task context, fail safely with clear remediation steps
+
+The exact path root may vary by environment, but generated behavior should avoid ad hoc per-run naming that creates accidental collisions.
+
+## Failure Handling Expectations
+
+Worktree handling must be non-destructive.
+
+Generated guidance should treat common failures explicitly:
+
+- missing Git worktree support
+- permission denied while creating worktree paths
+- path conflict with unrelated existing directory
+- branch conflict or detached `HEAD` ambiguity
+
+Failure behavior by mode:
+
+- `off`: continue normally (no worktree operations attempted)
+- `manual`: emit operator actions and pause until context is corrected
+- `auto`: either recover by reusing a valid existing task worktree or fail with actionable instructions; do not silently continue in an ambiguous checkout
+
 ## Example Task Classifications
 
 ### `solo` Examples
@@ -158,9 +228,11 @@ Generated skills should:
 - require explicit rationale before `agent-team` selection
 - preserve the model-assignment caveat for `agent-team`
 - apply context budgets progressively using the runtime contract instead of front-loading full-repo reads
+- record repository-default worktree mode and honor valid task-level overrides using deterministic precedence
 
 Generated skills should not:
 
 - default to `agent-team` for generic "complexity" labels alone
 - imply that higher agent count is always better
 - promise guaranteed per-agent model pinning in team mode
+- force worktree usage when repository policy is `off` or when task-level override selects `off`

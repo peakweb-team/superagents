@@ -80,6 +80,8 @@ Example normalized signals:
 - `workflow.parallel_agents`
 - `workflow.parallel_work_bounded`
 - `workflow.peer_coordination_required`
+- `workflow.worktree_policy_documented`
+- `workflow.worktree_parallel_isolation_expected`
 - `workflow.model_budget_matters`
 - `review.coderabbit`
 - `docs.references_jira_workflows`
@@ -293,6 +295,8 @@ Common signals:
 - `workflow.review_and_validation_expected`
 - `workflow.model_budget_matters`
 - `workflow.specialist_handoffs_likely`
+- `workflow.worktree_policy_documented`
+- `workflow.worktree_parallel_isolation_expected`
 - `runtime.expensive_context`
 
 Typical evidence sources:

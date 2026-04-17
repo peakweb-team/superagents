@@ -24,9 +24,19 @@ Deliver work with Jira as tracked-task system of record and GitHub pull requests
 
 ## Delivery Flow
 
+- Resolve worktree mode (`manual` default; task may override to `off` or `auto`).
 - Use GitHub PRs for code-host review and status checks.
 - Treat CodeRabbit or other review automation as additive, not authoritative.
 - Keep review responses visible in the PR system of record.
+
+## Worktree Strategy
+
+- Default mode: `manual`
+- Task override allowed: yes (`off|manual|auto`)
+- Resolution precedence: task override -> repository default -> `off`
+
+In `manual`, surface exact operator actions for worktree setup and branch context checks.
+In `auto`, apply deterministic task path/branch naming and fail safely when permissions, path conflicts, or detached-head ambiguity block isolation.
 
 ## Guardrails
 

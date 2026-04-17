@@ -48,6 +48,22 @@ Select the smallest capable agent team for a task based on scope, risk, and doma
 - Expanded team: add domain specialists when work spans frontend plus backend, infra plus security, or similar cross-cutting concerns.
 - Escalate team size when acceptance criteria are numerous, the blast radius is high, or integration points are unclear.
 
+## Worktree Isolation (Optional)
+
+Treat worktree usage as a configurable execution strategy, not a universal requirement.
+
+- `off`: run in the current checkout with no worktree management.
+- `manual`: provide explicit operator steps for selecting/creating a task worktree.
+- `auto`: create or reuse deterministic task worktrees and branch context automatically.
+
+When task-level override is enabled, resolve mode in this order:
+
+1. task override
+2. repository default
+3. safe fallback `off`
+
+In `auto`, do not continue silently after path or branch ambiguity. Surface actionable remediation and keep behavior non-destructive.
+
 ## Builder Notes
 
 - This fragment should usually be present in the primary orchestration skill.

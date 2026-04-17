@@ -18,6 +18,7 @@ Highlights:
 - GitHub Issues as tracked-task system of record
 - GitHub PR workflow with CodeRabbit layered input
 - direct-brief intake kept active alongside tracked-task intake
+- worktree strategy defaulted to `auto` with per-task override enabled
 
 ### 2. Jira-heavy with mixed GitHub delivery and dual intake
 
@@ -28,6 +29,7 @@ Highlights:
 - Jira as primary task tracker
 - GitHub pull requests as code-host review system of record
 - direct-brief bootstrap supported for exploratory work while tracked-task flow remains primary
+- worktree strategy defaulted to `manual` with per-task override enabled
 
 ### 3. Direct-brief vibe bootstrap (tracker optional)
 
@@ -38,6 +40,7 @@ Highlights:
 - direct-brief as primary intake mode
 - assumption capture and runtime guardrails emphasized
 - tracked-task bindings intentionally unresolved/optional to keep integration boundary explicit
+- worktree strategy defaulted to `off` with per-task override enabled
 
 ## Notes
 
