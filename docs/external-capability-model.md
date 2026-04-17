@@ -19,7 +19,7 @@ It builds on:
 
 ## Why This Exists
 
-Peakweb fragments need a stable way to express what they expect from external systems without hardcoding every workflow to one provider.
+Superagents fragments need a stable way to express what they expect from external systems without hardcoding every workflow to one provider.
 
 That is the purpose of the capability model.
 
@@ -61,6 +61,7 @@ It should not name how a specific provider exposes that behavior.
 Good:
 
 - `task-tracker.read`
+- `task-tracker.create`
 - `code-host.pr.open`
 - `review-feedback.read`
 
@@ -167,6 +168,20 @@ These apply when work begins from or must sync back to an external issue system.
 - Known variability:
   - some providers expose structured fields for status, assignee, and acceptance criteria
   - others expose mostly freeform text plus comments
+
+#### `task-tracker.create`
+
+- Purpose: create a tracked task artifact from a spec-ready brief when implementation should start from a newly authored ticket/issue
+- Required for:
+  - spec-first tracked-task workflows
+  - direct-brief workflows that must publish a tracker artifact before implementation
+- Semantics:
+  - create a canonical task record with enough structure for implementation handoff
+  - persist title, scope summary, acceptance expectations, and traceable links to supporting spec artifacts
+- Known variability:
+  - some providers require issue type, project key, or workflow-state defaults at create time
+  - some providers allow rich templates while others provide minimal create surfaces
+  - permissions may allow read/update on existing records but restrict creation of new records
 
 #### `task-tracker.update`
 
@@ -314,6 +329,21 @@ Usually required:
 
 This mode assumes the tracked task is the system of record for work intake.
 
+### Spec-First (Tracker-Backed)
+
+Required capabilities:
+
+- `task-intake.direct-brief`
+- `task-intake.assumption-capture`
+- `task-tracker.create`
+- `task-tracker.read`
+
+Usually required:
+
+- `task-tracker.update`
+
+This mode turns a brief or portfolio objective into a tracker-backed implementation ticket before coding starts.
+
 ### Dual Intake
 
 Required capabilities:
@@ -339,7 +369,7 @@ That later mapping should answer:
 
 Examples:
 
-- GitHub Issues may satisfy `task-tracker.lookup`, `task-tracker.read`, and `task-tracker.update`
+- GitHub Issues may satisfy `task-tracker.lookup`, `task-tracker.read`, `task-tracker.create`, and `task-tracker.update`
 - Jira may satisfy the same tracked-task capabilities with different field semantics
 - GitHub Pull Requests may satisfy `code-host.pr.open`, `code-host.pr.update`, `code-host.pr.review-request`, `code-host.pr.status-read`, `review-feedback.read`, and `review-feedback.respond`
 - local prompt input satisfies `task-intake.direct-brief` without any external provider at all

@@ -1,0 +1,19 @@
+schema_version: 1
+generated_by: skill-builder
+generated_at: 2026-04-16T14:20:00Z
+framework_release: v1.1.0
+repository: github.com/example/atlas-portal
+bundle:
+  primary_skill: superagents-workflow
+  companion_skills:
+    - superagents-pr-review
+    - superagents-task-tracking
+    - superagents-runtime-guardrails
+contract_versions:
+  generated_skill_layout: 1
+  fragment_schema: 1
+  integration_declaration: 1
+compatibility:
+  status: compatible
+  reason: Generated on current framework release.
+  manual_review_required: false

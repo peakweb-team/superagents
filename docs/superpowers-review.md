@@ -1,8 +1,8 @@
-# Superpowers Review For Peakweb
+# Superpowers Review For Superagents
 
 This document captures the research outcome for issue `#31`:
 
-- [#31 Review obra/superpowers skills system for reusable Peakweb patterns](https://github.com/peakweb-team/pw-agency-agents/issues/31)
+- [#31 Review obra/superpowers skills system for reusable Superagents patterns](https://github.com/peakweb-team/pw-agency-agents/issues/31)
 
 References reviewed:
 
@@ -13,14 +13,14 @@ References reviewed:
 
 `superpowers` is not just a collection of reusable skills. It is an opinionated software-development workflow system built out of composable skills, initial instructions, and automatic skill activation.
 
-That makes it highly relevant to Peakweb.
+That makes it highly relevant to Superagents.
 
 The most important lesson is this:
 
-- Peakweb should borrow `superpowers`'s **workflow discipline**
-- Peakweb should not copy `superpowers` wholesale
+- Superagents should borrow `superpowers`'s **workflow discipline**
+- Superagents should not copy `superpowers` wholesale
 
-Peakweb's product direction is a builder that generates project-specific skills from fragments. `superpowers` provides a strong example of how a skill system can enforce planning, work isolation, verification, and staged execution. It is especially useful as a reference for what "workflow-oriented skills" can look like in practice.
+Superagents's product direction is a builder that generates project-specific skills from fragments. `superpowers` provides a strong example of how a skill system can enforce planning, work isolation, verification, and staged execution. It is especially useful as a reference for what "workflow-oriented skills" can look like in practice.
 
 ## What Superpowers Is Doing Well
 
@@ -53,7 +53,7 @@ The skills directory is organized around workflow phases such as:
 - `verification-before-completion`
 - `writing-skills`
 
-This phase-based decomposition is highly relevant to Peakweb's fragment model.
+This phase-based decomposition is highly relevant to Superagents's fragment model.
 
 ### 3. It Is Strong On Work Isolation
 
@@ -67,11 +67,11 @@ This is valuable because one of the easiest failure modes in agent workflows is 
 
 ### 5. It Treats Skill Authoring As A Discipline
 
-The presence of `writing-skills` is especially important for Peakweb. It suggests skill authoring itself should be treated as a structured, improvable workflow rather than ad hoc prompt writing.
+The presence of `writing-skills` is especially important for Superagents. It suggests skill authoring itself should be treated as a structured, improvable workflow rather than ad hoc prompt writing.
 
 ## Agent Model Comparison
 
-One useful difference to examine is how `superpowers` appears to think about execution units compared with Peakweb's current direction.
+One useful difference to examine is how `superpowers` appears to think about execution units compared with Superagents's current direction.
 
 ### Superpowers Appears To Be Workflow-First, Not Persona-First
 
@@ -93,7 +93,7 @@ This is a meaningful product difference.
 
 ### Agency-Agents Is Much Stronger On Persona Breadth
 
-Peakweb inherits a large specialist roster from `agency-agents`.
+Superagents inherits a large specialist roster from `agency-agents`.
 
 That matters because it opens up workflows that are not only engineering-process oriented, but also domain oriented. For example:
 
@@ -103,10 +103,10 @@ That matters because it opens up workflows that are not only engineering-process
 - inspect a CMS configuration
 - produce findings in a wiki or issue tracker
 
-That means Peakweb has a chance to become more flexible than `superpowers` in one important dimension:
+That means Superagents has a chance to become more flexible than `superpowers` in one important dimension:
 
 - `superpowers` shows how to build strong workflow discipline
-- `agency-agents` gives Peakweb a much wider specialist surface area
+- `agency-agents` gives Superagents a much wider specialist surface area
 
 ### Subagents vs Agent Teams
 
@@ -124,20 +124,20 @@ Those docs also reinforce the bigger distinction: subagents return summarized re
 So the difference is not simply:
 
 - `superpowers` = one context window
-- Peakweb = many context windows
+- Superagents = many context windows
 
 That would be inaccurate.
 
 The more useful distinction is:
 
 - `superpowers` appears to be centered on a workflow/methodology built around Claude Code subagents
-- Peakweb can combine **workflow discipline** with a broader **specialist-agent roster** and explicit team-composition logic
+- Superagents can combine **workflow discipline** with a broader **specialist-agent roster** and explicit team-composition logic
 
-That gives Peakweb a real opportunity to be more powerful in practice, especially when tasks benefit from multiple specialized roles that need to coordinate directly instead of reporting only through a single parent session.
+That gives Superagents a real opportunity to be more powerful in practice, especially when tasks benefit from multiple specialized roles that need to coordinate directly instead of reporting only through a single parent session.
 
-### Why Peakweb May Still Be More Powerful
+### Why Superagents May Still Be More Powerful
 
-Peakweb's opportunity is not merely "more agents".
+Superagents's opportunity is not merely "more agents".
 
 It is:
 
@@ -146,18 +146,18 @@ It is:
 - explicit team sizing
 - ability to combine workflow fragments with domain-specialist agent selection
 
-If implemented well, Peakweb can become:
+If implemented well, Superagents can become:
 
 - more workflow-aware than plain `agency-agents`
 - more persona-rich than `superpowers`
 
 That is a strong differentiator.
 
-## What Peakweb Should Borrow
+## What Superagents Should Borrow
 
 ### Borrow 1: Workflow-Phase Thinking
 
-Peakweb should borrow the idea that skills can correspond to phases in a delivery workflow, not just topical helpers.
+Superagents should borrow the idea that skills can correspond to phases in a delivery workflow, not just topical helpers.
 
 This supports a fragment model where some fragments are:
 
@@ -168,7 +168,7 @@ This supports a fragment model where some fragments are:
 
 ### Borrow 2: Explicit Verification Before Completion
 
-Peakweb should make verification a first-class concern in generated skills.
+Superagents should make verification a first-class concern in generated skills.
 
 That does not mean copying `superpowers`' exact workflow, but it does mean generated skills should have a clear place for:
 
@@ -178,7 +178,7 @@ That does not mean copying `superpowers`' exact workflow, but it does mean gener
 
 ### Borrow 3: Meta-Skills For Authoring And Refinement
 
-Peakweb should take seriously the idea that creating and refining skills is itself a workflow.
+Superagents should take seriously the idea that creating and refining skills is itself a workflow.
 
 This supports:
 
@@ -190,62 +190,62 @@ This supports:
 
 `superpowers` shows that skills become much more valuable when they shape behavior, not just content.
 
-Peakweb should borrow that level of seriousness around:
+Superagents should borrow that level of seriousness around:
 
 - planning before coding
 - isolating work
 - verifying results
 - keeping workflow stages explicit
 
-## What Peakweb Should Adapt, Not Copy
+## What Superagents Should Adapt, Not Copy
 
 ### Adapt 1: Prescriptiveness
 
 `superpowers` is intentionally opinionated and highly prescriptive.
 
-Peakweb should adapt that, not copy it directly.
+Superagents should adapt that, not copy it directly.
 
 Why:
 
-- Peakweb needs a builder that can assemble workflow behavior based on the repo and team context.
+- Superagents needs a builder that can assemble workflow behavior based on the repo and team context.
 - A generated skill system should allow the workflow to vary by project.
 
-So Peakweb should keep the discipline, but not force one rigid lifecycle on every team.
+So Superagents should keep the discipline, but not force one rigid lifecycle on every team.
 
 ### Adapt 2: Trigger Model
 
 `superpowers` leans heavily on automatic skill triggering.
 
-Peakweb should learn from that, especially for Claude-first behavior, but should still design generated skills so they remain understandable and reviewable even when trigger behavior is imperfect.
+Superagents should learn from that, especially for Claude-first behavior, but should still design generated skills so they remain understandable and reviewable even when trigger behavior is imperfect.
 
 ### Adapt 3: Worktree Rules
 
-The worktree-first model is strong, but Peakweb should probably treat it as a configurable workflow strategy rather than a universal requirement for every project and task in v1.
+The worktree-first model is strong, but Superagents should probably treat it as a configurable workflow strategy rather than a universal requirement for every project and task in v1.
 
 ### Adapt 4: TDD As A Universal Rule
 
 `superpowers` puts strong emphasis on TDD and staged development discipline.
 
-Peakweb should learn from the emphasis on verification and iteration, but should be careful about hard-coding one engineering doctrine into every generated skill unless the project explicitly wants that.
+Superagents should learn from the emphasis on verification and iteration, but should be careful about hard-coding one engineering doctrine into every generated skill unless the project explicitly wants that.
 
-## What Peakweb Should Avoid Copying
+## What Superagents Should Avoid Copying
 
 ### Avoid 1: Full Workflow Lock-In
 
-Peakweb should not try to become a clone of `superpowers`.
+Superagents should not try to become a clone of `superpowers`.
 
 The product directions differ:
 
 - `superpowers` is a complete methodology
-- Peakweb is a builder-driven system for generating project-specific skill layers
+- Superagents is a builder-driven system for generating project-specific skill layers
 
 ### Avoid 2: Over-Prescriptive MVP Behavior
 
-If we copy too much of `superpowers`' operational rigidity into the MVP, we risk making Peakweb feel like a workflow religion instead of a builder that adapts to teams.
+If we copy too much of `superpowers`' operational rigidity into the MVP, we risk making Superagents feel like a workflow religion instead of a builder that adapts to teams.
 
 ### Avoid 3: Conflating Reference Quality With Product Fit
 
-`superpowers` can be an excellent reference implementation without being the right product model for Peakweb.
+`superpowers` can be an excellent reference implementation without being the right product model for Superagents.
 
 ## Implications For Phase 1 Issues
 
@@ -291,7 +291,7 @@ Examples:
 
 ## Recommendation
 
-Peakweb should use `superpowers` as a **workflow-pattern reference implementation**.
+Superagents should use `superpowers` as a **workflow-pattern reference implementation**.
 
 The recommended stance is:
 
@@ -299,7 +299,7 @@ The recommended stance is:
 - borrow its phase-based thinking
 - borrow its seriousness about verification and skill authoring
 - avoid copying its full rigidity
-- keep Peakweb centered on builder-generated, project-specific skill composition
+- keep Superagents centered on builder-generated, project-specific skill composition
 
 In short:
 

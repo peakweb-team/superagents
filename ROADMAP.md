@@ -1,16 +1,16 @@
-# Peakweb Agency Agents Roadmap
+# Superagents Roadmap
 
-This roadmap defines what Peakweb Agency Agents is trying to become beyond the original `agency-agents` roster.
+This roadmap defines what Superagents is trying to become beyond the original `agency-agents` roster.
 
 The short version:
 
 - `agency-agents` gives users a strong library of specialist personas.
-- Peakweb Agency Agents aims to add a reusable execution layer on top of that roster.
+- Superagents aims to add a reusable execution layer on top of that roster.
 - The centerpiece of that execution layer is a **skill builder** that assembles project-specific skills from reusable fragments.
 
 ## Product Direction
 
-Peakweb Agency Agents should help teams move from:
+Superagents should help teams move from:
 
 - a generic library of agents
 
@@ -21,6 +21,7 @@ to:
 That means the system should understand:
 
 - what task system the team uses, if any
+- whether work needs a pre-implementation spec artifact before coding begins
 - what work is available across the current ticket or brief portfolio
 - how task dependencies and readiness affect execution order
 - where code review happens
@@ -35,12 +36,12 @@ Direct-brief bootstrap is a delivery flow that starts from a human brief without
 
 ## Core Contract
 
-Peakweb Agency Agents will **not** auto-configure third-party tools.
+Superagents will **not** auto-configure third-party tools.
 
 Instead:
 
 - users configure access to their systems through MCP, CLI tools, environment variables, repo conventions, or other supported mechanisms
-- Peakweb provides fragment logic, builder behavior, setup guidance, and validation expectations
+- Superagents provides fragment logic, builder behavior, setup guidance, and validation expectations
 - generated skills assume integrations are already available and correctly configured
 
 This is an important boundary. We can help users connect systems, but we are not promising automatic provisioning or vendor setup.
@@ -102,7 +103,7 @@ Goals:
 - define shared capabilities such as task lookup, status updates, PR creation, review requests, review feedback retrieval, and delivery signal access
 - define how a project declares which configured integration satisfies each capability
 - define expected fallback behavior when a capability is unavailable
-- make it clear where provider-specific setup ends and Peakweb behavior begins
+- make it clear where provider-specific setup ends and Superagents behavior begins
 
 Non-goals:
 
@@ -128,7 +129,7 @@ Non-goals:
 
 - covering every marketplace tool in the first release
 - guaranteeing identical depth for every provider on day one
-- coupling support to only Peakweb's internal tool choices
+- coupling support to only Superagents's internal tool choices
 
 ### Epic 5: Team Sizing And Orchestration Strategy
 
@@ -199,17 +200,17 @@ Goals:
 - document the product boundary clearly, especially around integrations
 - provide example generated skills for representative stacks and workflows
 - provide examples for GitHub-heavy, Jira-heavy, mixed-tool, and [direct-brief bootstrap](#direct-brief-bootstrap) environments
-- make it easy for users to understand why Peakweb differs from the upstream project
+- make it easy for users to understand why Superagents differs from the upstream project
 
 Non-goals:
 
 - relying on marketing copy alone to explain the system
-- documenting only Peakweb's internal setup
+- documenting only Superagents's internal setup
 - assuming users will infer the builder workflow from fragments alone
 
 ### Epic 9: Portfolio Execution And Dependency-Aware Orchestration
 
-Move beyond single-task execution so Peakweb can reason over a queue of available work, respect dependencies, and drive progress across multiple tickets or briefs.
+Move beyond single-task execution so Superagents can reason over a queue of available work, respect dependencies, and drive progress across multiple tickets or briefs.
 
 Goals:
 
@@ -247,6 +248,25 @@ Non-goals:
 - replacing deterministic testing with screenshot-based review alone
 - assuming every repository is ready for fully autonomous validation from day one
 
+### Epic 11: Spec Builder And Tracked-Task Authoring
+
+Add a pre-implementation specification builder that turns a brief, portfolio item, or discovery output into an implementation-ready spec and tracked work item.
+
+Goals:
+
+- define a spec-builder workflow that runs before implementation execution for work that is not implementation-ready
+- define how the system chooses the smallest capable pre-build team (for example product/project management plus relevant technical specialists) to author the spec
+- define the minimum spec package needed for implementation handoff, including scope boundaries, acceptance criteria, dependencies, and validation expectations
+- define how spec artifacts are stored in the configured system of record (such as GitHub Issues or Jira) or in a local direct-brief path when no external tracker is selected
+- define handoff gating so implementation starts only from spec artifacts that are explicit, reviewable, and marked ready-for-build
+
+Non-goals:
+
+- auto-approving ambiguous requirements without human confirmation
+- replacing existing implementation/review/validation orchestration contracts
+- forcing one ticket template or one provider-specific schema for every team
+- treating internal agent coordination notes as the external human-facing specification artifact
+
 ## Recommended Sequencing
 
 ### Phase 1
@@ -272,6 +292,7 @@ Non-goals:
 
 - Epic 9: Portfolio Execution And Dependency-Aware Orchestration
 - Epic 10: Autonomous Validation, Preview Environments, And Evidence
+- Epic 11: Spec Builder And Tracked-Task Authoring
 
 ## First Issue Candidates
 
@@ -284,6 +305,7 @@ Once the roadmap is agreed, the first issue batch should likely focus on:
 5. Define builder questionnaire and unresolved-decision flow.
 6. Define fragment assembly and conflict-resolution rules.
 7. Draft provider matrix for major delivery platforms and review tools (see [`docs/provider-matrix.md`](./docs/provider-matrix.md)).
+8. Define a spec-builder contract for pre-implementation ticket/spec authoring, role routing, and storage-of-record behavior.
 
 ## Explicit Non-Goals For V1
 
@@ -293,4 +315,4 @@ To keep the first version sharp, V1 should explicitly avoid:
 - trying to support every vendor at launch
 - shipping a giant all-in-one master skill
 - hiding generated behavior in ways users cannot review
-- coupling the product only to Peakweb's internal tooling choices
+- coupling the product only to Superagents's internal tooling choices

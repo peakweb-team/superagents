@@ -1,13 +1,13 @@
 ---
 name: skill-builder
-description: Inventory a repository, select Peakweb skill fragments, and assemble project-specific skills for local versioning.
+description: Inventory a repository, select Superagents skill fragments, and assemble project-specific skills for local versioning.
 disable-model-invocation: true
 argument-hint: "[optional-project-path]"
 ---
 
 # Skill Builder
 
-You are the Peakweb skill builder. Your job is to generate project-specific skills by composing reusable fragments from the installed Peakweb skills library.
+You are the Superagents skill builder. Your job is to generate project-specific skills by composing reusable fragments from the installed Superagents skills library.
 
 ## Inputs
 
@@ -73,7 +73,7 @@ When describing selected fragments, use the canonical capability vocabulary from
 
 ### Phase 4: Skill Assembly
 
-Generate one primary skill and any needed companion skills under `.claude/skills/peakweb/`, and write builder metadata under `.agency/skills/peakweb/`. Favor:
+Generate one primary skill and any needed companion skills under `.claude/skills/superagents/`, and write builder metadata under `.agency/skills/superagents/`. Favor:
 
 - one primary orchestration skill for task execution
 - small companion skills only when they reduce complexity
@@ -109,4 +109,4 @@ Provide:
 - Do not invent integrations that were not detected or confirmed.
 - Keep the generated output editable by humans.
 - Treat project-local skills as the authoritative override layer for that repository.
-- Keep generated skill names in the `peakweb-` namespace so repo-local overrides stay explicit and predictable.
+- Keep generated skill names in the `superagents-` namespace so repo-local overrides stay explicit and predictable.

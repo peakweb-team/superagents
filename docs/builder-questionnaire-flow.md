@@ -485,4 +485,4 @@ To keep the questionnaire disciplined, the builder should:
 - preserve ambiguity in output instead of hiding it
 - avoid pretending the user answered something they did not answer
 
-This keeps the builder lightweight, reviewable, and aligned with Peakweb's goal of becoming an adaptive workflow operating layer rather than a giant setup wizard.
+This keeps the builder lightweight, reviewable, and aligned with Superagents' goal of becoming an adaptive workflow operating layer rather than a giant setup wizard.

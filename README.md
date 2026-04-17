@@ -1,12 +1,12 @@
-# Peakweb Agency Agents
+# Superagents
 
 A practical execution layer built on top of the `agency-agents` roster.
 
-Peakweb keeps the broad specialist-agent library and adds a project-aware skills system so teams can run repeatable delivery workflows inside real repositories.
+Superagents keeps the broad specialist-agent library and adds a project-aware skills system so teams can run repeatable delivery workflows inside real repositories.
 
 ## What This Repository Is For
 
-Peakweb is focused on software-delivery execution, not just persona prompts:
+Superagents is focused on software-delivery execution, not just persona prompts:
 
 - install a reusable base roster of specialists
 - compose repo-specific skills from modular fragments
@@ -17,7 +17,7 @@ Peakweb is focused on software-delivery execution, not just persona prompts:
 
 ### 1. Superpowers + Agency-Agents (Workflow + Specialist Breadth)
 
-Peakweb combines two strengths:
+Superagents combines two strengths:
 
 - workflow discipline inspired by `superpowers`
 - broad persona coverage inherited from `agency-agents`
@@ -26,16 +26,16 @@ That combination lets teams keep structured execution while still selecting doma
 
 ### 2. Custom Skills For Your Use Cases
 
-The `peakweb-skill-builder` flow inventories a target repository, asks only missing workflow questions, and assembles project-local skills from fragments.
+The `superagents-skill-builder` flow inventories a target repository, asks only missing workflow questions, and assembles project-local skills from fragments.
 
 Generated outputs live in your repo:
 
-- `.claude/skills/peakweb/` (execution-facing skills)
-- `.agency/skills/peakweb/` (builder metadata, decisions, and review context)
+- `.claude/skills/superagents/` (execution-facing skills)
+- `.agency/skills/superagents/` (builder metadata, decisions, and review context)
 
 ### 3. Model Routing
 
-Peakweb fragments include runtime guidance for choosing the right model strength for the task, instead of defaulting every step to the most expensive path.
+Superagents fragments include runtime guidance for choosing the right model strength for the task, instead of defaulting every step to the most expensive path.
 
 See: [docs/runtime-context-budgeting-and-repo-reading.md](docs/runtime-context-budgeting-and-repo-reading.md)
 
@@ -45,11 +45,11 @@ The framework emphasizes bounded context loading, scoped reads, and targeted orc
 
 ### 5. Parallel Work Across Multiple Issues/Teams
 
-Peakweb supports isolated execution with `git worktree`, enabling multiple issue streams to run in parallel without branch collisions.
+Superagents supports isolated execution with `git worktree`, enabling multiple issue streams to run in parallel without branch collisions.
 
 ### 6. Repo-Local Precedence (Deterministic)
 
-Repo-local generated Peakweb skills are authoritative in that repository, while user-level installed skills remain reusable defaults and source material.
+Repo-local generated Superagents skills are authoritative in that repository, while user-level installed skills remain reusable defaults and source material.
 
 See: [docs/builder-usage-and-repo-local-precedence-contract.md](docs/builder-usage-and-repo-local-precedence-contract.md)
 
@@ -71,7 +71,7 @@ Supported install targets include:
 - `qwen`
 - `kimi`
 
-## How Peakweb Relates To Superpowers
+## How Superagents Relates To Superpowers
 
 ### What Is Shared
 
@@ -81,10 +81,10 @@ Supported install targets include:
 
 ### What Is Different
 
-- Peakweb is built around a **builder-generated, repo-specific skills layer**
-- Peakweb keeps a **large specialist persona roster** from `agency-agents`
-- Peakweb aims for **adaptive team sizing and orchestration**, not one fixed execution style
-- Peakweb treats generated skills as repo-versioned artifacts with deterministic precedence
+- Superagents is built around a **builder-generated, repo-specific skills layer**
+- Superagents keeps a **large specialist persona roster** from `agency-agents`
+- Superagents aims for **adaptive team sizing and orchestration**, not one fixed execution style
+- Superagents treats generated skills as repo-versioned artifacts with deterministic precedence
 
 Reference: [docs/superpowers-review.md](docs/superpowers-review.md)
 
@@ -101,7 +101,7 @@ From this repo:
 This installs:
 
 - agents to `~/.claude/agents/`
-- builder source bundle to `~/.claude/skills/peakweb-skill-builder/`
+- builder source bundle to `~/.claude/skills/superagents-skill-builder/`
 
 ### 2. Create Skills For A Specific Repository
 
@@ -111,17 +111,17 @@ In your target project:
 cd /path/to/target-repo
 ```
 
-Then invoke `peakweb-skill-builder` in your coding assistant.
+Then invoke `superagents-skill-builder` in your coding assistant.
 
 Example invocation:
 
-- type `/peakweb-skill-builder`, or select `peakweb-skill-builder` from your assistant skill menu
-- prompt: `Generate Peakweb project-local skills for this repository`
+- type `/superagents-skill-builder`, or select `superagents-skill-builder` from your assistant skill menu
+- prompt: `Generate Superagents project-local skills for this repository`
 
 Expected generated roots:
 
-- `.claude/skills/peakweb/`
-- `.agency/skills/peakweb/`
+- `.claude/skills/superagents/`
+- `.agency/skills/superagents/`
 
 Review and commit both roots together.
 
@@ -131,29 +131,37 @@ Full contract: [docs/builder-usage-and-repo-local-precedence-contract.md](docs/b
 
 Typical loop:
 
-1. Activate the repo-local Peakweb skill before starting issue work.
-   Example: select the generated skill from your assistant skill list (under `.claude/skills/peakweb/`) or invoke it by command if your assistant supports slash-commands.
+1. Activate the repo-local Superagents skill before starting issue work.
+   Example: select the generated skill from your assistant skill list (under `.claude/skills/superagents/`) or invoke it by command if your assistant supports slash-commands.
    What to expect: the skill frames intake inputs (issue/brief), constraints, and required context.
 2. Start implementation from the target repo with a concrete task prompt.
-   Example prompt: `Implement issue #123 in this repository using the active Peakweb workflow.`
+   Example prompt: `Implement issue #123 in this repository using the active Superagents workflow.`
    What to expect: a scoped plan, execution steps, and explicit handoffs between implementation and review.
 3. Run review and validation as separate completion gates.
-   Example prompt: `Run Peakweb review and validation for the current branch and summarize any blockers.`
+   Example prompt: `Run Superagents review and validation for the current branch and summarize any blockers.`
    What to expect: a findings list, validation evidence, and a clear pass/fail recommendation for merge.
 4. Regenerate and commit skills when workflow/tooling assumptions change.
    Example trigger: switching task systems, review tooling, or orchestration strategy.
-   What to expect: updates in `.claude/skills/peakweb/` and `.agency/skills/peakweb/` that should be reviewed and committed together.
+   What to expect: updates in `.claude/skills/superagents/` and `.agency/skills/superagents/` that should be reviewed and committed together.
 
 ### 4. Run Multiple Workstreams In Parallel (Worktrees)
 
-Example:
+Superagents is worktree-first by default. For each issue/ticket, the system should automatically:
+
+1. create or reuse a dedicated local worktree for that ticket
+2. create/switch to the ticket branch inside that worktree
+3. keep concurrent tickets isolated so file and branch state cannot collide
+
+The intent is zero manual setup for normal operation.
+
+Manual `git worktree` commands are low-level equivalents (useful for debugging or recovery), for example:
 
 ```bash
 git worktree add ../repo-issue-101 -b feat/issue-101 origin/HEAD
 git worktree add ../repo-issue-102 -b feat/issue-102 origin/HEAD
 ```
 
-Use one worktree per issue/team stream to reduce conflicts and keep execution isolated.
+Use one worktree per issue/team stream to keep execution isolated.
 
 ## Repository Layout
 

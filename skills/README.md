@@ -1,6 +1,6 @@
 # Skills
 
-This directory is the starting point for the Peakweb skills layer.
+This directory is the starting point for the Superagents skills layer.
 
 ## Goals
 
@@ -53,13 +53,13 @@ Concrete generated-skill reference scenarios live in [`examples/generated-skills
 
 ## Intended Flow
 
-1. Peakweb Agency Agents is installed into the user's home directory with the base agent roster and reusable skill fragments.
+1. Superagents is installed into the user's home directory with the base agent roster and reusable skill fragments.
 2. The user runs the `skill-builder` skill inside a target project.
 3. The builder inspects the repo, confirms any missing details through a short questionnaire, and selects the relevant fragments.
-4. The builder assembles one primary skill and any needed companion skills under `.claude/skills/peakweb/`, then writes reviewable builder metadata under `.agency/skills/peakweb/`.
+4. The builder assembles one primary skill and any needed companion skills under `.claude/skills/superagents/`, then writes reviewable builder metadata under `.agency/skills/superagents/`.
 5. The repo commits both generated roots together and treats repo-local generated output as authoritative over user-level defaults for that repository.
 
 User-level installation for the reusable fragment source bundle is now deterministic via `./scripts/install.sh --tool claude-code`:
 
-- `~/.claude/skills/peakweb-skill-builder/SKILL.md`
-- `~/.claude/skills/peakweb-skill-builder/fragments/**/*.md`
+- `~/.claude/skills/superagents-skill-builder/SKILL.md`
+- `~/.claude/skills/superagents-skill-builder/fragments/**/*.md`

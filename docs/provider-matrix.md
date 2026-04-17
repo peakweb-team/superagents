@@ -34,20 +34,20 @@ Task intake is always available through local paths (`task-intake.direct-brief`,
 
 The provider matrix focuses on external-provider capabilities:
 
-- tracked task: `task-tracker.lookup`, `task-tracker.read`, `task-tracker.update`
+- tracked task: `task-tracker.lookup`, `task-tracker.read`, `task-tracker.create`, `task-tracker.update`
 - code host + PR: `code-host.pr.open`, `code-host.pr.update`, `code-host.pr.review-request`, `code-host.pr.status-read`
 - review feedback: `review-feedback.read`, `review-feedback.respond`
 - downstream signals: `delivery-status.read`, `validation-signal.read`
 
 ## Task System Matrix
 
-| Task system | task-tracker.lookup | task-tracker.read | task-tracker.update | Notes on asymmetry |
-| --- | --- | --- | --- | --- |
-| GitHub Issues | full | full | full | Strong parity when GitHub is also the code host; lighter structured workflow fields than enterprise ticketing systems. |
-| Jira | full | full | full | Rich workflows and custom fields; project-specific workflows and permissions increase mapping complexity. |
-| Linear | full | full | full | Fast and consistent core ticket API; enterprise workflow depth is usually narrower than Jira/Azure. |
-| Azure Boards | partial | full | full | Read/update are strong, but lookup normalization (URLs, keys, numeric ids) is often less uniform across org conventions. |
-| GitLab Issues | full | full | full | Best parity when GitLab Issues and GitLab MRs are paired in the same host. |
+| Task system | task-tracker.lookup | task-tracker.read | task-tracker.create | task-tracker.update | Notes on asymmetry |
+| --- | --- | --- | --- | --- | --- |
+| GitHub Issues | full | full | full | full | Strong parity when GitHub is also the code host; lighter structured workflow fields than enterprise ticketing systems. |
+| Jira | full | full | full | full | Rich workflows and custom fields; project-specific workflows and permissions increase mapping complexity. |
+| Linear | full | full | full | full | Fast and consistent core ticket API; enterprise workflow depth is usually narrower than Jira/Azure. |
+| Azure Boards | partial | full | partial | full | Read/update are strong, but lookup normalization and create-time required fields often vary across org conventions. |
+| GitLab Issues | full | full | full | full | Best parity when GitLab Issues and GitLab MRs are paired in the same host. |
 
 ## Code Host / PR Matrix
 
@@ -129,7 +129,7 @@ The proposed first wave intentionally optimizes for depth and honesty over bread
 
 ## Capability Asymmetries To Preserve In Declarations
 
-When writing `.agency/skills/peakweb/integrations.yaml`, preserve these as explicit support/fallback metadata instead of flattening them:
+When writing `.agency/skills/superagents/integrations.yaml`, preserve these as explicit support/fallback metadata instead of flattening them:
 
 1. Tracker lookup semantics vary more than tracker read/update semantics.
 2. Review-request routing is less uniform than PR open/update.

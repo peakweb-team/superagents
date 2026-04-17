@@ -39,11 +39,11 @@ This contract does not cover:
 
 Before running the builder in a repository:
 
-1. Install Peakweb at user level with:
+1. Install Superagents at user level with:
    - `./scripts/install.sh --tool claude-code`
 2. Confirm reusable builder source material exists at:
-   - `~/.claude/skills/peakweb-skill-builder/SKILL.md`
-   - `~/.claude/skills/peakweb-skill-builder/fragments/**/*.md`
+   - `~/.claude/skills/superagents-skill-builder/SKILL.md`
+   - `~/.claude/skills/superagents-skill-builder/fragments/**/*.md`
 3. Ensure any external tools you expect to use are already configured by your team.
 
 The builder consumes configured capabilities. It does not auto-provision integrations.
@@ -60,7 +60,7 @@ Builder output is repository-local, so running in the correct root is required.
 
 ### Step 2: Invoke The Installed Builder Skill
 
-In your coding assistant session, invoke the installed `peakweb-skill-builder` skill and ask it to generate Peakweb project-local skills for the current repository.
+In your coding assistant session, invoke the installed `superagents-skill-builder` skill and ask it to generate Superagents project-local skills for the current repository.
 
 The builder should:
 
@@ -74,9 +74,9 @@ The builder should:
 After generation, confirm both repo-local roots exist:
 
 - execution-facing generated skills:
-  - `.claude/skills/peakweb/`
+  - `.claude/skills/superagents/`
 - builder metadata bundle:
-  - `.agency/skills/peakweb/`
+  - `.agency/skills/superagents/`
 
 If only one root exists, treat the run as incomplete and regenerate.
 
@@ -84,16 +84,16 @@ If only one root exists, treat the run as incomplete and regenerate.
 
 Review generated artifacts as normal project files, including:
 
-- generated `SKILL.md` and `skill.json` files under `.claude/skills/peakweb/`
-- metadata files under `.agency/skills/peakweb/`
-- `.agency/skills/peakweb/review.md` for assumptions, unresolved decisions, compatibility notes, and warnings
+- generated `SKILL.md` and `skill.json` files under `.claude/skills/superagents/`
+- metadata files under `.agency/skills/superagents/`
+- `.agency/skills/superagents/review.md` for assumptions, unresolved decisions, compatibility notes, and warnings
 
 ### Step 5: Commit Generated Output Together
 
 Commit both roots in the same change:
 
-- `.claude/skills/peakweb/**`
-- `.agency/skills/peakweb/**`
+- `.claude/skills/superagents/**`
+- `.agency/skills/superagents/**`
 
 Committing both preserves what will execute and why it was assembled that way.
 
@@ -109,10 +109,10 @@ When reviewing generated output for a new repository or unusual workflow mix, co
 
 Precedence is repository-scoped and deterministic.
 
-1. Repo-local generated Peakweb skills are authoritative for that repository.
+1. Repo-local generated Superagents skills are authoritative for that repository.
 2. User-level installed skills are reusable defaults and source material for generation.
 3. If names overlap, the repo-local generated skill is the active one in that repository.
-4. The `peakweb-` namespace prevents accidental override of unrelated third-party skills.
+4. The `superagents-` namespace prevents accidental override of unrelated third-party skills.
 
 Practical meaning:
 

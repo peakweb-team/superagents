@@ -6,13 +6,13 @@ This document captures the research outcome for issue `#29`:
 
 ## Decision
 
-Peakweb Agency Agents should be **Claude-first for the MVP**.
+Superagents should be **Claude-first for the MVP**.
 
 That means:
 
 - the first builder and generated-skill experience should optimize for Claude and Claude Code
 - project-local override behavior should align with Claude-centric workflows
-- Peakweb should avoid spending MVP time on first-class support for every AI platform
+- Superagents should avoid spending MVP time on first-class support for every AI platform
 
 At the same time, the architecture should remain **clean enough to broaden later** if adoption justifies it.
 
@@ -24,7 +24,7 @@ In practice, that means:
 
 ## Why This Is The Right MVP Stance
 
-Peakweb Agency Agents is a fork of a project that is already Claude-forward in how teams are likely to use it.
+Superagents is a fork of a project that is already Claude-forward in how teams are likely to use it.
 
 Trying to make the MVP equally optimized for every AI platform would create three immediate risks:
 
@@ -42,7 +42,7 @@ Based on official Anthropic material:
 - Skills are described as **composable**, and Anthropic positions them as usable across Claude apps, Claude Code, and the API.
 - Claude Code supports a strong **project-local configuration** model, which aligns well with repo-local override behavior.
 
-These ideas are highly relevant to Peakweb's direction.
+These ideas are highly relevant to Superagents's direction.
 
 ## Additional Lessons From Anthropic's `skill-creator`
 
@@ -52,7 +52,7 @@ Anthropic's public `skills/skill-creator` implementation adds a few practical le
 
 Anthropic treats skill creation as a repeatable workflow, not just a one-off writing task.
 
-That aligns strongly with Peakweb's builder direction:
+That aligns strongly with Superagents's builder direction:
 
 - discover intent
 - ask focused clarifying questions
@@ -64,7 +64,7 @@ That aligns strongly with Peakweb's builder direction:
 
 The `skill-creator` flow starts by understanding what the user wants the skill to enable, when it should trigger, and what outputs are expected.
 
-Peakweb should mirror this. The builder should start from:
+Superagents should mirror this. The builder should start from:
 
 - desired workflow behavior
 - trigger context
@@ -76,7 +76,7 @@ and only then move into fragment selection and generated skill structure.
 
 Anthropic's flow is interview-driven, but targeted. It tries to fill gaps from context first, then asks only what is still ambiguous.
 
-That is a strong fit for Peakweb's builder questionnaire design.
+That is a strong fit for Superagents's builder questionnaire design.
 
 ### 4. Progressive Disclosure Matters
 
@@ -86,13 +86,13 @@ Anthropic explicitly separates:
 - the main skill body
 - additional resources
 
-This is an important pattern for Peakweb as well. It suggests our fragment system should not collapse everything into one giant generated output when layered structure would keep runtime loading cleaner.
+This is an important pattern for Superagents as well. It suggests our fragment system should not collapse everything into one giant generated output when layered structure would keep runtime loading cleaner.
 
 ### 5. Evaluation Should Be Part Of The Loop
 
 Anthropic's `skill-creator` strongly emphasizes test prompts, evaluation, and iterative refinement.
 
-Peakweb probably does not need the full evaluation harness in the first builder release, but this is still an important takeaway:
+Superagents probably does not need the full evaluation harness in the first builder release, but this is still an important takeaway:
 
 - the builder should eventually support iteration, not just initial generation
 - generated skills should be easy to test against real repo tasks
@@ -101,20 +101,20 @@ Peakweb probably does not need the full evaluation harness in the first builder 
 
 Anthropic treats the skill description as a core triggering mechanism.
 
-For Peakweb, that means generated skills should pay close attention to:
+For Superagents, that means generated skills should pay close attention to:
 
 - when the skill should activate
 - what kinds of projects or workflows it applies to
 - what wording helps the Claude-side experience trigger reliably
 
-## How These Lessons Affect Peakweb
+## How These Lessons Affect Superagents
 
 These Anthropic patterns reinforce the MVP direction without changing the core decision:
 
 - we should learn from Anthropic's workflow design
 - we should not depend on Anthropic's implementation directly
 
-Most importantly, they strengthen the case that Peakweb's builder should be:
+Most importantly, they strengthen the case that Superagents's builder should be:
 
 - intent-first
 - minimally inquisitive
@@ -128,7 +128,7 @@ We should intentionally mirror these Anthropic patterns in the MVP:
 
 ### 1. Composable Skills
 
-Peakweb should treat skills as small, purpose-built building blocks that can be assembled together rather than one giant universal prompt.
+Superagents should treat skills as small, purpose-built building blocks that can be assembled together rather than one giant universal prompt.
 
 ### 2. Minimal Loading
 
@@ -144,7 +144,7 @@ The first implementation should assume Claude Code is the most important target 
 
 ## What We Should Stay Independent From
 
-We should not build Peakweb as a thin wrapper around Anthropic-owned implementation details.
+We should not build Superagents as a thin wrapper around Anthropic-owned implementation details.
 
 Specifically:
 
@@ -152,7 +152,7 @@ Specifically:
 - we should not require Anthropic-specific platform features beyond what a normal Claude/Claude Code user can reasonably access
 - we should not encode our fragment architecture in a way that only makes sense inside Anthropic-owned tooling
 
-Peakweb should learn from Anthropic's product direction without becoming dependent on product surfaces we do not control.
+Superagents should learn from Anthropic's product direction without becoming dependent on product surfaces we do not control.
 
 ## What We Should Avoid In MVP
 
@@ -225,7 +225,7 @@ For the MVP, the product boundary should be:
 
 ## Recommendation
 
-Peakweb Agency Agents should proceed with:
+Superagents should proceed with:
 
 - a **Claude-first MVP**
 - a **capability-oriented internal design**

@@ -16,7 +16,7 @@ It is intentionally shaped by:
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the first-wave code-host/review provider fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 
-The goal is not to make fragments abstract for abstraction's sake. The goal is to give Peakweb a small, deterministic contract that can support:
+The goal is not to make fragments abstract for abstraction's sake. The goal is to give Superagents a small, deterministic contract that can support:
 
 - a Claude-first MVP
 - workflow operating system behavior instead of a loose prompt library
@@ -39,7 +39,7 @@ This follows the same general discipline that makes Anthropic-style skills and `
 - predictable inclusion rules
 - strong operational guidance
 
-Peakweb differs in one important way: fragments are not the end product. They are source material for generating a project-specific operating layer.
+Superagents differs in one important way: fragments are not the end product. They are source material for generating a project-specific operating layer.
 
 ## Canonical File Shape
 
@@ -141,6 +141,7 @@ Every fragment must define the following fields.
   - `task-intake.assumption-capture`
   - `task-tracker.lookup`
   - `task-tracker.read`
+  - `task-tracker.create`
   - `task-tracker.update`
   - `code-host.pr.open`
   - `code-host.pr.update`
@@ -153,7 +154,7 @@ Every fragment must define the following fields.
   - `orchestration.team-sizing`
   - `runtime.context-routing`
 
-This is the main place where Peakweb stays capability-oriented instead of hardcoding vendor logic everywhere.
+This is the main place where Superagents stays capability-oriented instead of hardcoding vendor logic everywhere.
 
 The canonical capability semantics live in [`docs/external-capability-model.md`](./external-capability-model.md).
 
@@ -399,7 +400,7 @@ composition:
 Why it is generic:
 
 - it expresses specialist-team behavior without naming a vendor
-- it supports Peakweb's adaptive-team model directly
+- it supports Superagents' adaptive-team model directly
 - it can pair with GitHub, Jira, or future task-system fragments
 
 ### Example: Generic Intake Fragment
@@ -445,7 +446,9 @@ layer: project-management
 summary: Use GitHub Issues as the tracked-task system of record for delivery work.
 provider: github
 capabilities:
+  - task-tracker.lookup
   - task-tracker.read
+  - task-tracker.create
   - task-tracker.update
 selection:
   evidence_any:
@@ -490,4 +493,4 @@ That means:
 - workflow discipline should be explicit enough to support planning, handoffs, validation, and review loops
 - team behavior should stay adaptive, with the smallest capable specialist set as the default
 
-In short: Peakweb should borrow the composability and workflow discipline of the best Claude-forward systems, while keeping its fragment contract clean, reviewable, and portable enough to evolve.
+In short: Superagents should borrow the composability and workflow discipline of the best Claude-forward systems, while keeping its fragment contract clean, reviewable, and portable enough to evolve.

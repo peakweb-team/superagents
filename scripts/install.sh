@@ -10,7 +10,7 @@
 #   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
 #
 # Tools:
-#   claude-code  -- Copy agents to ~/.claude/agents/ and Peakweb skill bundle to ~/.claude/skills/peakweb-skill-builder/
+#   claude-code  -- Copy agents to ~/.claude/agents/ and Superagents skill bundle to ~/.claude/skills/superagents-skill-builder/
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
@@ -314,8 +314,8 @@ interactive_select() {
 install_claude_code() {
   local dest="${HOME}/.claude/agents"
   local skills_parent="${HOME}/.claude/skills"
-  local skills_dest="${HOME}/.claude/skills/peakweb-skill-builder"
-  local skills_backup="${HOME}/.claude/skills/peakweb-skill-builder.bak"
+  local skills_dest="${HOME}/.claude/skills/superagents-skill-builder"
+  local skills_backup="${HOME}/.claude/skills/superagents-skill-builder.bak"
   local skills_stage=""
   local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
   local fragments_src="$SKILLS_ROOT/fragments"
@@ -327,7 +327,7 @@ install_claude_code() {
   [[ -d "$fragments_src" ]] || { err "skills/fragments missing."; return 1; }
 
   mkdir -p "$skills_parent"
-  skills_stage="$(mktemp -d "$skills_parent/peakweb-skill-builder.tmp.XXXXXX")"
+  skills_stage="$(mktemp -d "$skills_parent/superagents-skill-builder.tmp.XXXXXX")"
   trap '[[ -n "$skills_stage" && -d "$skills_stage" ]] && rm -rf "$skills_stage"' RETURN
   cp "$builder_src" "$skills_stage/SKILL.md"
   mkdir -p "$skills_stage/fragments"

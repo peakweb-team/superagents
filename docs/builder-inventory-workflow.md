@@ -17,7 +17,7 @@ It builds directly on:
 - the capability fallback contract from issue `#19`
 - the first-wave task-system provider fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the first-wave code-host/review provider fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
-- the roadmap goal of turning Peakweb into a workflow operating layer instead of a loose prompt library
+- the roadmap goal of turning Superagents into a workflow operating layer instead of a loose prompt library
 
 ## Why This Exists
 
@@ -98,7 +98,7 @@ Use one or more signals to infer builder decisions such as:
 - whether team-sizing guidance is needed
 - whether runtime/model-routing guidance is needed
 - whether a repo-local generated skill is likely to need multiple companion fragments
-- whether existing repo-local Claude or Peakweb files should be reviewed before regeneration
+- whether existing repo-local Claude or Superagents files should be reviewed before regeneration
 - which capability families are likely available, optional, or unsupported for this repository
 - whether degraded capability support likely implies continue, warn, manual, or fail fallback behavior
 
@@ -573,4 +573,4 @@ To stay aligned with the Claude-first MVP direction, the builder should prefer:
 - explicit assumptions over silent guessing
 - targeted follow-up questions over long setup interviews
 
-That gives Peakweb the discipline of a workflow operating system while preserving the flexibility to expand its provider coverage later.
+That gives Superagents the discipline of a workflow operating system while preserving the flexibility to expand its provider coverage later.

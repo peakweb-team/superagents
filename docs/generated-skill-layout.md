@@ -25,7 +25,7 @@ It builds on:
 
 The builder can only be trustworthy if its output lands in a predictable place, uses stable names, and is reviewable like normal project code.
 
-For the Claude-first MVP, the layout should feel natural for repo-local Claude usage while still preserving Peakweb-specific assembly metadata for humans.
+For the Claude-first MVP, the layout should feel natural for repo-local Claude usage while still preserving Superagents-specific assembly metadata for humans.
 
 This document defines:
 
@@ -38,7 +38,7 @@ This document defines:
 
 - keep generated skills project-local and easy to commit
 - align the execution-facing path with Claude-style repo-local skill loading
-- make repo-local Peakweb output the authoritative layer for that repository
+- make repo-local Superagents output the authoritative layer for that repository
 - preserve enough builder metadata for review, debugging, and regeneration
 - avoid name collisions with user-authored or third-party skills
 
@@ -50,7 +50,7 @@ The builder should write generated output under two project-local roots.
 
 The primary skill output root is:
 
-- `.claude/skills/peakweb/`
+- `.claude/skills/superagents/`
 
 This is the directory that should contain generated skills in the shape the Claude-first MVP is expected to consume directly.
 
@@ -58,17 +58,17 @@ Each generated skill lives in its own folder under that root.
 
 Examples:
 
-- `.claude/skills/peakweb/peakweb-workflow/`
-- `.claude/skills/peakweb/peakweb-pr-review/`
-- `.claude/skills/peakweb/peakweb-runtime-guardrails/`
+- `.claude/skills/superagents/superagents-workflow/`
+- `.claude/skills/superagents/superagents-pr-review/`
+- `.claude/skills/superagents/superagents-runtime-guardrails/`
 
 ### 2. Builder Metadata Root
 
 The builder should also write a repo-local metadata bundle under:
 
-- `.agency/skills/peakweb/`
+- `.agency/skills/superagents/`
 
-This metadata root is Peakweb-specific and exists so the generated skills stay reviewable and reproducible without polluting the execution-facing skill folders.
+This metadata root is Superagents-specific and exists so the generated skills stay reviewable and reproducible without polluting the execution-facing skill folders.
 
 The metadata bundle should be committed alongside the generated skills.
 
@@ -80,19 +80,19 @@ Generated skill names should be deterministic, human-readable, and namespaced.
 
 Every generated skill folder should begin with:
 
-- `peakweb-`
+- `superagents-`
 
 This avoids collisions with:
 
 - installed user-level skills
 - hand-authored project-local skills
-- future non-Peakweb repo-local skills
+- future non-Superagents repo-local skills
 
 ### Primary Skill Name
 
 The builder should generate one primary orchestration skill named:
 
-- `peakweb-workflow`
+- `superagents-workflow`
 
 This is the default entry point for project-specific execution behavior.
 
@@ -102,23 +102,23 @@ Companion skills should use short capability-oriented suffixes rather than provi
 
 Examples:
 
-- `peakweb-pr-review`
-- `peakweb-task-tracking`
-- `peakweb-runtime-guardrails`
-- `peakweb-release-handoff`
+- `superagents-pr-review`
+- `superagents-task-tracking`
+- `superagents-runtime-guardrails`
+- `superagents-release-handoff`
 
 Provider-specific naming is acceptable only when the behavior is genuinely provider-bound and the generic name would hide an important distinction.
 
 Example:
 
-- `peakweb-jira-task-tracking`
+- `superagents-jira-task-tracking`
 
 ### Slug Rules
 
 Generated skill folder names should:
 
 - use lowercase kebab-case
-- start with `peakweb-`
+- start with `superagents-`
 - stay stable across regenerations unless the fragment set materially changes
 - avoid repository-name prefixes in the skill folder itself
 
@@ -126,7 +126,7 @@ The repository identity belongs in metadata, not in every skill name.
 
 ## Generated Skill Contents
 
-Each generated skill folder under `.claude/skills/peakweb/` should contain:
+Each generated skill folder under `.claude/skills/superagents/` should contain:
 
 - `SKILL.md`
   - the assembled skill instructions intended for direct use
@@ -152,7 +152,7 @@ Example `skill.json`:
 
 ```json
 {
-  "name": "peakweb-workflow",
+  "name": "superagents-workflow",
   "generated_by": "skill-builder",
   "generated_at": "2026-04-15T00:00:00Z",
   "framework_release": "v1.0.0",
@@ -169,13 +169,13 @@ Example `skill.json`:
     "fragment_schema": 1,
     "integration_declaration": 1
   },
-  "source_manifest": ".agency/skills/peakweb/manifest.yaml"
+  "source_manifest": ".agency/skills/superagents/manifest.yaml"
 }
 ```
 
 ## Required Builder Metadata Output
 
-Besides the skill content itself, the builder should write a metadata bundle under `.agency/skills/peakweb/`.
+Besides the skill content itself, the builder should write a metadata bundle under `.agency/skills/superagents/`.
 
 The MVP metadata bundle should include:
 
@@ -202,11 +202,11 @@ When integrations are degraded, the metadata bundle should make fallback mode, w
 
 ## Precedence Rules
 
-Generated repo-local skills are the authoritative Peakweb layer for the current repository.
+Generated repo-local skills are the authoritative Superagents layer for the current repository.
 
-### Rule 1: Repo-Local Generated Skills Beat Installed Peakweb Skills
+### Rule 1: Repo-Local Generated Skills Beat Installed Superagents Skills
 
-If a generated repo-local Peakweb skill and an installed user-level Peakweb skill both satisfy the same need, the repo-local generated skill wins.
+If a generated repo-local Superagents skill and an installed user-level Superagents skill both satisfy the same need, the repo-local generated skill wins.
 
 Reason:
 
@@ -221,9 +221,9 @@ This is the cleanest override rule and should be the builder's default assumptio
 
 ### Rule 3: Generated Skills Should Not Intentionally Shadow Unrelated Third-Party Skills
 
-The `peakweb-` prefix exists so Peakweb-generated output does not accidentally override unrelated local skills such as a hand-written `jira-helper` or `review-checklist`.
+The `superagents-` prefix exists so Superagents-generated output does not accidentally override unrelated local skills such as a hand-written `jira-helper` or `review-checklist`.
 
-Generated skills should override Peakweb defaults through namespace ownership, not through generic names.
+Generated skills should override Superagents defaults through namespace ownership, not through generic names.
 
 ### Rule 4: Hand-Edited Repo-Local Generated Skills Remain Authoritative Until Regenerated
 
@@ -239,8 +239,8 @@ Generated skills are not throwaway cache files. They are project configuration a
 
 The following should be committed together:
 
-- generated skill folders under `.claude/skills/peakweb/`
-- the builder metadata bundle under `.agency/skills/peakweb/`
+- generated skill folders under `.claude/skills/superagents/`
+- the builder metadata bundle under `.agency/skills/superagents/`
 
 Committing both roots preserves the execution artifact and the reasoning behind it.
 
@@ -279,7 +279,7 @@ Regeneration is expected when:
 
 The builder should aim for deterministic output so regenerations produce clean diffs.
 
-When the generating Peakweb release changes, regeneration review should also surface whether the bundle is merely behind, regeneration-recommended, or regeneration-required under the release upgrade contract.
+When the generating Superagents release changes, regeneration review should also surface whether the bundle is merely behind, regeneration-recommended, or regeneration-required under the release upgrade contract.
 
 ### Manual Edit Expectations
 
@@ -296,20 +296,20 @@ However:
 ```text
 .claude/
   skills/
-    peakweb/
-      peakweb-workflow/
+    superagents/
+      superagents-workflow/
         SKILL.md
         skill.json
-      peakweb-pr-review/
+      superagents-pr-review/
         SKILL.md
         skill.json
-      peakweb-runtime-guardrails/
+      superagents-runtime-guardrails/
         SKILL.md
         skill.json
 
 .agency/
   skills/
-    peakweb/
+    superagents/
       manifest.yaml
       integrations.yaml
       inventory.yaml
@@ -340,6 +340,6 @@ It does not require:
 It does require:
 
 - deterministic repo-local output
-- predictable Peakweb namespacing
-- clear repo-local precedence over installed Peakweb defaults
+- predictable Superagents namespacing
+- clear repo-local precedence over installed Superagents defaults
 - enough metadata to review and regenerate generated skills safely

@@ -146,7 +146,7 @@ Recommended behavior for first-wave code-host/review fragments:
 
 ## Integration Declaration Expectations
 
-When a project uses this fragment set, `.agency/skills/peakweb/integrations.yaml` should:
+When a project uses this fragment set, `.agency/skills/superagents/integrations.yaml` should:
 
 - keep direct-brief intake bindings present when direct-brief mode is selected
 - map `code-host.pr.*` capabilities to one primary code-host provider (`github` in first-wave scope)
