@@ -194,6 +194,24 @@ The MVP metadata bundle should include:
 
 These files make generated output reviewable, diffable, and regenerable.
 
+### Worktree Strategy Metadata
+
+Worktree isolation strategy should be recorded in `decisions.yaml` as runtime-relevant workflow configuration.
+
+Recommended decision keys:
+
+- `worktree_strategy_default`
+  - allowed values: `off`, `manual`, `auto`
+  - purpose: repository-level default for task execution isolation
+- `worktree_allow_task_override`
+  - allowed values: `true`, `false`
+  - purpose: whether task-level override is permitted
+- `worktree_root_strategy` (optional)
+  - examples: `sibling`, `custom-path`
+  - purpose: explain expected path-root strategy for deterministic worktree placement
+
+Task-level override resolution should follow the precedence contract in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md).
+
 The release/upgrade rules that interpret this metadata now live in [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md).
 
 The rules that produce this lock file now live in [`docs/fragment-assembly-rules.md`](./fragment-assembly-rules.md).
@@ -265,6 +283,8 @@ Every builder run should produce a `review.md` file that highlights:
 - any model-tier escalations (for example `economy` -> `balanced` -> `strong`) and why lower tiers were insufficient
 - any reasoning-effort and token-budget profile changes (for example effort `low` -> `medium` -> `high`, profile `lean` -> `standard` -> `expanded`) and what triggered escalation or de-escalation
 - any delegation boundary choices that affected overlap risk, context reuse, or decision to stay in `solo` vs escalate
+- the repository default worktree strategy and whether task-level override was enabled
+- for each executed task, the resolved worktree mode (`off`, `manual`, or `auto`) and any fallback/remediation applied
 
 This review file should make doc-only PR review practical.
 

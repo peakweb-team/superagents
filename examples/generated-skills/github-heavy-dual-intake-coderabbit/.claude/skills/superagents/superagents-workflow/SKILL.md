@@ -19,10 +19,19 @@ Choose intake per request and keep the chosen path explicit in updates.
 
 1. Discover minimal context first.
 2. Pick `solo`, `sub-agent`, or `agent-team` using risk and scope.
-3. Implement in bounded slices.
-4. Validate locally before review handoff.
-5. Open/update PR and request review path.
-6. Resolve review feedback and refresh status summaries.
+3. Resolve worktree mode (`auto` default; task may override to `off` or `manual`).
+4. Implement in bounded slices.
+5. Validate locally before review handoff.
+6. Open/update PR and request review path.
+7. Resolve review feedback and refresh status summaries.
+
+## Worktree Strategy
+
+- Default mode: `auto`
+- Task override allowed: yes (`off|manual|auto`)
+- Resolution precedence: task override -> repository default -> `off`
+
+Use deterministic naming for task worktrees/branches. Reuse an existing path only when it maps to the same task context. If path or branch context is ambiguous, stop and emit remediation instead of continuing in-place.
 
 ## Tracked-Task Responsibilities
 

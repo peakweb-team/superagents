@@ -28,6 +28,7 @@ This contract covers:
 - builder usage flow inside a target repository
 - precedence between user-level reusable skills and repo-local generated skills
 - review/versioning guidance for generated repo-local output
+- configurable worktree isolation defaults and per-task override behavior
 
 This contract does not cover:
 
@@ -69,6 +70,11 @@ The builder should:
 - choose applicable fragments
 - assemble generated project-local skills and metadata
 
+Worktree isolation should be configured here as part of workflow behavior:
+
+- repository default mode: `off`, `manual`, or `auto`
+- whether task-level override is allowed
+
 ### Step 3: Confirm Generated Output Roots
 
 After generation, confirm both repo-local roots exist:
@@ -87,6 +93,11 @@ Review generated artifacts as normal project files, including:
 - generated `SKILL.md` and `skill.json` files under `.claude/skills/superagents/`
 - metadata files under `.agency/skills/superagents/`
 - `.agency/skills/superagents/review.md` for assumptions, unresolved decisions, compatibility notes, and warnings
+
+Specifically verify worktree behavior in:
+
+- `.agency/skills/peakweb/decisions.yaml` for `worktree_strategy_default` and `worktree_allow_task_override`
+- generated workflow instructions for precedence and failure behavior
 
 ### Step 5: Commit Generated Output Together
 
@@ -149,6 +160,24 @@ Regenerate when:
 - generated output is missing required metadata or compatibility context
 
 Regeneration behavior and compatibility classification continue to follow [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md).
+
+## Worktree Strategy Resolution Contract
+
+Worktree isolation is optional and repository-scoped by default.
+
+Supported modes:
+
+1. `off`: no worktree management
+2. `manual`: emit operator instructions only
+3. `auto`: create or reuse task-scoped worktrees
+
+When task-level override is enabled, resolve in order:
+
+1. task override (if valid)
+2. repository default
+3. safe fallback `off`
+
+Generated workflow guidance should include deterministic naming/reuse rules and non-destructive failure remediation for `auto` mode.
 
 ## Relationship To Existing Contracts
 

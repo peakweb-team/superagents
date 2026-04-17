@@ -18,6 +18,16 @@ decisions:
     value: coderabbit
     decision_state: confirmed
 
+  worktree_strategy_default:
+    value: auto
+    decision_state: confirmed
+    rationale: Parallel issue execution is common and branch collision prevention is prioritized.
+
+  worktree_allow_task_override:
+    value: true
+    decision_state: confirmed
+    rationale: Operators may force `manual` for recovery or `off` for one-off low-risk edits.
+
   runtime_context_budget:
     value: medium
     decision_state: assumed

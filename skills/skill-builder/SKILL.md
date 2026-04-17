@@ -50,6 +50,7 @@ Ask only the unresolved questions that materially affect skill composition. Prio
 - Project management system when tracked-task intake is in scope: GitHub Issues, Jira, Linear, or other
 - Review tooling: CodeRabbit, human-only review, custom CI gates
 - Whether tasks should default to solo execution or team orchestration
+- Worktree isolation strategy: `off`, `manual`, or `auto`, plus whether per-task override is allowed
 - Any budget or model constraints
 - Preferred PR workflow and branch naming
 

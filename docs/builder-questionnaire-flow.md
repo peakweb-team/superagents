@@ -202,7 +202,26 @@ Examples:
 - Should bounded parallel implementation default to `sub-agent` before `agent-team`?
 - Are there recurring tasks in this repo where active peer-to-peer coordination materially improves outcomes?
 
-### Priority 4: Runtime / Budget Constraints
+### Priority 4: Worktree Isolation Strategy
+
+Question goal:
+
+- determine whether worktree usage should default to `off`, `manual`, or `auto`
+- determine whether per-task override is allowed on top of the repository default
+
+Ask when:
+
+- repository evidence suggests parallel ticket work, but there is no explicit worktree policy
+- branch collision risk appears meaningful, but the team may prefer manual control
+- existing docs mention branch conventions but do not clarify worktree behavior
+
+Examples:
+
+- Should this repository default to `off`, `manual`, or `auto` worktree strategy?
+- Should a task be allowed to override the repository default worktree strategy?
+- If `auto` is selected, should deterministic task worktree paths use a sibling root or a custom root?
+
+### Priority 5: Runtime / Budget Constraints
 
 Question goal:
 
@@ -220,7 +239,7 @@ Examples:
 - Are there model, reasoning-effort, or budget constraints the builder should encode in runtime guidance?
 - Should this repo default to small-task `narrow` context budgets, or start at large-repo `medium` budgeting with package-mapping first?
 
-### Priority 5: PR And Branching Conventions
+### Priority 6: PR And Branching Conventions
 
 Question goal:
 

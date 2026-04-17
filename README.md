@@ -51,6 +51,14 @@ Superagents supports isolated execution with `git worktree`, enabling multiple i
 
 Repo-local generated Superagents skills are authoritative in that repository, while user-level installed skills remain reusable defaults and source material.
 
+Worktree isolation is intended to be configurable per repository, with optional per-task override, not a forced always-on behavior. The generated workflow should support:
+
+- `off` (default compatibility mode)
+- `manual` (operator-managed worktree steps)
+- `auto` (deterministic task-scoped worktree reuse/creation)
+
+For a step-by-step usage runbook and deterministic precedence rules, see [`docs/builder-usage-and-repo-local-precedence-contract.md`](docs/builder-usage-and-repo-local-precedence-contract.md).
+
 See: [docs/builder-usage-and-repo-local-precedence-contract.md](docs/builder-usage-and-repo-local-precedence-contract.md)
 
 ### 7. Multi-Tool Installation

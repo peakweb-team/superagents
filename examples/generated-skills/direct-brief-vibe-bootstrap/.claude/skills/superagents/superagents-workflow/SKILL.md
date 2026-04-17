@@ -14,9 +14,19 @@ Start from a human brief, shape it into executable slices, and deliver review-re
 
 1. Clarify goals, constraints, and success signals from the brief.
 2. Pick smallest capable team (`solo` by default unless risk is high).
-3. Implement in short slices with tight verification loops.
-4. Open PR and route review in code host.
-5. Capture follow-up work as local action items or optional tracker references.
+3. Resolve worktree mode (`off` default; task may override to `manual` or `auto`).
+4. Implement in short slices with tight verification loops.
+5. Open PR and route review in code host.
+6. Capture follow-up work as local action items or optional tracker references.
+
+## Worktree Strategy
+
+- Default mode: `off`
+- Task override allowed: yes (`off|manual|auto`)
+- Resolution precedence: task override -> repository default -> `off`
+
+In `manual`, emit explicit operator steps and wait for confirmation before changing files.
+In `auto`, use deterministic task slug naming for branch/worktree, reuse valid task paths, and stop with remediation if path/branch context is ambiguous.
 
 ## Assumption Capture Rules
 

@@ -19,6 +19,16 @@ decisions:
     decision_state: confirmed
     rationale: Automation can read Jira but update permissions vary across projects.
 
+  worktree_strategy_default:
+    value: manual
+    decision_state: confirmed
+    rationale: Team wants ticket isolation but prefers explicit operator control in enterprise repos.
+
+  worktree_allow_task_override:
+    value: true
+    decision_state: confirmed
+    rationale: Tasks can request `auto` when environment support is known-good.
+
   runtime_context_budget:
     value: medium
     decision_state: assumed
