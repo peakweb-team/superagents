@@ -5,7 +5,7 @@ supported agentic coding tools.
 
 ## Supported Tools
 
-- **[Claude Code](#claude-code)** — `.md` agents plus reusable Peakweb skill bundle
+- **[Claude Code](#claude-code)** — `.md` agents plus reusable Superagents skill bundle
 - **[GitHub Copilot](#github-copilot)** — `.md` agents, use the repo directly
 - **[Antigravity](#antigravity)** — `SKILL.md` per agent in `antigravity/`
 - **[Gemini CLI](#gemini-cli)** — extension + `SKILL.md` files in `gemini-cli/`
@@ -62,7 +62,7 @@ If you add or modify agents, regenerate all integration files:
 ## Claude Code
 
 The Agency was originally designed for Claude Code. Agents work natively
-without conversion, and the installer also ships the reusable Peakweb
+without conversion, and the installer also ships the reusable Superagents
 skill-builder bundle.
 
 ```bash
@@ -73,8 +73,8 @@ cp -r <category>/*.md ~/.claude/agents/
 
 Reusable fragment bundle path:
 
-- `~/.claude/skills/peakweb-skill-builder/SKILL.md`
-- `~/.claude/skills/peakweb-skill-builder/fragments/**/*.md`
+- `~/.claude/skills/superagents-skill-builder/SKILL.md`
+- `~/.claude/skills/superagents-skill-builder/fragments/**/*.md`
 
 Migration and packaging expectations are defined in
 [`docs/install-packaging-skill-fragments-contract.md`](../docs/install-packaging-skill-fragments-contract.md).

@@ -22,7 +22,7 @@ The integration declaration format defines which provider is expected to satisfy
 
 That still leaves one important question:
 
-What should Peakweb do when the capability is:
+What should Superagents do when the capability is:
 
 - unavailable
 - only partially available
@@ -98,7 +98,7 @@ Example:
 Use when:
 
 - the workflow can still proceed
-- but a meaningful step must be performed or verified by a human outside Peakweb automation
+- but a meaningful step must be performed or verified by a human outside Superagents automation
 
 Behavior:
 
@@ -194,7 +194,7 @@ Choose `continue` when:
 
 - the workflow still means the same thing
 - the capability is supplemental rather than foundational
-- omission does not create a false claim about what Peakweb can do
+- omission does not create a false claim about what Superagents can do
 
 ### Warn
 
@@ -215,7 +215,7 @@ Warnings should be visible in:
 Choose `manual` when:
 
 - a human must take a real action
-- or a human must verify the outcome of an action that Peakweb cannot perform directly
+- or a human must verify the outcome of an action that Superagents cannot perform directly
 
 Manual mode is not failure.
 
@@ -231,7 +231,7 @@ Choose `fail` when:
 
 ## Manual-Mode Expectations
 
-Manual mode must be concrete enough that a human reviewer or operator knows what Peakweb did not do.
+Manual mode must be concrete enough that a human reviewer or operator knows what Superagents did not do.
 
 When a capability falls into manual mode, the generated output should include:
 
@@ -255,7 +255,7 @@ Examples:
 
 ### 3. Completion Semantics
 
-State whether Peakweb may still proceed with the rest of the workflow before that manual step is complete.
+State whether Superagents may still proceed with the rest of the workflow before that manual step is complete.
 
 Examples:
 
@@ -307,6 +307,7 @@ These fields extend the declaration format without changing its basic provider-b
 ### Task Tracker
 
 - Missing `task-tracker.lookup` or `task-tracker.read` in a tracked-task-first workflow should usually be `fail`
+- Missing `task-tracker.create` in a spec-first tracked workflow should usually be `manual` (if human create path is clear) or `fail` (if no safe create path exists)
 - Missing `task-tracker.update` often becomes `manual` rather than `fail` if the rest of the tracked-task workflow is still usable
 
 ### Code Host / PR

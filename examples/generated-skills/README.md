@@ -4,8 +4,8 @@ This directory contains concrete, repo-local generated-skill examples that follo
 
 Each scenario includes both required output roots:
 
-- execution-facing generated skills under `.claude/skills/peakweb/`
-- builder metadata under `.agency/skills/peakweb/`
+- execution-facing generated skills under `.claude/skills/superagents/`
+- builder metadata under `.agency/skills/superagents/`
 
 ## Scenarios
 

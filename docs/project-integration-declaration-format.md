@@ -42,9 +42,9 @@ Without this layer, generated skills would know the capability vocabulary but wo
 
 The project integration declaration should live at:
 
-- `.agency/skills/peakweb/integrations.yaml`
+- `.agency/skills/superagents/integrations.yaml`
 
-This keeps it inside the existing Peakweb builder metadata root rather than scattering workflow configuration across unrelated files.
+This keeps it inside the existing Superagents builder metadata root rather than scattering workflow configuration across unrelated files.
 
 The file should be committed alongside:
 
@@ -78,6 +78,7 @@ Examples:
 
 - `task-intake.direct-brief` -> local direct-brief input
 - `task-tracker.read` -> Jira
+- `task-tracker.create` -> GitHub Issues
 - `code-host.pr.open` -> GitHub
 - `review-feedback.read` -> GitHub PR reviews
 
@@ -232,7 +233,7 @@ Suggested nested fields:
 Example values:
 
 - `requires gh auth and repository access`
-- `requires Jira MCP or CLI credentials outside Peakweb`
+- `requires Jira MCP or CLI credentials outside Superagents`
 
 ## Capability Binding Fields
 
@@ -442,6 +443,11 @@ capability_bindings:
     decision_state: confirmed
 
   task-tracker.read:
+    provider_ref: github
+    support: full
+    decision_state: confirmed
+
+  task-tracker.create:
     provider_ref: github
     support: full
     decision_state: confirmed

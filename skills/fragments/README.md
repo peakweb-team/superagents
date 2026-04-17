@@ -1,6 +1,6 @@
 # Skill Fragments
 
-This directory contains the reusable fragment source material that the Peakweb builder selects from when generating project-local skills.
+This directory contains the reusable fragment source material that the Superagents builder selects from when generating project-local skills.
 
 ## Contract
 
@@ -47,4 +47,4 @@ Capability names should use the canonical vocabulary from `docs/external-capabil
 
 ## MVP Bias
 
-The fragment system is Claude-first for MVP, but the schema remains capability-oriented so Peakweb can broaden later without rebuilding the entire contract.
+The fragment system is Claude-first for MVP, but the schema remains capability-oriented so Superagents can broaden later without rebuilding the entire contract.

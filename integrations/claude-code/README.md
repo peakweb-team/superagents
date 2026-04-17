@@ -3,14 +3,14 @@
 The Agency was built for Claude Code. No conversion needed — agents work
 natively with the existing `.md` + YAML frontmatter format.
 
-The Claude install flow now also ships a reusable Peakweb skill bundle
+The Claude install flow now also ships a reusable Superagents skill bundle
 containing the skill-builder and fragment source library.
 
 ## Install
 
 ```bash
 # Copy all agents to your Claude Code agents directory
-# and install the Peakweb reusable fragment bundle
+# and install the Superagents reusable fragment bundle
 ./scripts/install.sh --tool claude-code
 
 # Or manually copy a category
@@ -36,8 +36,8 @@ the full Agency roster.
 
 Reusable skill bundle path:
 
-- `~/.claude/skills/peakweb-skill-builder/SKILL.md`
-- `~/.claude/skills/peakweb-skill-builder/fragments/**/*.md`
+- `~/.claude/skills/superagents-skill-builder/SKILL.md`
+- `~/.claude/skills/superagents-skill-builder/fragments/**/*.md`
 
 Install/packaging and migration contract:
 

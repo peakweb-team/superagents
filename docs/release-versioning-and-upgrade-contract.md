@@ -17,14 +17,14 @@ It builds on:
 
 ## Why This Exists
 
-Peakweb no longer behaves like a pure "copy files into `~/.claude/agents`" package.
+Superagents no longer behaves like a pure "copy files into `~/.claude/agents`" package.
 
 It introduces:
 
 - framework releases
 - versioned contracts and schemas
-- repo-local generated skills under `.claude/skills/peakweb/`
-- repo-local metadata under `.agency/skills/peakweb/`
+- repo-local generated skills under `.claude/skills/superagents/`
+- repo-local metadata under `.agency/skills/superagents/`
 
 That means upgrades cannot be treated as blind replacement of installed files.
 
@@ -52,7 +52,7 @@ The system needs an explicit answer to three questions:
 
 ## Core Principle
 
-Installed Peakweb files and repo-local generated skills are two different upgrade surfaces.
+Installed Superagents files and repo-local generated skills are two different upgrade surfaces.
 
 The installed framework may update through GitHub releases.
 
@@ -62,11 +62,11 @@ The installed framework now includes both the agent roster and the reusable skil
 
 ## Version Layers
 
-Peakweb should make three layers visible.
+Superagents should make three layers visible.
 
 ### 1. Framework Release Version
 
-This is the version published through GitHub releases for the distributable Peakweb framework.
+This is the version published through GitHub releases for the distributable Superagents framework.
 
 Recommended format:
 
@@ -108,7 +108,7 @@ This version context answers:
 
 ## Release Semantics
 
-Peakweb framework releases should use semantic versioning with upgrade expectations tied to user-visible impact.
+Superagents framework releases should use semantic versioning with upgrade expectations tied to user-visible impact.
 
 ### Patch Release
 
@@ -142,7 +142,7 @@ Expected behavior:
 
 ### Major Release
 
-Major releases should be used when Peakweb changes behavior or metadata in ways that can make existing generated bundles misleading or unsafe.
+Major releases should be used when Superagents changes behavior or metadata in ways that can make existing generated bundles misleading or unsafe.
 
 Examples:
 
@@ -155,7 +155,7 @@ Expected behavior:
 
 - the release notes must call out the breaking change explicitly
 - repo-local generated bundles should be treated as requiring regeneration or migration review
-- Peakweb should not pretend an older generated bundle is safely current
+- Superagents should not pretend an older generated bundle is safely current
 
 ## Required Release Notes For GitHub Releases
 
@@ -183,7 +183,7 @@ The generated repo-local bundle should carry enough metadata to compare itself a
 At minimum the generated metadata bundle should record:
 
 - `framework_release`
-  - the Peakweb GitHub release that generated the bundle
+  - the Superagents GitHub release that generated the bundle
 - `generated_at`
   - when the bundle was generated
 - `contract_versions`
@@ -207,7 +207,7 @@ These fields should live in repo-local metadata so the bundle can be reviewed an
 
 ## Upgrade Classification Rules
 
-When the installed framework release and the repo-local generated bundle differ, Peakweb should classify the situation into one of three states.
+When the installed framework release and the repo-local generated bundle differ, Superagents should classify the situation into one of three states.
 
 ### `compatible`
 
@@ -268,11 +268,11 @@ The MVP upgrade flow should be explicit and reviewable.
 
 ### 1. Install Or Select New Framework Release
 
-The user updates Peakweb through the GitHub-release-based distribution path.
+The user updates Superagents through the GitHub-release-based distribution path.
 
 ### 2. Compare Installed Release To Repo-Local Metadata
 
-Peakweb checks the repo-local generated bundle metadata under `.agency/skills/peakweb/`.
+Superagents checks the repo-local generated bundle metadata under `.agency/skills/superagents/`.
 
 It should compare:
 
@@ -282,7 +282,7 @@ It should compare:
 
 ### 3. Surface Upgrade State Clearly
 
-Peakweb should tell the user whether the repository is:
+Superagents should tell the user whether the repository is:
 
 - compatible
 - regeneration recommended
@@ -292,8 +292,8 @@ Peakweb should tell the user whether the repository is:
 
 If regeneration is chosen or required, rerun the builder and rewrite:
 
-- `.claude/skills/peakweb/`
-- `.agency/skills/peakweb/`
+- `.claude/skills/superagents/`
+- `.agency/skills/superagents/`
 
 ### 5. Review The Resulting Diff
 
@@ -319,7 +319,7 @@ This contract extends the generated-skill layout contract rather than replacing 
 It means:
 
 - generated `skill.json` metadata should reference the generating framework release
-- `.agency/skills/peakweb/manifest.yaml` should summarize bundle release and compatibility state
+- `.agency/skills/superagents/manifest.yaml` should summarize bundle release and compatibility state
 - `review.md` should call out upgrade-sensitive changes during regeneration
 
 It does not require a full installer or migration engine in MVP.

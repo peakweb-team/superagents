@@ -13,7 +13,7 @@ It aligns with:
 
 ## Why This Exists
 
-Peakweb now has two user-level assets that must ship together:
+Superagents now has two user-level assets that must ship together:
 
 - the base agent roster
 - the reusable skill-builder and fragment source bundle
@@ -33,14 +33,14 @@ the installer must place assets at deterministic user-level paths:
 - agents:
   - `~/.claude/agents/*.md`
 - reusable skill bundle:
-  - `~/.claude/skills/peakweb-skill-builder/SKILL.md`
-  - `~/.claude/skills/peakweb-skill-builder/fragments/**/*.md`
+  - `~/.claude/skills/superagents-skill-builder/SKILL.md`
+  - `~/.claude/skills/superagents-skill-builder/fragments/**/*.md`
 
-The reusable bundle path is intentionally namespaced (`peakweb-`) so it does not collide with unrelated local skills.
+The reusable bundle path is intentionally namespaced (`superagents-`) so it does not collide with unrelated local skills.
 
 ## Packaging Behavior
 
-Peakweb framework packaging for install flows must include all of the following source inputs:
+Superagents framework packaging for install flows must include all of the following source inputs:
 
 - `agents/**`
 - `skills/skill-builder/SKILL.md`
@@ -49,7 +49,7 @@ Peakweb framework packaging for install flows must include all of the following 
 
 Installer behavior for the reusable skill bundle is deterministic:
 
-1. `SKILL.md` is copied into `~/.claude/skills/peakweb-skill-builder/`.
+1. `SKILL.md` is copied into `~/.claude/skills/superagents-skill-builder/`.
 2. The target `fragments/` subtree under that bundle is replaced.
 3. Current repository fragments are copied into the rebuilt subtree.
 
@@ -59,8 +59,8 @@ Step 2 ensures removed or renamed fragments do not linger as stale local files a
 
 This contract does not change generated output roots:
 
-- generated project-local skills remain under `.claude/skills/peakweb/`
-- generated metadata remains under `.agency/skills/peakweb/`
+- generated project-local skills remain under `.claude/skills/superagents/`
+- generated metadata remains under `.agency/skills/superagents/`
 
 User-level reusable fragments are source material for generation. Repo-local generated output remains the project-authoritative execution layer.
 
@@ -76,7 +76,7 @@ If a user previously installed only `~/.claude/agents`, migration is:
 Expected result:
 
 - existing agent files are refreshed as before
-- the reusable skill bundle is added at `~/.claude/skills/peakweb-skill-builder/`
+- the reusable skill bundle is added at `~/.claude/skills/superagents-skill-builder/`
 
 No project-local generated files are created or overwritten by this installer step.
 

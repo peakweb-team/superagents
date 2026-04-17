@@ -40,6 +40,7 @@ Task-system provider fragments in this first set map only to canonical tracked-t
 
 - `task-tracker.lookup`
 - `task-tracker.read`
+- `task-tracker.create`
 - `task-tracker.update`
 
 Provider-specific wording may differ, but fragment metadata and generated-skill output should always map behavior back to those capability ids.
@@ -68,8 +69,8 @@ No repository should be forced to use an external task tracker as a precondition
 
 | Fragment id | Provider | Fragment type | Layer | Canonical capabilities | Primary role |
 | --- | --- | --- | --- | --- | --- |
-| `project-management/github-issues` | GitHub Issues | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.update` | Resolve issue references, read issue context, and post durable status updates in GitHub Issues. |
-| `project-management/jira` | Jira | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.update` | Resolve Jira keys/URLs, read Jira ticket context, and post durable status updates in Jira. |
+| `project-management/github-issues` | GitHub Issues | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.create`, `task-tracker.update` | Resolve issue references, read issue context, create spec-backed implementation issues, and post durable status updates in GitHub Issues. |
+| `project-management/jira` | Jira | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.create`, `task-tracker.update` | Resolve Jira keys/URLs, read Jira ticket context, create spec-backed implementation tickets, and post durable status updates in Jira. |
 
 Both fragments should use `composition.exclusive_within: primary-task-tracker` so assembly chooses at most one tracker-of-record path.
 
@@ -84,6 +85,9 @@ Both fragments may suggest direct-brief and assumption-capture fragments for dua
   - Normalize references into one canonical issue identity before downstream reads/updates.
 - `task-tracker.read`
   - Read title, description/body, acceptance context (when present), status/labels, and delivery-relevant links.
+- `task-tracker.create`
+  - Create new issues from approved spec artifacts when implementation cannot start from an existing tracked task.
+  - Ensure created issue content includes scope summary, acceptance expectations, and links to canonical spec artifacts.
 - `task-tracker.update`
   - Post durable human-facing progress updates and completion summaries.
   - Keep updates milestone-oriented rather than mirroring every internal subtask.
@@ -94,6 +98,9 @@ Both fragments may suggest direct-brief and assumption-capture fragments for dua
   - Accept Jira key and URL references; normalize project-scoped key handling explicitly.
 - `task-tracker.read`
   - Read summary, description, acceptance context, status/workflow state, and delivery-relevant links.
+- `task-tracker.create`
+  - Create new tickets from approved spec artifacts when implementation cannot start from an existing tracked task.
+  - Ensure project-key, issue-type, and required-field constraints are handled explicitly.
 - `task-tracker.update`
   - Post durable human-facing progress updates and completion summaries.
   - Respect that transitions/permissions vary per project; do not assume uniform transition rights.
@@ -110,12 +117,14 @@ Recommended behavior for first-wave task-system fragments:
 | `task-tracker.lookup` | `unavailable` for tracker-selected path | `fail` | Do not claim tracked-task workflow support when canonical lookup cannot be established. |
 | `task-tracker.read` | `partial` but core ticket fields readable | `warn` | Continue with explicit note about missing structure and rely on assumption capture for gaps. |
 | `task-tracker.read` | `unavailable` for tracker-selected path | `fail` | Block tracker-first path; switch to direct-brief mode only if project intake decision permits it. |
+| `task-tracker.create` | readable tracker exists but create permission/required fields are missing | `manual` | Continue with explicit manual-create handoff and require linking created task before implementation starts. |
+| `task-tracker.create` | fully unavailable in a spec-first tracked workflow | `fail` | Do not claim tracker-backed spec intake; fall back to direct-brief/local spec path only if selected. |
 | `task-tracker.update` | readable but update path requires human/manual action | `manual` | Continue implementation flow, but require explicit human task update before marking workflow complete. |
 | `task-tracker.update` | fully unavailable and no safe manual process agreed | `fail` | Do not present durable tracker synchronization as completed. |
 
 ## Integration Declaration Expectations
 
-When a project uses this fragment set, `.agency/skills/peakweb/integrations.yaml` should:
+When a project uses this fragment set, `.agency/skills/superagents/integrations.yaml` should:
 
 - keep local direct-brief intake provider entries present when direct-brief mode is allowed
 - map task-tracker capabilities to exactly one primary tracker provider (`github` or `jira`)
@@ -147,6 +156,11 @@ capability_bindings:
     decision_state: confirmed
 
   task-tracker.read:
+    provider_ref: jira
+    support: full
+    decision_state: confirmed
+
+  task-tracker.create:
     provider_ref: jira
     support: full
     decision_state: confirmed
