@@ -146,14 +146,22 @@ Typical loop:
 
 ### 4. Run Multiple Workstreams In Parallel (Worktrees)
 
-Example:
+Peakweb is worktree-first by default. For each issue/ticket, the system should automatically:
+
+1. create or reuse a dedicated local worktree for that ticket
+2. create/switch to the ticket branch inside that worktree
+3. keep concurrent tickets isolated so file and branch state cannot collide
+
+The intent is zero manual setup for normal operation.
+
+Manual `git worktree` commands are low-level equivalents (useful for debugging or recovery), for example:
 
 ```bash
 git worktree add ../repo-issue-101 -b feat/issue-101 origin/HEAD
 git worktree add ../repo-issue-102 -b feat/issue-102 origin/HEAD
 ```
 
-Use one worktree per issue/team stream to reduce conflicts and keep execution isolated.
+Use one worktree per issue/team stream to keep execution isolated.
 
 ## Repository Layout
 
