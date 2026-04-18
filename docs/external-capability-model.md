@@ -129,13 +129,12 @@ These determine how work begins.
 
 #### `task-intake.batch-planning`
 
-- Purpose: allow intake to begin from one planning object that can decompose into multiple implementation-ready item specs in one run
+- Purpose: allow intake to begin from one planning object that can decompose into multiple item-scoped spec drafts and readiness outcomes in one run
 - Required for:
   - portfolio/sprint kickoff spec planning workflows
   - dual-path workflows that support both single-item and multi-item spec intake
 - Semantics:
-  - accept normalized signal `input.batch_planning_object` containing objective, candidate items, and constraints
-  - accept a planning intake object containing an objective, candidate items, and constraints
+  - accept normalized signal `input.batch_planning_object` with `epic_objective`, `candidate_work_items`, and `constraints`
   - preserve item-scoped decomposition, acceptance criteria, and readiness outcomes
   - generate a reviewer/operator summary index with suggested execution order
 - Notes:
