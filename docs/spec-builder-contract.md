@@ -86,6 +86,19 @@ When no external tracker is configured:
 - ensure the artifact remains human-reviewable and versioned in the repository
 - keep unresolved questions explicit until the spec reaches `ready-for-build`
 
+Canonical slug/version rules for `.agency/specs/<slug>.md`:
+
+- required metadata keys:
+  - `slug`: normalized lowercase kebab-case identifier
+  - `revision`: optional monotonic revision marker (for example `rev2`)
+- slug normalization:
+  - trim leading/trailing whitespace
+  - lowercase all characters
+  - replace non-alphanumeric runs with a single `-`
+  - collapse repeated `-` and strip leading/trailing `-`
+- if two candidate specs normalize to the same slug, treat that as the same spec lineage and increment `revision` instead of creating a second base slug file
+- bump `revision` when acceptance criteria or scope boundaries materially change; keep minor wording edits in the current revision when possible
+
 ### Dual Path
 
 When both local and tracker paths are active:
@@ -95,6 +108,12 @@ When both local and tracker paths are active:
 - avoid divergent edits across the two records
 
 ## Handoff Contract To Implementation
+
+Canonical handoff states:
+
+- `ready-for-build`: implementation may proceed
+- `needs-clarification`: missing context or decisions; implementation must wait
+- `blocked`: external dependency or risk gate prevents safe handoff
 
 The spec-builder hands off to implementation only with:
 
