@@ -53,12 +53,25 @@ repos:
 features:
   - feature_id: crosschain-wallet-v2
     title: Cross-chain wallet v2
+    integration:
+      github:
+        project:
+          project_id: PVT_kwDOXYZ123
+        child_issue_links:
+          - task_id: protocol-risk-review
+            repo: example/protocol-core
+            issue_number: 201
     tasks:
       - id: protocol-risk-review
         feature_id: crosschain-wallet-v2
         repo_id: protocol-core
         title: Finalize protocol risk review
         status: done
+        integration:
+          github:
+            issue:
+              repo: example/protocol-core
+              number: 201
         child_ids:
           - infra-rollout-plan
 ```
@@ -100,7 +113,17 @@ features:
   - `repo_id` (string): must reference one of `repos[].id`.
   - `title` (string)
   - `status` (enum): `todo`, `in_progress`, `blocked`, `done`, `cancelled`.
+  - optional `integration.github` mapping:
+    - `issue.repo`, `issue.number`, `issue.node_id`, `issue.url`
+    - `pull_requests[]` (`repo`, `number`, `url`)
+    - `project_items[]` (`project_id`, `item_id`, `url`)
+    - `sync` (`status`, `retry_count`, `last_error`, `last_attempt_at`, `dedupe_key`)
   - optional link arrays: `parent_ids`, `child_ids`, `blocked_by_ids`.
+
+- `features[].integration.github` (optional):
+  - `project` (`project_id`, `item_id`, `url`) for cross-repo GitHub Project rollups.
+  - `child_issue_links[]` (`task_id`, `repo`, `issue_number`, `url`) for explicit feature <-> child issue mapping.
+  - `sync` (`status`, `retry_count`, `last_error`, `last_attempt_at`, `dedupe_key`) for partial-failure/retry-safe sync state.
 
 `parent_ids`/`child_ids` provide explicit parent-child work item links. `blocked_by_ids` provides dependency blockers used by rollup status queries.
 
@@ -150,7 +173,13 @@ Query repo-level rollups scoped to one feature:
 ./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view repo --repo-id web-console --feature-id crosschain-wallet-v2
 ```
 
-Rollups include aggregate child progression (`progress_pct`, status counts) and blocking state (`blocking.blocked`, blocker details).
+Query GitHub integration mapping rollups for one feature:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view integration --feature-id crosschain-wallet-v2
+```
+
+Rollups include aggregate child progression (`progress_pct`, status counts), blocking state (`blocking.blocked`, blocker details), and integration mapping state (issue/project coverage, sync status counts, dedupe keys, and retryable failures).
 
 ## Error Message Examples
 
