@@ -180,6 +180,11 @@ capability_bindings:
     support: full
     decision_state: confirmed
 
+  task-intake.batch-planning:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: assumed
+
   code-host.pr.open:
     provider_ref: github
     support: full

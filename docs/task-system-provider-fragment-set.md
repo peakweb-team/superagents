@@ -150,6 +150,11 @@ capability_bindings:
     support: full
     decision_state: confirmed
 
+  task-intake.batch-planning:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: assumed
+
   task-tracker.lookup:
     provider_ref: jira
     support: full

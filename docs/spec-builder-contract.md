@@ -9,6 +9,7 @@ It builds on:
 - task-system provider behavior in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - role ownership and handoff expectations in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md)
 - batch planning and decomposition extension in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
+- workflow execution path for multi-item planning in [`docs/portfolio-to-spec-decomposition-workflow.md`](./portfolio-to-spec-decomposition-workflow.md)
 
 ## Why This Exists
 
@@ -32,6 +33,8 @@ The spec-builder does not replace implementation, review, or validation flows af
 This document is the canonical single-item baseline.
 
 Batch/sprint planning behavior for multi-item spec generation is defined as an additive extension in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md).
+
+Operational decomposition behavior for that batch/sprint path is defined in [`docs/portfolio-to-spec-decomposition-workflow.md`](./portfolio-to-spec-decomposition-workflow.md).
 
 ## Core Workflow
 
@@ -138,6 +141,7 @@ If these conditions are not met, the handoff remains `needs-clarification` or `b
 Spec-builder behavior relies on canonical capabilities:
 
 - `task-intake.direct-brief`
+- `task-intake.batch-planning` (when planning-batch invocation is enabled)
 - `task-intake.assumption-capture`
 - `task-tracker.lookup`
 - `task-tracker.read`

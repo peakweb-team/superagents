@@ -12,6 +12,7 @@ It builds on:
 - capability semantics in [`docs/external-capability-model.md`](./external-capability-model.md)
 - fallback semantics in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - generated artifact reviewability expectations in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
+- operational decomposition workflow in [`docs/portfolio-to-spec-decomposition-workflow.md`](./portfolio-to-spec-decomposition-workflow.md)
 
 ## Why This Exists
 
@@ -120,6 +121,8 @@ Recommended bundle contents:
   - confirmed/assumed/unresolved decisions, item-scoped
 - `review.md`
   - human review summary and readiness table
+- `index.md`
+  - operator-facing summary/index with suggested execution order and links to canonical per-item specs
 - `items/<order>-<item-slug>.md`
   - item summary sheet with links to canonical per-item spec files
 
@@ -170,6 +173,12 @@ Batch output must be reviewable as normal repository artifacts.
 - assumptions and unresolved decisions grouped by item
 - explicit links to each canonical `.agency/specs/<item-slug>.md`
 - rerun delta summary (what changed from previous batch revision)
+
+`index.md` for batch runs should include:
+
+- concise run summary for operators
+- suggested execution order by wave
+- quick state rollup for each item (`ready-for-build`, `needs-clarification`, `blocked`)
 
 This keeps planning decisions auditable without requiring runtime logs.
 

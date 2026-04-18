@@ -156,6 +156,7 @@ The initial MVP questionnaire should focus on the smallest set of decisions that
 Question goal:
 
 - determine whether generated skills should start from a tracked task, a direct brief, or support both
+- determine whether direct-brief intake should support single-item only, planning-batch only, or both companion paths
 
 Ask when:
 
@@ -163,10 +164,12 @@ Ask when:
 - the repo clearly uses a forge but issue authority is still unclear
 - the repo appears greenfield, light-process, or likely to benefit from direct-brief bootstrap
 - the intended UX wants a dual entry path such as `/agent-task <ticket-or-prompt>`
+- the team plans sprint kickoff runs where one intake should generate multiple candidate specs
 
 Examples:
 
 - Should the generated skill expect work to begin from a tracked task, a direct brief, or both?
+- Should direct-brief intake support single-item spec creation, planning-batch decomposition, or both?
 - If both GitHub Issues and Jira are used, which one should the builder treat as the source of truth for tracked-task intake?
 - Should a greenfield repo support a direct-brief bootstrap mode even if GitHub Issues exists?
 

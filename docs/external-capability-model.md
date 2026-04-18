@@ -127,6 +127,20 @@ These determine how work begins.
   - this is usually satisfied by local prompt input, not a third-party system
   - this capability should pair naturally with explicit assumption capture
 
+#### `task-intake.batch-planning`
+
+- Purpose: allow intake to begin from one planning object that can decompose into multiple implementation-ready item specs in one run
+- Required for:
+  - portfolio/sprint kickoff spec planning workflows
+  - dual-path workflows that support both single-item and multi-item spec intake
+- Semantics:
+  - accept a planning intake object containing an objective, candidate items, and constraints
+  - preserve item-scoped decomposition, acceptance criteria, and readiness outcomes
+  - generate a reviewer/operator summary index with suggested execution order
+- Notes:
+  - this capability is additive and must not replace `task-intake.direct-brief` single-item behavior
+  - canonical artifact semantics for this mode are defined in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md) and [`docs/portfolio-to-spec-decomposition-workflow.md`](./portfolio-to-spec-decomposition-workflow.md)
+
 #### `task-intake.assumption-capture`
 
 - Purpose: record assumptions, missing facts, and unresolved decisions when work starts without a fully structured ticket
@@ -141,7 +155,7 @@ These determine how work begins.
 
 Batch planning note:
 
-- the same intake capabilities apply when input is a multi-item planning object (epic objective + candidate work items + constraints) as defined in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
+- `task-intake.batch-planning` is the explicit multi-item intake capability for planning objects (epic objective + candidate work items + constraints)
 - assumption capture should remain item-scoped where possible instead of collapsing all uncertainty into one batch-level unresolved state
 
 ### 2. Tracked-Task Capabilities
@@ -321,6 +335,16 @@ Not required:
 
 This mode explicitly allows generated skills to operate without an external task system.
 
+### Planning-Batch (Direct-Brief)
+
+Required capabilities:
+
+- `task-intake.direct-brief`
+- `task-intake.batch-planning`
+- `task-intake.assumption-capture`
+
+This mode allows one planning object to produce multiple item specs in one run while keeping item-scoped readiness and acceptance details.
+
 ### Tracked-Task-First
 
 Required capabilities:
@@ -339,6 +363,7 @@ This mode assumes the tracked task is the system of record for work intake.
 Required capabilities:
 
 - `task-intake.direct-brief`
+- `task-intake.batch-planning` (when multi-item planning input is in scope)
 - `task-intake.assumption-capture`
 - `task-tracker.create`
 - `task-tracker.read`
@@ -354,6 +379,7 @@ This mode turns a brief or portfolio objective into a tracker-backed implementat
 Required capabilities:
 
 - `task-intake.direct-brief`
+- `task-intake.batch-planning` (when planning-batch path is enabled)
 - `task-intake.assumption-capture`
 - `task-tracker.lookup`
 - `task-tracker.read`
@@ -378,6 +404,7 @@ Examples:
 - Jira may satisfy the same tracked-task capabilities with different field semantics
 - GitHub Pull Requests may satisfy `code-host.pr.open`, `code-host.pr.update`, `code-host.pr.review-request`, `code-host.pr.status-read`, `review-feedback.read`, and `review-feedback.respond`
 - local prompt input satisfies `task-intake.direct-brief` without any external provider at all
+- local planning intake objects satisfy `task-intake.batch-planning` without any external provider at all
 
 This document defines the capability semantics, not the declaration format for those mappings. The declaration shape now lives in [`docs/project-integration-declaration-format.md`](./project-integration-declaration-format.md).
 

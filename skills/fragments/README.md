@@ -20,6 +20,7 @@ In v1, each fragment is:
 
 - `task-intake/`
   - direct-brief and other work-entry fragments
+  - includes companion planning-batch intake fragments for portfolio-to-spec decomposition
 - `project-management/`
   - task-system and workflow-of-record fragments
 - `delivery/`

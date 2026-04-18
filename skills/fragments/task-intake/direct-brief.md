@@ -18,6 +18,7 @@ selection:
 composition:
   requires: []
   suggests:
+    - task-intake/portfolio-spec-decomposition
     - orchestration/team-sizing
     - runtime/context-and-model-routing
   conflicts: []
@@ -52,4 +53,5 @@ Allow work to begin from a freeform prompt or bootstrap brief instead of requiri
 
 - Pair well with `orchestration/team-sizing.md`.
 - Pair well with `runtime/context-and-model-routing.md`.
+- Add `task-intake/portfolio-spec-decomposition.md` when direct-brief intake must also support multi-item planning runs.
 - This fragment is a first-class alternative to task-system provider fragments, not just a fallback.

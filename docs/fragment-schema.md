@@ -138,6 +138,7 @@ Every fragment must define the following fields.
 - Purpose: describe the workflow capability this fragment adds
 - Example values:
   - `task-intake.direct-brief`
+  - `task-intake.batch-planning`
   - `task-intake.assumption-capture`
   - `task-tracker.lookup`
   - `task-tracker.read`

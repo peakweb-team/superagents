@@ -30,7 +30,7 @@ Execution-tier choices (`solo`, `sub-agent`, `agent-team`) are intentionally out
 
 ## Canonical Capability Subset Used In This Matrix
 
-Task intake is always available through local paths (`task-intake.direct-brief`, `task-intake.assumption-capture`) and is therefore omitted from provider rows below.
+Task intake is always available through local paths (`task-intake.direct-brief`, `task-intake.batch-planning`, `task-intake.assumption-capture`) and is therefore omitted from provider rows below.
 
 The provider matrix focuses on external-provider capabilities:
 
