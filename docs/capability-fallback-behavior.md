@@ -301,6 +301,32 @@ In batch mode, fallback reporting should preserve per-item truth in review artif
 
 This is valid and should not be collapsed into all-or-nothing reporting.
 
+### Rule 4: Keep Tracker Writes Behind Explicit Approval Gates
+
+For batch tracker synchronization:
+
+- generate planned create/update actions first (dry run)
+- require reviewer/operator approval before durable tracker writes
+- if approval is missing, record pending state rather than executing writes
+
+Lack of approval is not a silent success path. It should be reported clearly as intentional non-execution.
+
+### Rule 5: Treat Duplicate-Risk And Ambiguous Linking As Safety Conditions
+
+If a batch item cannot be matched safely to an existing tracker record:
+
+- do not guess between possible targets
+- avoid create operations that may duplicate an existing ticket
+- degrade that item to `manual` or `fail` according to available human fallback
+
+### Rule 6: Surface Partial Provider Failures With Retry Scope
+
+When some batch writes fail:
+
+- preserve successful outcomes for other items
+- report exactly which item ids/slugs are safe to retry
+- include explicit retry preconditions for each failed item (permission fix, required field, transition state, duplicate resolution)
+
 ## Recommended Binding Fields In `integrations.yaml`
 
 To support fallback reviewability, capability bindings may include:

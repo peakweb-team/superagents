@@ -8,6 +8,7 @@ It builds on:
 
 - the single-item baseline in [`docs/spec-builder-contract.md`](./spec-builder-contract.md) from issue `#68`
 - the batch artifact model in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md) from issue `#76`
+- batch tracker sync and approval gates in [`docs/spec-batch-tracker-sync-and-approval-gates.md`](./spec-batch-tracker-sync-and-approval-gates.md) from issue `#75`
 - fallback semantics in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 
 ## Why This Exists
@@ -140,11 +141,22 @@ Reruns of the same `batch-key` should:
 - avoid artificial `revision` bumps for unchanged item scope/acceptance
 - increment `revision` only for material item changes
 
+## Tracker Sync Follow-On For Batch Runs
+
+When batch outputs are tracker-backed, run a post-planning sync lifecycle defined in [`docs/spec-batch-tracker-sync-and-approval-gates.md`](./spec-batch-tracker-sync-and-approval-gates.md):
+
+1. generate dry-run planned writes
+2. complete reviewer and operator approval gates
+3. apply approved create/update operations
+4. publish per-item created/updated/skipped/failed outcomes with retry guidance
+
+Planning-batch decomposition should not bypass approval boundaries for tracker writes.
+
 ## Non-Goals
 
 This workflow does not define:
 
-- provider-specific bulk tracker write mechanics (handled separately)
+- provider-specific bulk tracker write mechanics (defined in [`docs/spec-batch-tracker-sync-and-approval-gates.md`](./spec-batch-tracker-sync-and-approval-gates.md))
 - sprint capacity prediction heuristics
 - automatic reprioritization beyond deterministic DAG ordering
 
