@@ -197,9 +197,6 @@ This workflow does not define:
 
 ## UX Expectations Coverage For #74
 
-- Can be used for sprint kickoff planning:
-  - see `Path B: Planning-Batch` and `Step 1`
-- Supports ad-hoc mode and batch mode without confusing overlap:
-  - see `Path Selection Rule` and `Ad-Hoc vs Batch Operator Experience`
-- Asks focused follow-ups only where ambiguity materially changes decomposition:
-  - see `Step 2a: Focused Follow-Up Policy For Ambiguity`
+- Supports sprint kickoff planning (see `Path B: Planning-Batch` and `Step 1`).
+- Supports ad-hoc mode and batch mode without confusing overlap (see `Path Selection Rule` and `Ad-Hoc vs Batch Operator Experience`).
+- Limits follow-up prompts to ambiguity that materially changes decomposition (see `Step 2a: Focused Follow-Up Policy For Ambiguity`).
