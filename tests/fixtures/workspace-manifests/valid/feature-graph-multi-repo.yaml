@@ -21,8 +21,8 @@ repos:
     runtime: node20
     build_system: pnpm
     issue_backend:
-      type: github_project
-      project_id: PVT_kwDOXYZ123
+      type: repo_issues
+      repo: example/web
 
   - id: infra
     path: ../infra
@@ -40,12 +40,45 @@ repos:
 features:
   - feature_id: rollout-bridge
     title: Bridge rollout
+    integration:
+      github:
+        project:
+          project_id: PVT_kwDOXYZ123
+          item_id: PVTI_kwDOXYZ123
+        child_issue_links:
+          - task_id: api-prepare
+            repo: example/api
+            issue_number: 101
+          - task_id: web-release
+            repo: example/web
+            issue_number: 88
+        sync:
+          status: partial
+          retry_count: 1
+          dedupe_key: orbit:rollout-bridge:github
     tasks:
       - id: api-prepare
         feature_id: rollout-bridge
         repo_id: api
         title: Prepare backend contract
         status: done
+        integration:
+          github:
+            issue:
+              repo: example/api
+              number: 101
+              url: https://github.com/example/api/issues/101
+            pull_requests:
+              - repo: example/api
+                number: 44
+                url: https://github.com/example/api/pull/44
+            project_items:
+              - project_id: PVT_kwDOXYZ123
+                item_id: PVTI_kwDOXYZ124
+            sync:
+              status: synced
+              retry_count: 0
+              dedupe_key: orbit:rollout-bridge:api-prepare
         child_ids:
           - infra-gates
       - id: infra-gates
@@ -62,6 +95,20 @@ features:
         repo_id: web
         title: Release web flow
         status: blocked
+        integration:
+          github:
+            issue:
+              repo: example/web
+              number: 88
+              url: https://github.com/example/web/issues/88
+            project_items:
+              - project_id: PVT_kwDOXYZ123
+                item_id: PVTI_kwDOXYZ125
+            sync:
+              status: error
+              retry_count: 2
+              last_error: API rate limit
+              dedupe_key: orbit:rollout-bridge:web-release
         parent_ids:
           - infra-gates
         blocked_by_ids:

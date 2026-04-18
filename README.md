@@ -105,6 +105,12 @@ Query repo-level rollups:
 ./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view repo --repo-id web-console
 ```
 
+Query GitHub integration mapping rollups (feature + repo-local issue/project links):
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view integration --feature-id crosschain-wallet-v2
+```
+
 ## How Superagents Relates To Superpowers
 
 ### What Is Shared

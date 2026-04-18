@@ -73,12 +73,41 @@ features:
   - feature_id: crosschain-wallet-v2
     title: Cross-chain wallet v2
     description: Coordinate protocol, infra, web, and mobile work items under one release feature.
+    integration:
+      github:
+        project:
+          project_id: PVT_kwDOABC1234
+        child_issue_links:
+          - task_id: protocol-risk-review
+            repo: example/protocol-core
+            issue_number: 201
+          - task_id: web-release-controls
+            repo: example/web-console
+            issue_number: 822
+        sync:
+          status: partial
+          retry_count: 1
+          dedupe_key: atlas-x:crosschain-wallet-v2
     tasks:
       - id: protocol-risk-review
         feature_id: crosschain-wallet-v2
         repo_id: protocol-core
         title: Finalize protocol risk review
         status: done
+        integration:
+          github:
+            issue:
+              repo: example/protocol-core
+              number: 201
+            pull_requests:
+              - repo: example/protocol-core
+                number: 334
+            project_items:
+              - project_id: PVT_kwDOABC1234
+                item_id: PVTI_kwDOABC1235
+            sync:
+              status: synced
+              dedupe_key: atlas-x:crosschain-wallet-v2:protocol-risk-review
         child_ids:
           - infra-rollout-plan
 
@@ -98,6 +127,19 @@ features:
         repo_id: web-console
         title: Add web release controls and observability hooks
         status: blocked
+        integration:
+          github:
+            issue:
+              repo: example/web-console
+              number: 822
+            project_items:
+              - project_id: PVT_kwDOABC1234
+                item_id: PVTI_kwDOABC1236
+            sync:
+              status: error
+              retry_count: 2
+              last_error: timed out while updating project item
+              dedupe_key: atlas-x:crosschain-wallet-v2:web-release-controls
         parent_ids:
           - infra-rollout-plan
         blocked_by_ids:
