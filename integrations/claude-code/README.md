@@ -3,14 +3,16 @@
 The Agency was built for Claude Code. No conversion needed — agents work
 natively with the existing `.md` + YAML frontmatter format.
 
-The Claude install flow now also ships a reusable Superagents skill bundle
-containing the skill-builder and fragment source library.
+The Claude install flow now also ships reusable Superagents skills, including:
+
+- `superagents-skill-builder` with fragment source library
+- `superagents-devcontainer-bootstrap` for isolated Anthropic-based devcontainer scaffolding
 
 ## Install
 
 ```bash
 # Copy all agents to your Claude Code agents directory
-# and install the Superagents reusable fragment bundle
+# and install reusable Superagents skills
 ./scripts/install.sh --tool claude-code
 
 # Or manually copy a category
@@ -34,10 +36,12 @@ Use the Reality Checker agent to verify this feature is production-ready.
 Agents are organized into divisions. See the [main README](../../README.md) for
 the full Agency roster.
 
-Reusable skill bundle path:
+Reusable skill bundle paths:
 
 - `~/.claude/skills/superagents-skill-builder/SKILL.md`
 - `~/.claude/skills/superagents-skill-builder/fragments/**/*.md`
+- `~/.claude/skills/superagents-devcontainer-bootstrap/SKILL.md`
+- `~/.claude/skills/superagents-devcontainer-bootstrap/templates/*`
 
 Install/packaging and migration contract:
 

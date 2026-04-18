@@ -12,6 +12,8 @@ This directory is the starting point for the Superagents skills layer.
 
 - `skill-builder/`
   - Interactive builder skill that inventories a repo, asks a targeted questionnaire, and assembles project-specific skills.
+- `devcontainer-bootstrap/`
+  - Isolated Claude devcontainer bootstrap skill based on Anthropic reference assets, including user-level Superagents install hooks for containerized `--dangerously-skip-permissions` usage.
 - `fragments/task-intake/`
   - Work-entry fragments for direct-brief and other intake modes.
 - `fragments/project-management/`
@@ -59,7 +61,9 @@ Concrete generated-skill reference scenarios live in [`examples/generated-skills
 4. The builder assembles one primary skill and any needed companion skills under `.claude/skills/superagents/`, then writes reviewable builder metadata under `.agency/skills/superagents/`.
 5. The repo commits both generated roots together and treats repo-local generated output as authoritative over user-level defaults for that repository.
 
-User-level installation for the reusable fragment source bundle is now deterministic via `./scripts/install.sh --tool claude-code`:
+User-level installation for reusable Superagents skills is deterministic via `./scripts/install.sh --tool claude-code`:
 
 - `~/.claude/skills/superagents-skill-builder/SKILL.md`
 - `~/.claude/skills/superagents-skill-builder/fragments/**/*.md`
+- `~/.claude/skills/superagents-devcontainer-bootstrap/SKILL.md`
+- `~/.claude/skills/superagents-devcontainer-bootstrap/templates/*`
