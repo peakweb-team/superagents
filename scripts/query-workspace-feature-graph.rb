@@ -3,11 +3,14 @@
 
 require 'json'
 require 'optparse'
+require 'set'
 require_relative 'validate-workspace-manifest'
 
 class FeatureGraphQueryError < StandardError; end
 
 class FeatureGraphQuery
+  TERMINAL_TASK_STATUSES = %w[done cancelled].freeze
+
   def initialize(manifest)
     @manifest = manifest
     @repos = manifest.fetch('repos', [])
@@ -27,7 +30,7 @@ class FeatureGraphQuery
       feature_id: feature_id,
       title: feature['title'],
       description: feature['description'],
-      rollup: build_rollup(tasks),
+      rollup: build_rollup(tasks, dependency_context_tasks: tasks),
       by_repo: build_repo_rollups(tasks),
       integration: build_feature_integration_view(feature, tasks),
       tasks: tasks
@@ -37,14 +40,16 @@ class FeatureGraphQuery
   def repo_view(repo_id, feature_id: nil)
     raise FeatureGraphQueryError, "Repository not found: #{repo_id}" unless @repo_by_id.key?(repo_id)
 
-    tasks = if feature_id
-              feature = @features.find { |item| item['feature_id'] == feature_id }
-              raise FeatureGraphQueryError, "Feature not found: #{feature_id}" unless feature
+    context_tasks, tasks = if feature_id
+                             feature = @features.find { |item| item['feature_id'] == feature_id }
+                             raise FeatureGraphQueryError, "Feature not found: #{feature_id}" unless feature
 
-              normalized_tasks(feature).select { |task| task['repo_id'] == repo_id }
-            else
-              @features.flat_map { |feature| normalized_tasks(feature) }.select { |task| task['repo_id'] == repo_id }
-            end
+                             all_feature_tasks = normalized_tasks(feature)
+                             [all_feature_tasks, all_feature_tasks.select { |task| task['repo_id'] == repo_id }]
+                           else
+                             repo_tasks = @features.flat_map { |feature| normalized_tasks(feature) }.select { |task| task['repo_id'] == repo_id }
+                             [repo_tasks, repo_tasks]
+                           end
 
     {
       api_version: 1,
@@ -52,7 +57,7 @@ class FeatureGraphQuery
       workspace_id: @manifest['workspace_id'],
       repo_id: repo_id,
       feature_id: feature_id,
-      rollup: build_rollup(tasks),
+      rollup: build_rollup(tasks, dependency_context_tasks: context_tasks),
       integration: build_repo_integration_view(repo_id, tasks),
       tasks: tasks
     }
@@ -77,6 +82,50 @@ class FeatureGraphQuery
       rollup: build_integration_rollup(tasks),
       by_repo: build_repo_integration_rollups(tasks),
       tasks: build_task_integration_rows(tasks)
+    }
+  end
+
+  def execution_order_view(feature_id, repo_id: nil)
+    feature = @features.find { |item| item['feature_id'] == feature_id }
+    raise FeatureGraphQueryError, "Feature not found: #{feature_id}" unless feature
+    raise FeatureGraphQueryError, "Repository not found: #{repo_id}" if repo_id && !@repo_by_id.key?(repo_id)
+
+    all_tasks = normalized_tasks(feature)
+    rollup = build_rollup(all_tasks, dependency_context_tasks: all_tasks)
+    ordered = rollup[:execution_order]
+    ordered = ordered.select { |row| row[:repo_id] == repo_id } if repo_id
+
+    {
+      api_version: 1,
+      view: 'execution-order',
+      workspace_id: @manifest['workspace_id'],
+      feature_id: feature_id,
+      repo_id: repo_id,
+      execution_order: ordered,
+      gate_status: rollup[:gate_status],
+      dependency_graph: rollup[:dependency_graph]
+    }
+  end
+
+  def gate_status_view(feature_id, repo_id: nil)
+    feature = @features.find { |item| item['feature_id'] == feature_id }
+    raise FeatureGraphQueryError, "Feature not found: #{feature_id}" unless feature
+    raise FeatureGraphQueryError, "Repository not found: #{repo_id}" if repo_id && !@repo_by_id.key?(repo_id)
+
+    all_tasks = normalized_tasks(feature)
+    orchestration = build_orchestration(all_tasks, dependency_context_tasks: all_tasks)
+    task_gates = orchestration[:task_gates]
+    task_gates = task_gates.select { |row| row[:repo_id] == repo_id } if repo_id
+
+    {
+      api_version: 1,
+      view: 'gate-status',
+      workspace_id: @manifest['workspace_id'],
+      feature_id: feature_id,
+      repo_id: repo_id,
+      gate_status: orchestration[:gate_status],
+      dependency_graph: orchestration[:dependency_graph],
+      tasks: task_gates
     }
   end
 
@@ -106,7 +155,7 @@ class FeatureGraphQuery
     grouped.keys.sort.map do |repo_id|
       {
         repo_id: repo_id,
-        rollup: build_rollup(grouped[repo_id])
+        rollup: build_rollup(grouped[repo_id], dependency_context_tasks: tasks)
       }
     end
   end
@@ -226,32 +275,21 @@ class FeatureGraphQuery
     repo.dig('issue_backend', 'repo')
   end
 
-  def build_rollup(tasks)
+  def build_rollup(tasks, dependency_context_tasks:)
     counts = Hash.new(0)
-    task_by_id = tasks.each_with_object({}) { |task, memo| memo[task['id']] = task }
-    blockers = []
+    orchestration = build_orchestration(tasks, dependency_context_tasks: dependency_context_tasks)
+    blockers = orchestration[:gate_status][:blocking_tasks]
 
     tasks.each do |task|
       status = task['status']
       counts[status] += 1 if status
-
-      if status == 'blocked'
-        blockers << { task_id: task['id'], reason: 'status_blocked' }
-      end
-
-      task.fetch('blocked_by_ids', []).each do |blocking_id|
-        blocking_task = task_by_id[blocking_id]
-        next unless blocking_task
-        next if %w[done cancelled].include?(blocking_task['status'])
-
-        blockers << { task_id: task['id'], reason: 'waiting_on_task', blocking_task_id: blocking_id }
-      end
     end
 
     total = tasks.length
     done = counts['done']
     in_progress = counts['in_progress']
     blocked_count = counts['blocked']
+    has_blockers = blockers.any? || blocked_count.positive?
     completion_pct = total.zero? ? 0.0 : ((done.to_f / total) * 100).round(2)
 
     {
@@ -260,11 +298,169 @@ class FeatureGraphQuery
       progress_pct: completion_pct,
       status_counts: WORK_ITEM_STATUSES.each_with_object({}) { |status, memo| memo[status] = counts[status] },
       blocking: {
-        blocked: blockers.any? || blocked_count.positive?,
+        blocked: has_blockers,
         blocker_count: blockers.length,
         blockers: blockers
       },
-      overall_status: compute_overall_status(total, done, in_progress, blocked_count, blockers.any?)
+      gate_status: orchestration[:gate_status],
+      dependency_graph: orchestration[:dependency_graph],
+      execution_order: orchestration[:execution_order],
+      overall_status: compute_overall_status(total, done, in_progress, blocked_count, has_blockers)
+    }
+  end
+
+  def build_orchestration(tasks, dependency_context_tasks:)
+    task_by_id = dependency_context_tasks.each_with_object({}) { |task, memo| memo[task['id']] = task }
+    relevant_task_ids = tasks.map { |task| task['id'] }.to_set
+    dependency_ids_by_task = {}
+    dependents_by_task = Hash.new { |memo, key| memo[key] = [] }
+    indegree = {}
+
+    tasks.sort_by { |task| task['id'] }.each do |task|
+      deps = dependency_ids_for(task).select { |id| task_by_id.key?(id) }
+      relevant_deps = deps.select { |id| relevant_task_ids.include?(id) }
+      dependency_ids_by_task[task['id']] = deps
+      indegree[task['id']] = relevant_deps.length
+      relevant_deps.each { |dep| dependents_by_task[dep] << task['id'] }
+    end
+
+    dependents_by_task.each_value(&:sort!)
+    queue = indegree.select { |_id, degree| degree.zero? }.keys.sort
+    wave_by_task_id = {}
+    processed_ids = {}
+    execution_rows = []
+
+    until queue.empty?
+      task_id = queue.shift
+      task = task_by_id[task_id]
+      deps = dependency_ids_by_task.fetch(task_id, [])
+      wave = deps.empty? ? 0 : deps.map { |id| wave_by_task_id[id] || 0 }.max + 1
+      wave_by_task_id[task_id] = wave
+
+      gate = evaluate_gate(task, deps, task_by_id)
+      execution_rows << build_execution_row(
+        task,
+        gate: gate,
+        sequence: execution_rows.length + 1,
+        wave: wave,
+        dependency_ids: deps
+      )
+      processed_ids[task_id] = true
+
+      dependents_by_task.fetch(task_id, []).each do |dependent_id|
+        indegree[dependent_id] -= 1
+        queue << dependent_id if indegree[dependent_id].zero?
+      end
+      queue.sort!
+    end
+
+    cycle_task_ids = indegree.keys.reject { |id| processed_ids[id] }.sort
+    cycle_task_ids.each do |task_id|
+      task = task_by_id[task_id]
+      deps = dependency_ids_by_task.fetch(task_id, [])
+      gate = {
+        gate_state: 'blocked',
+        ready_for_execution: false,
+        blockers: [{ task_id: task_id, reason: 'dependency_cycle', cycle_task_ids: cycle_task_ids }]
+      }
+      execution_rows << build_execution_row(
+        task,
+        gate: gate,
+        sequence: execution_rows.length + 1,
+        wave: nil,
+        dependency_ids: deps
+      )
+    end
+
+    {
+      execution_order: execution_rows,
+      task_gates: execution_rows,
+      dependency_graph: {
+        total_tasks: tasks.length,
+        edge_count: dependency_ids_by_task.values.map(&:length).sum,
+        has_cycles: cycle_task_ids.any?,
+        cycle_task_ids: cycle_task_ids
+      },
+      gate_status: build_gate_status_rollup(execution_rows)
+    }
+  end
+
+  def dependency_ids_for(task)
+    (task.fetch('blocked_by_ids', []) + task.fetch('parent_ids', [])).uniq.sort
+  end
+
+  def evaluate_gate(task, dependency_ids, task_by_id)
+    status = task['status']
+    blockers = []
+
+    unsatisfied_dependency_ids = dependency_ids.select do |dependency_id|
+      dependency_task = task_by_id[dependency_id]
+      dependency_task && !TERMINAL_TASK_STATUSES.include?(dependency_task['status'])
+    end
+
+    unsatisfied_dependency_ids.each do |dependency_id|
+      blockers << {
+        task_id: task['id'],
+        reason: 'waiting_on_dependency',
+        blocking_task_id: dependency_id,
+        blocking_status: task_by_id.dig(dependency_id, 'status')
+      }
+    end
+
+    if status == 'blocked'
+      blockers << { task_id: task['id'], reason: 'status_blocked' }
+      gate_state = 'blocked'
+    elsif TERMINAL_TASK_STATUSES.include?(status)
+      gate_state = 'satisfied'
+    elsif !unsatisfied_dependency_ids.empty?
+      gate_state = 'waiting_on_signal'
+    elsif status == 'in_progress'
+      gate_state = 'running'
+    else
+      gate_state = 'ready'
+    end
+
+    {
+      gate_state: gate_state,
+      ready_for_execution: gate_state == 'ready',
+      blockers: blockers.sort_by { |entry| [entry[:reason].to_s, entry[:blocking_task_id].to_s] }
+    }
+  end
+
+  def build_execution_row(task, gate:, sequence:, wave:, dependency_ids:)
+    {
+      sequence: sequence,
+      wave: wave,
+      task_id: task['id'],
+      repo_id: task['repo_id'],
+      status: task['status'],
+      gate_state: gate[:gate_state],
+      ready_for_execution: gate[:ready_for_execution],
+      dependency_ids: dependency_ids,
+      blockers: gate[:blockers]
+    }
+  end
+
+  def build_gate_status_rollup(task_rows)
+    gate_counts = Hash.new(0)
+    blocker_rows = []
+
+    task_rows.each do |row|
+      gate_counts[row[:gate_state]] += 1 if row[:gate_state].is_a?(String)
+      blocker_rows.concat(row[:blockers])
+    end
+
+    {
+      total_tasks: task_rows.length,
+      state_counts: {
+        blocked: gate_counts['blocked'],
+        ready: gate_counts['ready'],
+        running: gate_counts['running'],
+        waiting_on_signal: gate_counts['waiting_on_signal'],
+        satisfied: gate_counts['satisfied']
+      },
+      ready_task_ids: task_rows.select { |row| row[:ready_for_execution] }.map { |row| row[:task_id] },
+      blocking_tasks: blocker_rows
     }
   end
 
@@ -281,8 +477,8 @@ end
 def parse_options(argv)
   options = { format: 'json' }
   parser = OptionParser.new do |opts|
-    opts.banner = 'Usage: scripts/query-workspace-feature-graph.rb <manifest-path> (--feature-id ID | --repo-id ID) [--view feature|repo|integration] [--format json]'
-    opts.on('--view VIEW', 'View to render: feature, repo, or integration') { |value| options[:view] = value }
+    opts.banner = 'Usage: scripts/query-workspace-feature-graph.rb <manifest-path> (--feature-id ID | --repo-id ID) [--view feature|repo|integration|execution-order|gate-status] [--format json]'
+    opts.on('--view VIEW', 'View to render: feature, repo, integration, execution-order, or gate-status') { |value| options[:view] = value }
     opts.on('--feature-id ID', 'Feature id to query') { |value| options[:feature_id] = value }
     opts.on('--repo-id ID', 'Repo id to query') { |value| options[:repo_id] = value }
     opts.on('--format FORMAT', 'Output format (json only currently)') { |value| options[:format] = value }
@@ -302,15 +498,16 @@ end
 
 def validate_query_options!(options)
   raise FeatureGraphQueryError, "Unsupported format '#{options[:format]}'. Only 'json' is supported." unless options[:format] == 'json'
-  raise FeatureGraphQueryError, "Unsupported view '#{options[:view]}'. Use 'feature', 'repo', or 'integration'." unless %w[feature repo integration].include?(options[:view])
+  allowed_views = %w[feature repo integration execution-order gate-status]
+  raise FeatureGraphQueryError, "Unsupported view '#{options[:view]}'. Use #{allowed_views.join(', ')}." unless allowed_views.include?(options[:view])
 
   case options[:view]
   when 'feature'
     raise FeatureGraphQueryError, '--feature-id is required for feature view' unless options[:feature_id]
   when 'repo'
     raise FeatureGraphQueryError, '--repo-id is required for repo view' unless options[:repo_id]
-  when 'integration'
-    raise FeatureGraphQueryError, '--feature-id is required for integration view' unless options[:feature_id]
+  else
+    raise FeatureGraphQueryError, "--feature-id is required for #{options[:view]} view" unless options[:feature_id]
   end
 end
 
@@ -340,6 +537,10 @@ def run_query_cli(argv)
              query.feature_view(options[:feature_id])
            when 'repo'
              query.repo_view(options[:repo_id], feature_id: options[:feature_id])
+           when 'execution-order'
+             query.execution_order_view(options[:feature_id], repo_id: options[:repo_id])
+           when 'gate-status'
+             query.gate_status_view(options[:feature_id], repo_id: options[:repo_id])
            else
              query.integration_view(options[:feature_id], repo_id: options[:repo_id])
            end

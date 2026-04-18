@@ -380,6 +380,7 @@ class ManifestValidator
       validate_task_link_array(task['blocked_by_ids'], "#{task_pointer}.blocked_by_ids", task_ids, task['id']) if task.key?('blocked_by_ids')
       validate_parent_child_consistency(task, task_pointer, tasks, task_ids)
     end
+    validate_task_dependency_cycles(tasks, pointer, task_ids)
 
     task_by_id
   end
@@ -680,6 +681,59 @@ class ManifestValidator
 
       add_error("#{pointer}.child_ids", "declares child '#{child_id}' but #{child_id} does not include '#{task['id']}' in parent_ids")
     end
+  end
+
+  def validate_task_dependency_cycles(tasks, pointer, known_task_ids)
+    graph = {}
+    tasks.each_with_index do |task, index|
+      next unless task.is_a?(Hash) && task['id'].is_a?(String)
+
+      task_pointer = "#{pointer}[#{index}]"
+      dependencies = extract_dependency_ids(task).select { |dependency_id| known_task_ids.key?(dependency_id) }
+      graph[task['id']] = { dependencies: dependencies, pointer: task_pointer }
+    end
+
+    color_by_task_id = Hash.new(:white)
+    stack = []
+    cycle = nil
+
+    dfs_visit = lambda do |task_id|
+      return if cycle
+
+      color_by_task_id[task_id] = :gray
+      stack << task_id
+
+      graph.fetch(task_id, { dependencies: [] })[:dependencies].each do |dependency_id|
+        case color_by_task_id[dependency_id]
+        when :white
+          dfs_visit.call(dependency_id)
+        when :gray
+          start_index = stack.index(dependency_id)
+          cycle = stack[start_index..] + [dependency_id]
+          return
+        end
+        return if cycle
+      end
+
+      stack.pop
+      color_by_task_id[task_id] = :black
+    end
+
+    graph.keys.sort.each do |task_id|
+      next unless color_by_task_id[task_id] == :white
+
+      dfs_visit.call(task_id)
+      break if cycle
+    end
+
+    return unless cycle
+
+    cycle_path = cycle.join(' -> ')
+    add_error(pointer, "contains dependency cycle in feature task graph: #{cycle_path}")
+  end
+
+  def extract_dependency_ids(task)
+    (Array(task['blocked_by_ids']) + Array(task['parent_ids'])).uniq.sort
   end
 
   def validate_work_item_id(value, pointer, field_name:)

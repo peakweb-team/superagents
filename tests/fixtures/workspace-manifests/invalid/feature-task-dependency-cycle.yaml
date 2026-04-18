@@ -1,0 +1,36 @@
+schema_version: 1
+workspace_id: orbit
+repos:
+  - id: api
+    remote: git@github.com:example/api.git
+    default_branch: main
+    role: backend
+    build_system: bundler
+    issue_backend:
+      type: repo_issues
+      repo: example/api
+features:
+  - feature_id: cyclic-rollout
+    title: Cyclic rollout
+    tasks:
+      - id: task-a
+        feature_id: cyclic-rollout
+        repo_id: api
+        title: Task A
+        status: todo
+        blocked_by_ids:
+          - task-c
+      - id: task-b
+        feature_id: cyclic-rollout
+        repo_id: api
+        title: Task B
+        status: todo
+        blocked_by_ids:
+          - task-a
+      - id: task-c
+        feature_id: cyclic-rollout
+        repo_id: api
+        title: Task C
+        status: todo
+        blocked_by_ids:
+          - task-b
