@@ -84,6 +84,7 @@ Supported install targets include:
 Superagents supports a federated workspace contract for coordinating multiple repositories across different language/toolchain stacks, plus an optional cross-repo feature graph for shared delivery work.
 
 - Spec: [docs/federated-workspace-manifest-spec.md](docs/federated-workspace-manifest-spec.md)
+- Operator guide (decision + walkthrough + migration): [docs/federated-multi-repo-cross-language-guide.md](docs/federated-multi-repo-cross-language-guide.md)
 - Schema: [docs/schemas/superagents.workspace.schema.json](docs/schemas/superagents.workspace.schema.json)
 - Example: [docs/examples/workspace-manifests/superagents.workspace.yaml](docs/examples/workspace-manifests/superagents.workspace.yaml)
 
