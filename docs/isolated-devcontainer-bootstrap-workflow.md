@@ -1,0 +1,64 @@
+# Isolated Devcontainer Bootstrap Workflow
+
+This document defines the workflow introduced for issue `#83`:
+
+- [#83 Feature: Superagents skill for isolated Anthropic dev container + user-level packaging](https://github.com/peakweb-team/pw-agency-agents/issues/83)
+
+## Goal
+
+Provide a repeatable and safer path for users who need `claude --dangerously-skip-permissions` by running inside an isolated Anthropic-based devcontainer and installing Superagents at user scope inside that container.
+
+## Scope
+
+- Reusable skill: `superagents-devcontainer-bootstrap`
+- Skill install path: `~/.claude/skills/superagents-devcontainer-bootstrap/`
+- Template assets:
+  - `templates/scaffold-devcontainer.sh`
+  - `templates/post-create-superagents.sh`
+  - `templates/smoke-test-superagents.sh`
+
+## Safety Guidance
+
+- Use this workflow only with trusted repositories.
+- Isolation reduces host risk but does not eliminate in-container credential exfiltration risk.
+- Do not recommend host-level use of `--dangerously-skip-permissions` as a default workflow.
+
+## Workflow
+
+1. Install Superagents for Claude Code:
+
+```bash
+./scripts/install.sh --tool claude-code
+```
+
+2. In a target repository, copy the template scripts from the installed skill bundle into `.devcontainer/`.
+
+3. Run scaffold script from the target repository root:
+
+```bash
+.devcontainer/scaffold-devcontainer.sh
+```
+
+4. Reopen the repository in the container.
+
+5. After container startup, run smoke test inside container:
+
+```bash
+.devcontainer/smoke-test-superagents.sh
+```
+
+6. If the smoke test passes, the container has user-level Superagents installed and is ready for trusted-repo workflows that may require `--dangerously-skip-permissions`.
+
+## Anthropic Baseline Dependency
+
+The scaffold script pulls baseline files from Anthropic reference source:
+
+- `devcontainer.json`
+- `Dockerfile`
+- `init-firewall.sh`
+
+Default source URL:
+
+- `https://raw.githubusercontent.com/anthropics/claude-code/main/.devcontainer`
+
+Override with `ANTHROPIC_DEVCONTAINER_BASE_URL` when pinning to a specific fork or revision mirror.

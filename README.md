@@ -110,6 +110,7 @@ This installs:
 
 - agents to `~/.claude/agents/`
 - builder source bundle to `~/.claude/skills/superagents-skill-builder/`
+- devcontainer bootstrap bundle to `~/.claude/skills/superagents-devcontainer-bootstrap/`
 
 ### 2. Create Skills For A Specific Repository
 
@@ -134,6 +135,19 @@ Expected generated roots:
 Review and commit both roots together.
 
 Full contract: [docs/builder-usage-and-repo-local-precedence-contract.md](docs/builder-usage-and-repo-local-precedence-contract.md)
+
+### 2b. Bootstrap An Isolated Devcontainer (Optional)
+
+If your account constraints require `--dangerously-skip-permissions`, run the `superagents-devcontainer-bootstrap` skill to scaffold an Anthropic-based `.devcontainer/` and user-level Superagents install hooks inside the container.
+
+Installed skill bundle:
+
+- `~/.claude/skills/superagents-devcontainer-bootstrap/SKILL.md`
+- `~/.claude/skills/superagents-devcontainer-bootstrap/templates/*`
+
+Reference docs:
+
+- [Anthropic devcontainer guide](https://code.claude.com/docs/en/devcontainer)
 
 ### 3. Use Skills Day-To-Day
 
@@ -193,6 +207,7 @@ Use one worktree per issue/team stream to keep execution isolated.
 - [docs/builder-usage-and-repo-local-precedence-contract.md](docs/builder-usage-and-repo-local-precedence-contract.md)
 - [docs/install-packaging-skill-fragments-contract.md](docs/install-packaging-skill-fragments-contract.md)
 - [docs/runtime-context-budgeting-and-repo-reading.md](docs/runtime-context-budgeting-and-repo-reading.md)
+- [docs/isolated-devcontainer-bootstrap-workflow.md](docs/isolated-devcontainer-bootstrap-workflow.md)
 - [examples/generated-skills/README.md](examples/generated-skills/README.md)
 
 ## Other Integrations

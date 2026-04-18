@@ -10,7 +10,7 @@
 #   ./scripts/install.sh [--tool <name>] [--interactive] [--no-interactive] [--parallel] [--jobs N] [--help]
 #
 # Tools:
-#   claude-code  -- Copy agents to ~/.claude/agents/ and Superagents skill bundle to ~/.claude/skills/superagents-skill-builder/
+#   claude-code  -- Copy agents to ~/.claude/agents/ and Superagents reusable skills to ~/.claude/skills/
 #   copilot      -- Copy agents to ~/.github/agents/ and ~/.copilot/agents/
 #   antigravity  -- Copy skills to ~/.gemini/antigravity/skills/
 #   gemini-cli   -- Install extension to ~/.gemini/extensions/agency-agents/
@@ -317,6 +317,11 @@ install_claude_code() {
   local skills_dest="${HOME}/.claude/skills/superagents-skill-builder"
   local skills_backup="${HOME}/.claude/skills/superagents-skill-builder.bak"
   local skills_stage=""
+  local devcontainer_src="$SKILLS_ROOT/devcontainer-bootstrap"
+  local devcontainer_dest="${HOME}/.claude/skills/superagents-devcontainer-bootstrap"
+  local devcontainer_backup="${HOME}/.claude/skills/superagents-devcontainer-bootstrap.bak"
+  local devcontainer_stage=""
+  local devcontainer_count=0
   local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
   local fragments_src="$SKILLS_ROOT/fragments"
   local count=0
@@ -361,6 +366,32 @@ install_claude_code() {
   skills_stage=""
   trap - RETURN
 
+  [[ -f "$devcontainer_src/SKILL.md" ]] || { err "skills/devcontainer-bootstrap/SKILL.md missing."; return 1; }
+  devcontainer_stage="$(mktemp -d "$skills_parent/superagents-devcontainer-bootstrap.tmp.XXXXXX")"
+  trap '[[ -n "$devcontainer_stage" && -d "$devcontainer_stage" ]] && rm -rf "$devcontainer_stage"' RETURN
+  cp -R "$devcontainer_src/." "$devcontainer_stage/"
+  devcontainer_count=$(find "$devcontainer_src" -type f | wc -l | awk '{print $1}')
+  if (( devcontainer_count == 0 )); then
+    rm -rf "$devcontainer_stage"
+    err "skills/devcontainer-bootstrap contains no files."
+    return 1
+  fi
+  rm -rf "$devcontainer_backup"
+  if [[ -d "$devcontainer_dest" ]]; then
+    mv "$devcontainer_dest" "$devcontainer_backup"
+  fi
+  if ! mv "$devcontainer_stage" "$devcontainer_dest"; then
+    err "failed to activate staged devcontainer skill bundle at $devcontainer_dest"
+    rm -rf "$devcontainer_dest"
+    if [[ -d "$devcontainer_backup" ]]; then
+      mv "$devcontainer_backup" "$devcontainer_dest"
+    fi
+    return 1
+  fi
+  rm -rf "$devcontainer_backup"
+  devcontainer_stage=""
+  trap - RETURN
+
   mkdir -p "$dest"
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$AGENTS_ROOT/$dir" ]] || continue
@@ -374,6 +405,7 @@ install_claude_code() {
 
   ok "Claude Code: $count agents -> $dest"
   ok "Claude Code: skill-builder + $fragment_count fragments -> $skills_dest"
+  ok "Claude Code: devcontainer bootstrap skill + $devcontainer_count files -> $devcontainer_dest"
 }
 
 install_copilot() {
