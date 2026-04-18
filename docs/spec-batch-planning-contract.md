@@ -13,6 +13,7 @@ It builds on:
 - fallback semantics in [`docs/capability-fallback-behavior.md`](./capability-fallback-behavior.md)
 - generated artifact reviewability expectations in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
 - operational decomposition workflow in [`docs/portfolio-to-spec-decomposition-workflow.md`](./portfolio-to-spec-decomposition-workflow.md)
+- batch tracker sync and approval behavior in [`docs/spec-batch-tracker-sync-and-approval-gates.md`](./spec-batch-tracker-sync-and-approval-gates.md)
 
 ## Why This Exists
 
@@ -206,6 +207,17 @@ Batch planning should follow capability fallback semantics from [`docs/capabilit
 - missing capability for one item path should degrade that item first
 - only intake-wide capability failures should block the full batch
 - manual-mode steps may apply to specific items without marking unrelated items unresolved
+
+## Tracker Synchronization Alignment
+
+This contract defines planning artifacts and item readiness semantics.
+
+Bulk tracker create/update execution for batch runs is defined separately in [`docs/spec-batch-tracker-sync-and-approval-gates.md`](./spec-batch-tracker-sync-and-approval-gates.md), including:
+
+- dry-run planning of proposed writes
+- reviewer/operator approval gates before writes
+- idempotency expectations for reruns
+- per-item result reporting for partial failure handling
 
 ## Acceptance Criteria Coverage For #76
 

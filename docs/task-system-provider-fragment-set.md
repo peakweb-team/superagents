@@ -88,9 +88,11 @@ Both fragments may suggest direct-brief and assumption-capture fragments for dua
 - `task-tracker.create`
   - Create new issues from approved spec artifacts when implementation cannot start from an existing tracked task.
   - Ensure created issue content includes scope summary, acceptance expectations, and links to canonical spec artifacts.
+  - For batch planning runs, execute create actions only after dry-run review and explicit operator approval.
 - `task-tracker.update`
   - Post durable human-facing progress updates and completion summaries.
   - Keep updates milestone-oriented rather than mirroring every internal subtask.
+  - For batch planning runs, publish per-item outcomes (`updated`, `skipped`, `failed`) and retry guidance.
 
 ### Jira Fragment Responsibilities
 
@@ -101,9 +103,11 @@ Both fragments may suggest direct-brief and assumption-capture fragments for dua
 - `task-tracker.create`
   - Create new tickets from approved spec artifacts when implementation cannot start from an existing tracked task.
   - Ensure project-key, issue-type, and required-field constraints are handled explicitly.
+  - For batch planning runs, execute create actions only after dry-run review and explicit operator approval.
 - `task-tracker.update`
   - Post durable human-facing progress updates and completion summaries.
   - Respect that transitions/permissions vary per project; do not assume uniform transition rights.
+  - For batch planning runs, publish per-item outcomes (`updated`, `skipped`, `failed`) and retry guidance.
 
 ## Fallback Expectations For This Fragment Set
 
@@ -119,8 +123,10 @@ Recommended behavior for first-wave task-system fragments:
 | `task-tracker.read` | `unavailable` for tracker-selected path | `fail` | Block tracker-first path; switch to direct-brief mode only if project intake decision permits it. |
 | `task-tracker.create` | readable tracker exists but create permission/required fields are missing | `manual` | Continue with explicit manual-create handoff and require linking created task before implementation starts. |
 | `task-tracker.create` | fully unavailable in a spec-first tracked workflow | `fail` | Do not claim tracker-backed spec intake; fall back to direct-brief/local spec path only if selected. |
+| `task-tracker.create` | batch write is not explicitly approved by reviewer/operator gate | `manual` | Keep planned writes in dry-run state; do not execute durable create operations until approval is recorded. |
 | `task-tracker.update` | readable but update path requires human/manual action | `manual` | Continue implementation flow, but require explicit human task update before marking workflow complete. |
 | `task-tracker.update` | fully unavailable and no safe manual process agreed | `fail` | Do not present durable tracker synchronization as completed. |
+| `task-tracker.update` | partial batch provider failure (some items succeed, some fail) | `warn` | Record item-level outcomes and retry guidance; do not collapse results into one opaque batch status. |
 
 ## Integration Declaration Expectations
 
