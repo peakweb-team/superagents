@@ -13,6 +13,7 @@ It builds on:
 - the first-wave task-system fragment set in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - the first-wave code-host/review fragment set in [`docs/code-host-review-provider-fragment-set.md`](./code-host-review-provider-fragment-set.md)
 - the generated-skill layout contract in [`docs/generated-skill-layout.md`](./generated-skill-layout.md)
+- the batch spec planning contract in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
 
 ## Why This Exists
 
@@ -269,6 +270,36 @@ Manual-mode steps should appear in:
 - `integrations.yaml`
 - `review.md`
 - generated skill instructions if the step is likely to recur in normal use
+
+## Batch Spec Planning Fallback Expectations
+
+For multi-item planning runs, fallback outcomes should be item-scoped whenever possible.
+
+### Rule 1: Degrade The Smallest Valid Slice First
+
+If one item cannot satisfy a capability path safely:
+
+- mark that item `warn`, `manual`, or `fail` as appropriate
+- keep unrelated items in `continue` when their required capabilities are satisfied
+
+### Rule 2: Avoid Batch-Wide False Blocking
+
+Do not escalate the entire batch to `fail` unless the missing capability blocks intake-wide correctness.
+
+Examples of intake-wide blockers:
+
+- inability to read the planning intake source at all
+- inability to persist any canonical system-of-record artifact for all items in the run
+
+### Rule 3: Preserve Item-Level Handoff Truth
+
+In batch mode, fallback reporting should preserve per-item truth in review artifacts:
+
+- item A may be `ready-for-build`
+- item B may be `needs-clarification` with manual follow-up
+- item C may be `blocked`
+
+This is valid and should not be collapsed into all-or-nothing reporting.
 
 ## Recommended Binding Fields In `integrations.yaml`
 

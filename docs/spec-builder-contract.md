@@ -8,6 +8,7 @@ It builds on:
 - capability semantics in [`docs/external-capability-model.md`](./external-capability-model.md)
 - task-system provider behavior in [`docs/task-system-provider-fragment-set.md`](./task-system-provider-fragment-set.md)
 - role ownership and handoff expectations in [`docs/orchestration-role-handoff-contract.md`](./orchestration-role-handoff-contract.md)
+- batch planning and decomposition extension in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
 
 ## Why This Exists
 
@@ -27,6 +28,10 @@ The spec-builder covers:
 - storage-of-record behavior for spec artifacts
 
 The spec-builder does not replace implementation, review, or validation flows after the spec is accepted.
+
+This document is the canonical single-item baseline.
+
+Batch/sprint planning behavior for multi-item spec generation is defined as an additive extension in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md).
 
 ## Core Workflow
 
@@ -98,6 +103,10 @@ Canonical slug/version rules for `.agency/specs/<slug>.md`:
   - collapse repeated `-` and strip leading/trailing `-`
 - if two candidate specs normalize to the same slug, treat that as the same spec lineage and increment `revision` instead of creating a second base slug file
 - bump `revision` when acceptance criteria or scope boundaries materially change; keep minor wording edits in the current revision when possible
+
+Batch compatibility note:
+
+- multi-item planning runs may produce grouped batch artifacts under `.agency/specs/batches/`, but each item must still map to a canonical `.agency/specs/<slug>.md` lineage that follows the same slug and revision rules
 
 ### Dual Path
 

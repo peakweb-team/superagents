@@ -19,6 +19,7 @@ It builds on:
 - the release versioning and upgrade contract in [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md)
 - the user-level install and packaging contract for reusable fragments in [`docs/install-packaging-skill-fragments-contract.md`](./install-packaging-skill-fragments-contract.md)
 - the user-facing builder usage and precedence contract in [`docs/builder-usage-and-repo-local-precedence-contract.md`](./builder-usage-and-repo-local-precedence-contract.md)
+- the batch spec planning and artifact model in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
 - the roadmap direction toward a workflow operating system instead of a loose prompt library
 
 ## Why This Exists
@@ -71,6 +72,17 @@ The builder should also write a repo-local metadata bundle under:
 This metadata root is Superagents-specific and exists so the generated skills stay reviewable and reproducible without polluting the execution-facing skill folders.
 
 The metadata bundle should be committed alongside the generated skills.
+
+### Related Spec-Builder Artifacts
+
+Spec-builder artifacts are a separate contract surface from generated skill artifacts.
+
+When pre-implementation spec generation is used:
+
+- single-item canonical specs live under `.agency/specs/<slug>.md` per [`docs/spec-builder-contract.md`](./spec-builder-contract.md)
+- batch planning runs may add grouped bundle artifacts under `.agency/specs/batches/...` per [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
+
+These paths should remain reviewable repository artifacts and should be treated like other committed workflow configuration/output docs when teams opt into spec-first planning.
 
 ## Naming Conventions
 
