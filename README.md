@@ -123,6 +123,14 @@ Query per-task dependency gate states (`blocked`, `ready`, `running`, `waiting_o
 ./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view gate-status --feature-id crosschain-wallet-v2
 ```
 
+Query per-repo policy plugin resolution/evaluation for heterogeneous toolchains:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view policy --feature-id crosschain-wallet-v2
+```
+
+Policy evaluation output includes deterministic plugin resolution (`policy_refs` first, then toolchain fallback), per-phase contract commands (`preflight`, `build`, `test`, `publish`), and clear repo/task-scoped violations.
+
 ## How Superagents Relates To Superpowers
 
 ### What Is Shared
