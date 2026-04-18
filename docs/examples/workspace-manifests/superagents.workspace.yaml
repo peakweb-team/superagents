@@ -68,3 +68,45 @@ repos:
       team: mobile
       owners:
         - team-mobile
+
+features:
+  - feature_id: crosschain-wallet-v2
+    title: Cross-chain wallet v2
+    description: Coordinate protocol, infra, web, and mobile work items under one release feature.
+    tasks:
+      - id: protocol-risk-review
+        feature_id: crosschain-wallet-v2
+        repo_id: protocol-core
+        title: Finalize protocol risk review
+        status: done
+        child_ids:
+          - infra-rollout-plan
+
+      - id: infra-rollout-plan
+        feature_id: crosschain-wallet-v2
+        repo_id: infra-live
+        title: Define rollout plan and deployment gates
+        status: in_progress
+        parent_ids:
+          - protocol-risk-review
+        child_ids:
+          - web-release-controls
+          - mobile-release-controls
+
+      - id: web-release-controls
+        feature_id: crosschain-wallet-v2
+        repo_id: web-console
+        title: Add web release controls and observability hooks
+        status: blocked
+        parent_ids:
+          - infra-rollout-plan
+        blocked_by_ids:
+          - infra-rollout-plan
+
+      - id: mobile-release-controls
+        feature_id: crosschain-wallet-v2
+        repo_id: mobile-wallet
+        title: Add mobile release controls and staged rollout toggles
+        status: todo
+        parent_ids:
+          - infra-rollout-plan

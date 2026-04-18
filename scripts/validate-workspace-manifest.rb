@@ -7,11 +7,15 @@ require 'psych'
 
 SCHEMA_PATH = Pathname.new(__dir__).join('../docs/schemas/superagents.workspace.schema.json').expand_path
 REPO_ID_REGEX = /\A[a-z0-9][a-z0-9_-]*\z/
-KNOWN_TOP_LEVEL_KEYS = %w[schema_version workspace_id description repos].freeze
+KNOWN_TOP_LEVEL_KEYS = %w[schema_version workspace_id description repos features].freeze
 KNOWN_REPO_KEYS = %w[id path remote default_branch role language runtime build_system issue_backend ownership policy_refs].freeze
 KNOWN_ISSUE_BACKEND_KEYS = %w[type repo project_id tracker mapping].freeze
 KNOWN_OWNERSHIP_KEYS = %w[team owners].freeze
 ISSUE_BACKEND_TYPES = %w[repo_issues github_project external_tracker none].freeze
+WORK_ITEM_ID_REGEX = /\A[a-z0-9][a-z0-9_-]*\z/
+KNOWN_FEATURE_KEYS = %w[feature_id title description tasks].freeze
+KNOWN_TASK_KEYS = %w[id feature_id repo_id title description status parent_ids child_ids blocked_by_ids].freeze
+WORK_ITEM_STATUSES = %w[todo in_progress blocked done cancelled].freeze
 
 class ValidationError < StandardError; end
 
@@ -220,7 +224,8 @@ class ManifestValidator
     validate_schema_version(@data['schema_version'])
     validate_workspace_id(@data['workspace_id'])
     validate_description(@data['description']) if @data.key?('description')
-    validate_repos(@data['repos'])
+    repo_ids = validate_repos(@data['repos'])
+    validate_features(@data['features'], repo_ids) if @data.key?('features')
   end
 
   def validate_schema_version(value)
@@ -246,14 +251,16 @@ class ManifestValidator
   end
 
   def validate_repos(repos)
+    repo_id_set = {}
+
     unless repos.is_a?(Array)
       add_error('$.repos', 'must be an array')
-      return
+      return repo_id_set
     end
 
     if repos.empty?
       add_error('$.repos', 'must contain at least one repository entry')
-      return
+      return repo_id_set
     end
 
     repo_ids = {}
@@ -267,8 +274,182 @@ class ManifestValidator
         add_error("#{pointer}.id", "duplicates repository id '#{repo['id']}' used at $.repos[#{repo_ids[repo['id']]}].id")
       else
         repo_ids[repo['id']] = index
+        repo_id_set[repo['id']] = true
       end
     end
+
+    repo_id_set
+  end
+
+  def validate_features(features, repo_ids)
+    unless features.is_a?(Array)
+      add_error('$.features', 'must be an array')
+      return
+    end
+
+    if features.empty?
+      add_error('$.features', 'must contain at least one feature when provided')
+      return
+    end
+
+    feature_index_by_id = {}
+    features.each_with_index do |feature, index|
+      pointer = "$.features[#{index}]"
+      feature_id = validate_feature(feature, pointer, repo_ids)
+      next unless feature_id
+
+      if feature_index_by_id.key?(feature_id)
+        prior_pointer = "$.features[#{feature_index_by_id[feature_id]}].feature_id"
+        add_error("#{pointer}.feature_id", "duplicates feature_id '#{feature_id}' used at #{prior_pointer}")
+      else
+        feature_index_by_id[feature_id] = index
+      end
+    end
+  end
+
+  def validate_feature(feature, pointer, repo_ids)
+    unless feature.is_a?(Hash)
+      add_error(pointer, 'must be an object')
+      return nil
+    end
+
+    %w[feature_id title tasks].each do |key|
+      require_key(feature, pointer, key)
+    end
+
+    unknown_feature_keys = feature.keys - KNOWN_FEATURE_KEYS
+    unknown_feature_keys.each do |key|
+      add_error("#{pointer}.#{key}", 'is not allowed by schema')
+    end
+
+    feature_id = feature['feature_id']
+    validate_work_item_id(feature_id, "#{pointer}.feature_id", field_name: 'feature_id')
+    validate_non_empty_string(feature['title'], "#{pointer}.title")
+    validate_non_empty_string(feature['description'], "#{pointer}.description") if feature.key?('description')
+    validate_feature_tasks(feature['tasks'], "#{pointer}.tasks", feature_id, repo_ids)
+
+    feature_id if feature_id.is_a?(String) && !feature_id.strip.empty?
+  end
+
+  def validate_feature_tasks(tasks, pointer, feature_id, repo_ids)
+    unless tasks.is_a?(Array)
+      add_error(pointer, 'must be an array')
+      return
+    end
+
+    if tasks.empty?
+      add_error(pointer, 'must contain at least one task')
+      return
+    end
+
+    task_ids = {}
+    tasks.each_with_index do |task, index|
+      task_pointer = "#{pointer}[#{index}]"
+      task_id = validate_feature_task(task, task_pointer, feature_id, repo_ids)
+      next unless task_id
+
+      if task_ids.key?(task_id)
+        prior_pointer = "#{pointer}[#{task_ids[task_id]}].id"
+        add_error("#{task_pointer}.id", "duplicates task id '#{task_id}' used at #{prior_pointer}")
+      else
+        task_ids[task_id] = index
+      end
+    end
+
+    tasks.each_with_index do |task, index|
+      next unless task.is_a?(Hash)
+
+      task_pointer = "#{pointer}[#{index}]"
+      validate_task_link_array(task['parent_ids'], "#{task_pointer}.parent_ids", task_ids, task['id']) if task.key?('parent_ids')
+      validate_task_link_array(task['child_ids'], "#{task_pointer}.child_ids", task_ids, task['id']) if task.key?('child_ids')
+      validate_task_link_array(task['blocked_by_ids'], "#{task_pointer}.blocked_by_ids", task_ids, task['id']) if task.key?('blocked_by_ids')
+      validate_parent_child_consistency(task, task_pointer, tasks, task_ids)
+    end
+  end
+
+  def validate_feature_task(task, pointer, feature_id, repo_ids)
+    unless task.is_a?(Hash)
+      add_error(pointer, 'must be an object')
+      return nil
+    end
+
+    %w[id feature_id repo_id title status].each do |key|
+      require_key(task, pointer, key)
+    end
+
+    unknown_task_keys = task.keys - KNOWN_TASK_KEYS
+    unknown_task_keys.each do |key|
+      add_error("#{pointer}.#{key}", 'is not allowed by schema')
+    end
+
+    task_id = task['id']
+    validate_work_item_id(task_id, "#{pointer}.id", field_name: 'id')
+    validate_work_item_id(task['feature_id'], "#{pointer}.feature_id", field_name: 'feature_id')
+    validate_work_item_id(task['repo_id'], "#{pointer}.repo_id", field_name: 'repo_id')
+    validate_non_empty_string(task['title'], "#{pointer}.title")
+    validate_non_empty_string(task['description'], "#{pointer}.description") if task.key?('description')
+    validate_task_status(task['status'], "#{pointer}.status")
+
+    if task['feature_id'].is_a?(String) && feature_id.is_a?(String) && task['feature_id'] != feature_id
+      add_error("#{pointer}.feature_id", "must match parent feature_id '#{feature_id}'")
+    end
+
+    if task['repo_id'].is_a?(String) && !repo_ids.key?(task['repo_id'])
+      add_error("#{pointer}.repo_id", "references unknown repo id '#{task['repo_id']}'")
+    end
+
+    task_id if task_id.is_a?(String) && !task_id.strip.empty?
+  end
+
+  def validate_task_status(status, pointer)
+    unless status.is_a?(String) && WORK_ITEM_STATUSES.include?(status)
+      add_error(pointer, "must be one of: #{WORK_ITEM_STATUSES.join(', ')}")
+    end
+  end
+
+  def validate_task_link_array(value, pointer, known_task_ids, current_task_id)
+    unless value.is_a?(Array)
+      add_error(pointer, 'must be an array of task ids')
+      return
+    end
+
+    value.each_with_index do |linked_id, index|
+      link_pointer = "#{pointer}[#{index}]"
+      validate_work_item_id(linked_id, link_pointer, field_name: 'task id')
+      next unless linked_id.is_a?(String)
+
+      add_error(link_pointer, "cannot reference itself '#{linked_id}'") if current_task_id.is_a?(String) && linked_id == current_task_id
+      add_error(link_pointer, "references unknown task id '#{linked_id}'") unless known_task_ids.key?(linked_id)
+    end
+  end
+
+  def validate_parent_child_consistency(task, pointer, tasks, known_task_ids)
+    return unless task.is_a?(Hash)
+    return unless task.key?('child_ids')
+
+    child_ids = task['child_ids']
+    return unless child_ids.is_a?(Array)
+
+    child_ids.each do |child_id|
+      next unless child_id.is_a?(String) && known_task_ids.key?(child_id)
+
+      child_task = tasks[known_task_ids[child_id]]
+      child_parent_ids = child_task['parent_ids']
+      next if child_parent_ids.is_a?(Array) && child_parent_ids.include?(task['id'])
+
+      add_error("#{pointer}.child_ids", "declares child '#{child_id}' but #{child_id} does not include '#{task['id']}' in parent_ids")
+    end
+  end
+
+  def validate_work_item_id(value, pointer, field_name:)
+    unless value.is_a?(String) && !value.strip.empty?
+      add_error(pointer, "must be a non-empty string for #{field_name}")
+      return
+    end
+
+    return if value.match?(WORK_ITEM_ID_REGEX)
+
+    add_error(pointer, 'must match ^[a-z0-9][a-z0-9_-]*$')
   end
 
   def validate_repo(repo, pointer)
@@ -497,15 +678,19 @@ rescue ValidationError => e
   1
 end
 
-if ARGV.empty?
-  warn 'Usage: scripts/validate-workspace-manifest.rb <manifest-path> [manifest-path...]'
-  exit 2
+def run_cli(argv)
+  if argv.empty?
+    warn 'Usage: scripts/validate-workspace-manifest.rb <manifest-path> [manifest-path...]'
+    return 2
+  end
+
+  exit_code = 0
+  argv.each do |manifest_path|
+    result = validate_manifest(manifest_path)
+    exit_code = 1 if result != 0
+  end
+
+  exit_code
 end
 
-exit_code = 0
-ARGV.each do |manifest_path|
-  result = validate_manifest(manifest_path)
-  exit_code = 1 if result != 0
-end
-
-exit exit_code
+exit(run_cli(ARGV)) if $PROGRAM_NAME == __FILE__

@@ -1,0 +1,20 @@
+schema_version: 1
+workspace_id: orbit
+repos:
+  - id: api
+    remote: git@github.com:example/api.git
+    default_branch: main
+    role: backend
+    build_system: bundler
+    issue_backend:
+      type: repo_issues
+      repo: example/api
+features:
+  - feature_id: rollout-bridge
+    title: Bridge rollout
+    tasks:
+      - id: api-prepare
+        feature_id: rollout-bridge
+        repo_id: web
+        title: Prepare backend contract
+        status: todo

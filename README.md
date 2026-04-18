@@ -81,7 +81,7 @@ Supported install targets include:
 
 ### 8. Federated Multi-Repo Workspace Manifest
 
-Superagents supports a federated workspace contract for coordinating multiple repositories across different language/toolchain stacks.
+Superagents supports a federated workspace contract for coordinating multiple repositories across different language/toolchain stacks, plus an optional cross-repo feature graph for shared delivery work.
 
 - Spec: [docs/federated-workspace-manifest-spec.md](docs/federated-workspace-manifest-spec.md)
 - Schema: [docs/schemas/superagents.workspace.schema.json](docs/schemas/superagents.workspace.schema.json)
@@ -91,6 +91,18 @@ Validate a manifest:
 
 ```bash
 ./scripts/validate-workspace-manifest.sh superagents.workspace.yaml
+```
+
+Query cross-repo feature rollups:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --feature-id crosschain-wallet-v2
+```
+
+Query repo-level rollups:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view repo --repo-id web-console
 ```
 
 ## How Superagents Relates To Superpowers

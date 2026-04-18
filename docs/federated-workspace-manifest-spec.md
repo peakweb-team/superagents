@@ -48,6 +48,19 @@ repos:
         - team-protocol
     policy_refs:
       - policy://solidity/foundry-v1
+
+# optional cross-repo feature graph
+features:
+  - feature_id: crosschain-wallet-v2
+    title: Cross-chain wallet v2
+    tasks:
+      - id: protocol-risk-review
+        feature_id: crosschain-wallet-v2
+        repo_id: protocol-core
+        title: Finalize protocol risk review
+        status: done
+        child_ids:
+          - infra-rollout-plan
 ```
 
 ## Required Fields
@@ -57,6 +70,7 @@ repos:
 - `schema_version` (integer): currently must equal `1`.
 - `workspace_id` (string): lowercase identifier matching `^[a-z0-9][a-z0-9_-]*$`.
 - `repos` (array): must include at least one repository entry.
+- `features` (array): optional. When provided, must include at least one cross-repo feature.
 
 ### Per-repo
 
@@ -74,6 +88,21 @@ repos:
 - `ownership.team` (string)
 - `ownership.owners` (string array)
 - `policy_refs` (string array)
+
+### Optional Cross-Repo Features
+
+- `features[].feature_id` (string): feature identifier matching `^[a-z0-9][a-z0-9_-]*$`.
+- `features[].title` (string): human-readable feature title.
+- `features[].description` (string): optional feature context.
+- `features[].tasks` (array): at least one task, each with:
+  - `id` (string): work item id matching `^[a-z0-9][a-z0-9_-]*$`.
+  - `feature_id` (string): must match parent `features[].feature_id`.
+  - `repo_id` (string): must reference one of `repos[].id`.
+  - `title` (string)
+  - `status` (enum): `todo`, `in_progress`, `blocked`, `done`, `cancelled`.
+  - optional link arrays: `parent_ids`, `child_ids`, `blocked_by_ids`.
+
+`parent_ids`/`child_ids` provide explicit parent-child work item links. `blocked_by_ids` provides dependency blockers used by rollup status queries.
 
 ## Issue Backend Contract
 
@@ -100,6 +129,28 @@ Use the built-in validator:
 ```
 
 The validator checks schema contract rules and reports actionable field-level errors.
+
+## Feature Graph Query CLI/API
+
+Query feature-level rollups (JSON output suitable for CLI automation or API ingestion):
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --feature-id crosschain-wallet-v2
+```
+
+Query repo-level rollups across all features:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view repo --repo-id web-console
+```
+
+Query repo-level rollups scoped to one feature:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view repo --repo-id web-console --feature-id crosschain-wallet-v2
+```
+
+Rollups include aggregate child progression (`progress_pct`, status counts) and blocking state (`blocking.blocked`, blocker details).
 
 ## Error Message Examples
 
@@ -169,4 +220,5 @@ repos:
 
 - This is an additive, opt-in manifest contract.
 - Existing repo-local workflows can continue without a workspace manifest.
+- Existing workspace manifests that omit `features` remain valid.
 - Future schema changes should increment `schema_version` and preserve v1 parsing behavior where practical.
