@@ -46,9 +46,11 @@ Add a planning-oriented intake path that can turn one portfolio/sprint planning 
 ## Expected Behaviors
 
 - Keep #68 single-item semantics intact for one-item intake.
+- Use deterministic path selection so one-item ad-hoc intake stays single-item while multi-item intake runs planning-batch.
 - When intake includes multiple candidate items, decompose into independently reviewable item specs.
 - Generate a minimum spec package per item with independent acceptance criteria and handoff state.
 - Preserve item-scoped decisions and unresolved questions instead of collapsing to one batch verdict.
+- Ask focused follow-up questions only when ambiguity would materially change decomposition boundaries, dependency ordering, or acceptance criteria.
 - Produce a batch summary/index with suggested execution waves and links to canonical `.agency/specs/<item-slug>.md` artifacts.
 
 ## Builder Notes
