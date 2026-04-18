@@ -252,6 +252,11 @@ Non-goals:
 
 Add a pre-implementation specification builder that turns a brief, portfolio item, or discovery output into an implementation-ready spec and tracked work item.
 
+Primary contracts:
+
+- single-item baseline: [`docs/spec-builder-contract.md`](./docs/spec-builder-contract.md)
+- batch planning extension: [`docs/spec-batch-planning-contract.md`](./docs/spec-batch-planning-contract.md)
+
 Goals:
 
 - define a spec-builder workflow that runs before implementation execution for work that is not implementation-ready

@@ -139,6 +139,11 @@ These determine how work begins.
 - Notes:
   - this is commonly satisfied by generated-skill behavior and metadata output rather than by an external provider
 
+Batch planning note:
+
+- the same intake capabilities apply when input is a multi-item planning object (epic objective + candidate work items + constraints) as defined in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
+- assumption capture should remain item-scoped where possible instead of collapsing all uncertainty into one batch-level unresolved state
+
 ### 2. Tracked-Task Capabilities
 
 These apply when work begins from or must sync back to an external issue system.
