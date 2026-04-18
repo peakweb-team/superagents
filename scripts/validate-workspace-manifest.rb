@@ -15,6 +15,178 @@ ISSUE_BACKEND_TYPES = %w[repo_issues github_project external_tracker none].freez
 
 class ValidationError < StandardError; end
 
+# Minimal schema evaluator for the subset of JSON Schema keywords used by this repo contract.
+class SimpleJsonSchemaValidator
+  def initialize(root_schema)
+    @root_schema = root_schema
+  end
+
+  def validate(data)
+    validate_node(@root_schema, data, '$')
+  end
+
+  private
+
+  def validate_node(schema, value, pointer)
+    schema = resolve_ref_schema(schema)
+    errors = []
+
+    if schema.key?('allOf')
+      schema['allOf'].each do |subschema|
+        errors.concat(validate_node(subschema, value, pointer))
+      end
+    end
+
+    if schema.key?('if')
+      if matches_subschema?(schema['if'], value)
+        errors.concat(validate_node(schema['then'], value, pointer)) if schema.key?('then')
+      elsif schema.key?('else')
+        errors.concat(validate_node(schema['else'], value, pointer))
+      end
+    end
+
+    if schema.key?('oneOf')
+      matches = schema['oneOf'].count { |subschema| matches_subschema?(subschema, value) }
+      errors << "#{pointer}: must match exactly one of the oneOf schema branches" unless matches == 1
+    end
+
+    if schema.key?('anyOf')
+      matches = schema['anyOf'].count { |subschema| matches_subschema?(subschema, value) }
+      errors << "#{pointer}: must match at least one of the anyOf schema branches" if matches.zero?
+    end
+
+    if schema.key?('not') && matches_subschema?(schema['not'], value)
+      errors << "#{pointer}: violates a forbidden schema condition"
+    end
+
+    if schema.key?('const') && value != schema['const']
+      errors << "#{pointer}: must equal #{schema['const'].inspect}"
+    end
+
+    if schema.key?('enum') && !schema['enum'].include?(value)
+      errors << "#{pointer}: must be one of #{schema['enum'].join(', ')}"
+    end
+
+    if schema.key?('type')
+      unless type_matches?(schema['type'], value)
+        errors << "#{pointer}: must be of type #{schema['type']}"
+        return errors
+      end
+    end
+
+    if value.is_a?(Hash)
+      errors.concat(validate_object_schema(schema, value, pointer))
+    elsif value.is_a?(Array)
+      errors.concat(validate_array_schema(schema, value, pointer))
+    elsif value.is_a?(String)
+      errors.concat(validate_string_schema(schema, value, pointer))
+    end
+
+    errors
+  end
+
+  def validate_object_schema(schema, value, pointer)
+    errors = []
+
+    if schema.key?('required')
+      schema['required'].each do |key|
+        errors << "#{pointer}: missing required key '#{key}'" unless value.key?(key)
+      end
+    end
+
+    if schema.key?('minProperties') && value.size < schema['minProperties']
+      errors << "#{pointer}: must contain at least #{schema['minProperties']} properties"
+    end
+
+    properties = schema['properties'] || {}
+    value.each do |key, nested_value|
+      child_pointer = "#{pointer}.#{key}"
+      if properties.key?(key)
+        errors.concat(validate_node(properties[key], nested_value, child_pointer))
+      elsif schema['additionalProperties'] == false
+        errors << "#{child_pointer}: is not allowed by schema"
+      elsif schema['additionalProperties'].is_a?(Hash)
+        errors.concat(validate_node(schema['additionalProperties'], nested_value, child_pointer))
+      end
+    end
+
+    errors
+  end
+
+  def validate_array_schema(schema, value, pointer)
+    errors = []
+
+    if schema.key?('minItems') && value.length < schema['minItems']
+      errors << "#{pointer}: must contain at least #{schema['minItems']} items"
+    end
+
+    if schema.key?('items')
+      value.each_with_index do |item, index|
+        errors.concat(validate_node(schema['items'], item, "#{pointer}[#{index}]"))
+      end
+    end
+
+    errors
+  end
+
+  def validate_string_schema(schema, value, pointer)
+    errors = []
+
+    if schema.key?('minLength') && value.length < schema['minLength']
+      errors << "#{pointer}: must be at least #{schema['minLength']} characters"
+    end
+
+    if schema.key?('pattern')
+      begin
+        regex = Regexp.new(schema['pattern'])
+        errors << "#{pointer}: must match #{schema['pattern']}" unless regex.match?(value)
+      rescue RegexpError
+        errors << "#{pointer}: invalid pattern in schema"
+      end
+    end
+
+    errors
+  end
+
+  def matches_subschema?(schema, value)
+    validate_node(schema, value, '$probe').empty?
+  end
+
+  def resolve_ref_schema(schema)
+    return schema unless schema.is_a?(Hash)
+    return schema unless schema.key?('$ref')
+
+    resolve_ref(schema['$ref'])
+  end
+
+  def resolve_ref(ref)
+    raise ValidationError, "Unsupported non-local schema reference: #{ref}" unless ref.start_with?('#/')
+
+    pointer_parts = ref[2..].split('/').map { |part| part.gsub('~1', '/').gsub('~0', '~') }
+    resolved = pointer_parts.reduce(@root_schema) do |memo, part|
+      memo.is_a?(Hash) ? memo[part] : nil
+    end
+
+    raise ValidationError, "Unable to resolve schema reference: #{ref}" if resolved.nil?
+
+    resolved
+  end
+
+  def type_matches?(type_name, value)
+    case type_name
+    when 'object' then value.is_a?(Hash)
+    when 'array' then value.is_a?(Array)
+    when 'string' then value.is_a?(String)
+    when 'integer' then value.is_a?(Integer)
+    when 'number' then value.is_a?(Numeric)
+    when 'boolean' then value == true || value == false
+    when 'null' then value.nil?
+    else
+      true
+    end
+  end
+end
+
 class ManifestValidator
   def initialize(data)
     @data = data
@@ -147,7 +319,7 @@ class ManifestValidator
     end
 
     unless has_path || has_remote
-      add_error(pointer, "must define one of 'path' or 'remote'")
+      add_error(pointer, "must define exactly one of 'path' or 'remote'")
       return
     end
 
@@ -172,6 +344,19 @@ class ManifestValidator
     unless type.is_a?(String) && ISSUE_BACKEND_TYPES.include?(type)
       add_error("#{pointer}.type", "must be one of: #{ISSUE_BACKEND_TYPES.join(', ')}")
       return
+    end
+
+    allowed_keys = case type
+                   when 'repo_issues' then %w[type repo]
+                   when 'github_project' then %w[type project_id]
+                   when 'external_tracker' then %w[type tracker mapping]
+                   when 'none' then %w[type]
+                   else KNOWN_ISSUE_BACKEND_KEYS
+                   end
+
+    incompatible_keys = backend.keys - allowed_keys
+    incompatible_keys.each do |key|
+      add_error("#{pointer}.#{key}", "is not allowed for type '#{type}'")
     end
 
     case type
@@ -291,18 +476,21 @@ end
 
 def validate_manifest(path)
   schema = load_schema
+  manifest_data = load_manifest(path)
   schema_guardrails!(schema)
 
-  manifest_data = load_manifest(path)
-  validator = ManifestValidator.new(manifest_data)
+  schema_errors = SimpleJsonSchemaValidator.new(schema).validate(manifest_data)
+  custom_validator = ManifestValidator.new(manifest_data)
+  custom_valid = custom_validator.validate
 
-  if validator.validate
+  if schema_errors.empty? && custom_valid
     puts "Manifest is valid: #{path}"
     return 0
   end
 
   warn "Manifest validation failed for #{path}:"
-  validator.errors.each { |error| warn "  - #{error}" }
+  schema_errors.each { |error| warn "  - #{error}" }
+  custom_validator.errors.each { |error| warn "  - #{error}" }
   1
 rescue ValidationError => e
   warn "Manifest validation failed for #{path}: #{e.message}"

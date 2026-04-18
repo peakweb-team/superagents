@@ -12,7 +12,7 @@ repos:
     build_system: foundry
     issue_backend:
       type: repo_issues
-      repo: peakweb-team/protocol-core
+      repo: example/protocol-core
     ownership:
       team: protocol
       owners:

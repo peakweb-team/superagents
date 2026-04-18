@@ -164,7 +164,139 @@
             "minLength": 1
           }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "repo_issues"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "repo"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "project_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "tracker"
+                  ]
+                },
+                {
+                  "required": [
+                    "mapping"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "github_project"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "project_id"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "repo"
+                  ]
+                },
+                {
+                  "required": [
+                    "tracker"
+                  ]
+                },
+                {
+                  "required": [
+                    "mapping"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "external_tracker"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "tracker",
+              "mapping"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "repo"
+                  ]
+                },
+                {
+                  "required": [
+                    "project_id"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "none"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "repo"
+                  ]
+                },
+                {
+                  "required": [
+                    "project_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "tracker"
+                  ]
+                },
+                {
+                  "required": [
+                    "mapping"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
     }
   }
 }

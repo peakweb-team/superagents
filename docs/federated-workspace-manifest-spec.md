@@ -41,7 +41,7 @@ repos:
     build_system: foundry
     issue_backend:
       type: repo_issues
-      repo: peakweb-team/protocol-core
+      repo: example/protocol-core
     ownership:
       team: protocol
       owners:
@@ -106,7 +106,7 @@ The validator checks schema contract rules and reports actionable field-level er
 ```text
 Manifest validation failed for superagents.workspace.yaml:
   - $.workspace_id: must match ^[a-z0-9][a-z0-9_-]*$
-  - $.repos[0]: must define one of 'path' or 'remote'
+  - $.repos[0]: must define exactly one of 'path' or 'remote'
   - $.repos[1].issue_backend.project_id: missing required key 'project_id'
 ```
 

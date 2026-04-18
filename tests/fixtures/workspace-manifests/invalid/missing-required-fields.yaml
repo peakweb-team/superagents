@@ -1,5 +1,5 @@
 schema_version: 1
-workspace_id: Bad Workspace
+workspace_id: bad-workspace
 repos:
   - id: protocol-core
     default_branch: main

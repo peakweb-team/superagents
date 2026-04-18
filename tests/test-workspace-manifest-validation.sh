@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+shopt -s nullglob
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VALIDATOR="$ROOT_DIR/scripts/validate-workspace-manifest.sh"
@@ -31,11 +32,24 @@ run_expect_fail() {
   fi
 }
 
-for file in "$VALID_DIR"/*.yaml; do
+valid_files=("$VALID_DIR"/*.yaml)
+invalid_files=("$INVALID_DIR"/*.yaml)
+
+if [[ ${#valid_files[@]} -eq 0 ]]; then
+  echo "Missing workspace manifest validation fixtures in $VALID_DIR"
+  exit 1
+fi
+
+if [[ ${#invalid_files[@]} -eq 0 ]]; then
+  echo "Missing workspace manifest validation fixtures in $INVALID_DIR"
+  exit 1
+fi
+
+for file in "${valid_files[@]}"; do
   run_expect_pass "$file"
 done
 
-for file in "$INVALID_DIR"/*.yaml; do
+for file in "${invalid_files[@]}"; do
   run_expect_fail "$file"
 done
 
