@@ -72,12 +72,14 @@ Example normalized signals:
 
 - `input.task_reference`
 - `input.direct_brief`
+- `input.batch_planning_object`
 - `forge.github`
 - `task_tracker.github_issues`
 - `task_tracker.jira`
 - `repo.monorepo`
 - `workflow.pull_requests`
 - `workflow.parallel_agents`
+- `workflow.sprint_kickoff_planning`
 - `workflow.parallel_work_bounded`
 - `workflow.peer_coordination_required`
 - `workflow.worktree_policy_documented`
@@ -95,6 +97,7 @@ They are also the bridge between repository inspection and later capability-mapp
 Use one or more signals to infer builder decisions such as:
 
 - work intake mode
+- whether intake should support single-item only, planning-batch only, or dual-path behavior
 - primary task tracker, if tracker-backed intake is in scope
 - review loop shape
 - whether team-sizing guidance is needed
@@ -171,8 +174,10 @@ Common signals:
 
 - `input.task_reference`
 - `input.direct_brief`
+- `input.batch_planning_object`
 - `workflow.bootstrap_greenfield_likely`
 - `workflow.task_tracker_optional`
+- `workflow.sprint_kickoff_planning`
 
 Typical evidence sources:
 

@@ -81,6 +81,7 @@ When pre-implementation spec generation is used:
 
 - single-item canonical specs live under `.agency/specs/<slug>.md` per [`docs/spec-builder-contract.md`](./spec-builder-contract.md)
 - batch planning runs may add grouped bundle artifacts under `.agency/specs/batches/...` per [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
+- portfolio-to-spec planning runs should expose an operator-facing batch index under the grouped bundle per [`docs/portfolio-to-spec-decomposition-workflow.md`](./portfolio-to-spec-decomposition-workflow.md)
 
 These paths should remain reviewable repository artifacts and should be treated like other committed workflow configuration/output docs when teams opt into spec-first planning.
 

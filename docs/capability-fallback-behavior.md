@@ -332,6 +332,7 @@ These fields extend the declaration format without changing its basic provider-b
 ### Task Intake
 
 - Missing `task-intake.direct-brief` in a tracked-task-only workflow may still be `continue`
+- Missing `task-intake.batch-planning` should usually be `warn` when single-item flow remains available, and `fail` only if the selected workflow requires multi-item planning runs
 - Missing `task-tracker.read` in a tracked-task-only workflow should usually be `fail`
 - Missing tracked-task support in a dual-intake workflow may be `manual` or `warn` if direct-brief remains safe
 

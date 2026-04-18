@@ -188,6 +188,7 @@ Use one worktree per issue/team stream to keep execution isolated.
 - [docs/generated-skill-layout.md](docs/generated-skill-layout.md)
 - [docs/spec-builder-contract.md](docs/spec-builder-contract.md)
 - [docs/spec-batch-planning-contract.md](docs/spec-batch-planning-contract.md)
+- [docs/portfolio-to-spec-decomposition-workflow.md](docs/portfolio-to-spec-decomposition-workflow.md)
 - [docs/builder-usage-and-repo-local-precedence-contract.md](docs/builder-usage-and-repo-local-precedence-contract.md)
 - [docs/install-packaging-skill-fragments-contract.md](docs/install-packaging-skill-fragments-contract.md)
 - [docs/runtime-context-budgeting-and-repo-reading.md](docs/runtime-context-budgeting-and-repo-reading.md)

@@ -77,6 +77,7 @@ These map canonical capabilities to one declared provider entry.
 Examples:
 
 - `task-intake.direct-brief` -> local direct-brief input
+- `task-intake.batch-planning` -> local planning-batch intake object
 - `task-tracker.read` -> Jira
 - `task-tracker.create` -> GitHub Issues
 - `code-host.pr.open` -> GitHub
@@ -112,6 +113,11 @@ capability_bindings:
     provider_ref: local-direct-brief
     support: full
     decision_state: confirmed
+
+  task-intake.batch-planning:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: assumed
 
   task-tracker.lookup:
     provider_ref: github
@@ -349,6 +355,7 @@ That means:
 
 - local providers are valid first-class entries in `providers`
 - `task-intake.direct-brief` may bind to a `kind: local` provider
+- `task-intake.batch-planning` may bind to the same local provider when planning-batch mode is enabled
 - `task-intake.assumption-capture` may also bind to a local provider or generated-skill behavior record
 
 Example:
@@ -362,6 +369,11 @@ providers:
 
 capability_bindings:
   task-intake.direct-brief:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: confirmed
+
+  task-intake.batch-planning:
     provider_ref: local-direct-brief
     support: full
     decision_state: confirmed
@@ -431,6 +443,11 @@ capability_bindings:
     provider_ref: local-direct-brief
     support: full
     decision_state: confirmed
+
+  task-intake.batch-planning:
+    provider_ref: local-direct-brief
+    support: full
+    decision_state: assumed
 
   task-intake.assumption-capture:
     provider_ref: local-direct-brief

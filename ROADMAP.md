@@ -256,6 +256,7 @@ Primary contracts:
 
 - single-item baseline: [`docs/spec-builder-contract.md`](./docs/spec-builder-contract.md)
 - batch planning extension: [`docs/spec-batch-planning-contract.md`](./docs/spec-batch-planning-contract.md)
+- portfolio-to-spec decomposition workflow: [`docs/portfolio-to-spec-decomposition-workflow.md`](./docs/portfolio-to-spec-decomposition-workflow.md)
 
 Goals:
 
