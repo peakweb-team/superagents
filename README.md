@@ -111,6 +111,18 @@ Query GitHub integration mapping rollups (feature + repo-local issue/project lin
 ./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view integration --feature-id crosschain-wallet-v2
 ```
 
+Query deterministic execution order for a feature graph:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view execution-order --feature-id crosschain-wallet-v2
+```
+
+Query per-task dependency gate states (`blocked`, `ready`, `running`, `waiting_on_signal`) with readiness details:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view gate-status --feature-id crosschain-wallet-v2
+```
+
 ## How Superagents Relates To Superpowers
 
 ### What Is Shared

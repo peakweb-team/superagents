@@ -113,3 +113,17 @@ features:
           - infra-gates
         blocked_by_ids:
           - infra-gates
+      - id: ops-signoff
+        feature_id: rollout-bridge
+        repo_id: infra
+        title: Confirm rollout signoff
+        status: todo
+        blocked_by_ids:
+          - api-prepare
+      - id: web-smoke
+        feature_id: rollout-bridge
+        repo_id: web
+        title: Smoke test web flow
+        status: todo
+        blocked_by_ids:
+          - web-release

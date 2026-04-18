@@ -179,7 +179,27 @@ Query GitHub integration mapping rollups for one feature:
 ./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view integration --feature-id crosschain-wallet-v2
 ```
 
-Rollups include aggregate child progression (`progress_pct`, status counts), blocking state (`blocking.blocked`, blocker details), and integration mapping state (issue/project coverage, sync status counts, dedupe keys, and retryable failures).
+Query deterministic execution ordering for one feature:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view execution-order --feature-id crosschain-wallet-v2
+```
+
+Query per-task dependency gate status for one feature:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view gate-status --feature-id crosschain-wallet-v2
+```
+
+Rollups include aggregate child progression (`progress_pct`, status counts), blocking state (`blocking.blocked`, blocker details), deterministic dependency graph metadata (`dependency_graph`), gate-state rollups (`blocked`, `ready`, `running`, `waiting_on_signal`, `satisfied`), and deterministic execution ordering (`execution_order` with `sequence` + `wave`).
+
+Execution-order tie-breaking is deterministic for equal dependency depth: task id ascending.
+
+Failure and recovery are deterministic:
+
+- dependency cycles fail validation and must be resolved before execution-order views are considered valid.
+- gate blockers include explicit reasons (`status_blocked`, `waiting_on_dependency`, `dependency_cycle`) and blocking task ids where applicable.
+- recovery path is resumable: update task status/dependency links, then re-run query views to compute the next ready set from the same rules.
 
 ## Error Message Examples
 
