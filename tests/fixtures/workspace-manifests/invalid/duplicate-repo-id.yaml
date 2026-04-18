@@ -1,0 +1,18 @@
+schema_version: 1
+workspace_id: atlas
+repos:
+  - id: shared
+    path: ../protocol
+    default_branch: main
+    role: protocol
+    build_system: foundry
+    issue_backend:
+      type: none
+
+  - id: shared
+    remote: git@github.com:example/web.git
+    default_branch: main
+    role: webapp
+    build_system: pnpm
+    issue_backend:
+      type: none

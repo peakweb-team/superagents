@@ -1,0 +1,70 @@
+schema_version: 1
+workspace_id: atlas-x
+
+description: Cross-language feature delivery for protocol, infra, and clients.
+repos:
+  - id: protocol-core
+    remote: git@github.com:example/protocol-core.git
+    default_branch: main
+    role: protocol
+    language: solidity
+    runtime: evm
+    build_system: foundry
+    issue_backend:
+      type: repo_issues
+      repo: peakweb-team/protocol-core
+    ownership:
+      team: protocol
+      owners:
+        - team-protocol
+    policy_refs:
+      - policy://solidity/foundry-v1
+
+  - id: infra-live
+    path: ../infra-live
+    default_branch: main
+    role: devops
+    language: hcl
+    runtime: terraform
+    build_system: terraform
+    issue_backend:
+      type: external_tracker
+      tracker: jira
+      mapping:
+        project_key: INFRA
+        board: platform
+    ownership:
+      team: platform
+      owners:
+        - team-platform
+    policy_refs:
+      - policy://terraform/plan-apply-gates
+
+  - id: web-console
+    remote: https://github.com/example/web-console.git
+    default_branch: develop
+    role: webapp
+    language: typescript
+    runtime: node20
+    build_system: pnpm-workspace
+    issue_backend:
+      type: github_project
+      project_id: PVT_kwDOABC1234
+    ownership:
+      team: web
+      owners:
+        - team-web
+
+  - id: mobile-wallet
+    remote: git@github.com:example/mobile-wallet.git
+    default_branch: main
+    role: mobile
+    language: kotlin
+    runtime: jvm
+    build_system: gradle
+    issue_backend:
+      type: none
+    ownership:
+      team: mobile
+      owners:
+        - team-mobile
