@@ -46,6 +46,16 @@ Use this path when intake represents a portfolio/sprint planning unit.
 
 This preserves #68 compatibility while making multi-item planning explicit.
 
+## Ad-Hoc vs Batch Operator Experience
+
+Use one intake surface with deterministic path selection rather than separate competing commands.
+
+- ad-hoc direct brief that normalizes to one item follows Path A
+- planning input that normalizes to multiple items follows Path B
+- operators should not need to manually force mode unless override policy is explicitly configured
+
+This keeps ad-hoc and batch usage from overlapping in confusing ways.
+
 ## Planning-Batch Workflow
 
 ### Step 1: Normalize Intake
@@ -69,6 +79,20 @@ For each candidate work item:
 - attach parent epic linkage and candidate dependencies
 
 If decomposition produces cycles in dependencies, mark involved items `blocked` until cycle resolution.
+
+### Step 2a: Focused Follow-Up Policy For Ambiguity
+
+Ask follow-up questions only when missing information would materially change one or more of:
+
+- item boundaries or splitting outcome
+- dependency edges or execution wave ordering
+- acceptance criteria needed for implementation handoff
+
+When follow-up is needed:
+
+- ask the smallest focused set required to unblock decomposition (prefer item-scoped prompts)
+- keep unaffected items moving; do not block the whole batch for one ambiguous item
+- if unanswered, record unresolved decision entries and mark only impacted items `needs-clarification` or `blocked`
 
 ### Step 3: Generate Per-Item Minimum Spec Package
 
@@ -170,3 +194,12 @@ This workflow does not define:
   - see `Step 5`
 - Existing single-item spec workflow remains intact:
   - see `Path A` and `Path Selection Rule`
+
+## UX Expectations Coverage For #74
+
+- Can be used for sprint kickoff planning:
+  - see `Path B: Planning-Batch` and `Step 1`
+- Supports ad-hoc mode and batch mode without confusing overlap:
+  - see `Path Selection Rule` and `Ad-Hoc vs Batch Operator Experience`
+- Asks focused follow-ups only where ambiguity materially changes decomposition:
+  - see `Step 2a: Focused Follow-Up Policy For Ambiguity`
