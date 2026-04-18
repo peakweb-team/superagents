@@ -208,6 +208,16 @@ Use one worktree per issue/team stream to keep execution isolated.
 - `integrations/`: generated integration outputs for supported tools
 - `scripts/`: conversion/install scripts
 
+## Runtime Policy
+
+Automation scripts must use a single non-shell runtime across the repository (shell scripts are exempt).
+
+Validate locally:
+
+```bash
+./scripts/enforce-single-runtime.sh
+```
+
 ## Key Documents
 
 - [ROADMAP.md](ROADMAP.md)
