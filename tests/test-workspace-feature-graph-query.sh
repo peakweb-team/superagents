@@ -4,19 +4,22 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 QUERY="$ROOT_DIR/scripts/query-workspace-feature-graph.sh"
 FIXTURE="$ROOT_DIR/tests/fixtures/workspace-manifests/valid/feature-graph-multi-repo.yaml"
+POLICY_FIXTURE="$ROOT_DIR/tests/fixtures/workspace-manifests/valid/policy-plugins-heterogeneous.yaml"
 
 feature_json="$(mktemp)"
 repo_json="$(mktemp)"
 integration_json="$(mktemp)"
 execution_order_json="$(mktemp)"
 gate_status_json="$(mktemp)"
-trap 'rm -f "$feature_json" "$repo_json" "$integration_json" "$execution_order_json" "$gate_status_json"' EXIT
+policy_json="$(mktemp)"
+trap 'rm -f "$feature_json" "$repo_json" "$integration_json" "$execution_order_json" "$gate_status_json" "$policy_json"' EXIT
 
 "$QUERY" "$FIXTURE" --feature-id rollout-bridge >"$feature_json"
 "$QUERY" "$FIXTURE" --view repo --repo-id web --feature-id rollout-bridge >"$repo_json"
 "$QUERY" "$FIXTURE" --view integration --feature-id rollout-bridge >"$integration_json"
 "$QUERY" "$FIXTURE" --view execution-order --feature-id rollout-bridge >"$execution_order_json"
 "$QUERY" "$FIXTURE" --view gate-status --feature-id rollout-bridge >"$gate_status_json"
+"$QUERY" "$POLICY_FIXTURE" --view policy --feature-id policy-rollout >"$policy_json"
 
 ruby -rjson -e '
   feature = JSON.parse(File.read(ARGV[0]))
@@ -24,6 +27,7 @@ ruby -rjson -e '
   integration = JSON.parse(File.read(ARGV[2]))
   execution_order = JSON.parse(File.read(ARGV[3]))
   gate_status = JSON.parse(File.read(ARGV[4]))
+  policy = JSON.parse(File.read(ARGV[5]))
 
   raise "expected feature view" unless feature["view"] == "feature"
   raise "expected feature id" unless feature["feature_id"] == "rollout-bridge"
@@ -64,6 +68,20 @@ ruby -rjson -e '
   raise "expected web-smoke task in gate status output" unless web_smoke
   raise "expected web-smoke waiting gate state" unless web_smoke["gate_state"] == "waiting_on_signal"
   raise "expected web-smoke blocking dependency" unless web_smoke["blockers"].any? { |entry| entry["blocking_task_id"] == "web-release" }
-' "$feature_json" "$repo_json" "$integration_json" "$execution_order_json" "$gate_status_json"
+
+  raise "expected policy view" unless policy["view"] == "policy"
+  raise "expected policy feature id" unless policy["feature_id"] == "policy-rollout"
+  raise "expected two policy repo evaluations" unless policy["repos"].length == 2
+  raise "expected deterministic policy repo ordering" unless policy["repos"].map { |item| item["repo_id"] } == ["infra", "web"]
+  web_policy = policy["repos"].find { |item| item["repo_id"] == "web" }
+  infra_policy = policy["repos"].find { |item| item["repo_id"] == "infra" }
+  raise "expected web policy evaluation" unless web_policy
+  raise "expected infra policy evaluation" unless infra_policy
+  raise "expected node policy plugin" unless web_policy.dig("resolution", "plugin_id") == "policy://node/pnpm-v1"
+  raise "expected terraform policy plugin" unless infra_policy.dig("resolution", "plugin_id") == "policy://terraform/plan-apply-gates"
+  raise "expected unresolved web policy ref violation" unless web_policy["violations"].any? { |item| item["code"] == "policy_ref_not_supported" }
+  raise "expected task-level gate violation for web-followup" unless web_policy["violations"].any? { |item| item["task_id"] == "web-followup" && item["code"] == "task_executed_while_gate_unsatisfied" }
+  raise "expected policy rollup violation count" unless policy.dig("policy_rollup", "violation_count") == 2
+' "$feature_json" "$repo_json" "$integration_json" "$execution_order_json" "$gate_status_json" "$policy_json"
 
 echo "Workspace feature graph query tests: passed"

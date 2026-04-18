@@ -191,6 +191,12 @@ Query per-task dependency gate status for one feature:
 ./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view gate-status --feature-id crosschain-wallet-v2
 ```
 
+Query per-repo policy plugin evaluation for one feature:
+
+```bash
+./scripts/query-workspace-feature-graph.sh superagents.workspace.yaml --view policy --feature-id crosschain-wallet-v2
+```
+
 Rollups include aggregate child progression (`progress_pct`, status counts), blocking state (`blocking.blocked`, blocker details), deterministic dependency graph metadata (`dependency_graph`), gate-state rollups (`blocked`, `ready`, `running`, `waiting_on_signal`, `satisfied`), and deterministic execution ordering (`execution_order` with `sequence` + `wave`).
 
 Execution-order tie-breaking is deterministic for equal dependency depth: task id ascending.
@@ -200,6 +206,13 @@ Failure and recovery are deterministic:
 - dependency cycles fail validation and must be resolved before execution-order views are considered valid.
 - gate blockers include explicit reasons (`status_blocked`, `waiting_on_dependency`, `dependency_cycle`) and blocking task ids where applicable.
 - recovery path is resumable: update task status/dependency links, then re-run query views to compute the next ready set from the same rules.
+
+Per-repo policy runtime behavior is deterministic and isolated:
+
+- plugin resolution order is fixed: first supported `policy_refs` entry, then toolchain-based fallback, then default generic plugin.
+- policy contract phases are stable and ordered: `preflight` -> `build` -> `test` -> `publish`.
+- unsupported policy refs emit repo-scoped violations only for the owning repo.
+- gate-policy mismatches emit task-scoped violations only for the owning task/repo.
 
 ## Error Message Examples
 

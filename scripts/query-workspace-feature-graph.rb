@@ -10,6 +10,63 @@ class FeatureGraphQueryError < StandardError; end
 
 class FeatureGraphQuery
   TERMINAL_TASK_STATUSES = %w[done cancelled].freeze
+  POLICY_PHASES = %w[preflight build test publish].freeze
+  POLICY_DEFAULT_ID = 'policy://default/generic-v1'
+  POLICY_PLUGIN_DEFINITIONS = [
+    {
+      id: 'policy://node/pnpm-v1',
+      plugin: 'node_pnpm',
+      matcher: lambda { |repo|
+        repo.fetch('build_system', '').to_s.include?('pnpm') ||
+          repo.fetch('runtime', '').to_s.start_with?('node')
+      },
+      phases: {
+        preflight: 'pnpm install --frozen-lockfile',
+        build: 'pnpm run build',
+        test: 'pnpm run test',
+        publish: 'pnpm run release'
+      }
+    },
+    {
+      id: 'policy://ruby/bundler-v1',
+      plugin: 'ruby_bundler',
+      matcher: lambda { |repo|
+        repo.fetch('build_system', '').to_s.include?('bundler') ||
+          repo.fetch('runtime', '').to_s.start_with?('ruby')
+      },
+      phases: {
+        preflight: 'bundle install --jobs 4',
+        build: 'bundle exec rake build',
+        test: 'bundle exec rake test',
+        publish: 'bundle exec rake release'
+      }
+    },
+    {
+      id: 'policy://terraform/plan-apply-gates',
+      plugin: 'terraform_plan_apply',
+      matcher: lambda { |repo|
+        repo.fetch('build_system', '').to_s.include?('terraform') ||
+          repo.fetch('runtime', '').to_s.include?('terraform')
+      },
+      phases: {
+        preflight: 'terraform fmt -check && terraform validate',
+        build: 'terraform plan -out=tfplan',
+        test: 'terraform show -json tfplan',
+        publish: 'terraform apply tfplan'
+      }
+    },
+    {
+      id: POLICY_DEFAULT_ID,
+      plugin: 'generic',
+      matcher: lambda { |_repo| true },
+      phases: {
+        preflight: 'echo "preflight"',
+        build: 'echo "build"',
+        test: 'echo "test"',
+        publish: 'echo "publish"'
+      }
+    }
+  ].freeze
 
   def initialize(manifest)
     @manifest = manifest
@@ -23,6 +80,8 @@ class FeatureGraphQuery
     raise FeatureGraphQueryError, "Feature not found: #{feature_id}" unless feature
 
     tasks = normalized_tasks(feature)
+    policy = build_policy_summary(tasks, features: [feature], repo_id: nil)
+
     {
       api_version: 1,
       view: 'feature',
@@ -33,6 +92,7 @@ class FeatureGraphQuery
       rollup: build_rollup(tasks, dependency_context_tasks: tasks),
       by_repo: build_repo_rollups(tasks),
       integration: build_feature_integration_view(feature, tasks),
+      policy: policy,
       tasks: tasks
     }
   end
@@ -51,6 +111,9 @@ class FeatureGraphQuery
                              [repo_tasks, repo_tasks]
                            end
 
+    features_for_policy = feature_id ? [@features.find { |item| item['feature_id'] == feature_id }] : @features
+    policy = build_policy_summary(tasks, features: features_for_policy, repo_id: repo_id)
+
     {
       api_version: 1,
       view: 'repo',
@@ -59,6 +122,7 @@ class FeatureGraphQuery
       feature_id: feature_id,
       rollup: build_rollup(tasks, dependency_context_tasks: context_tasks),
       integration: build_repo_integration_view(repo_id, tasks),
+      policy: policy,
       tasks: tasks
     }
   end
@@ -126,6 +190,33 @@ class FeatureGraphQuery
       gate_status: orchestration[:gate_status],
       dependency_graph: orchestration[:dependency_graph],
       tasks: task_gates
+    }
+  end
+
+  def policy_view(feature_id: nil, repo_id: nil)
+    if feature_id
+      feature = @features.find { |item| item['feature_id'] == feature_id }
+      raise FeatureGraphQueryError, "Feature not found: #{feature_id}" unless feature
+
+      features = [feature]
+    else
+      features = @features
+    end
+
+    raise FeatureGraphQueryError, "Repository not found: #{repo_id}" if repo_id && !@repo_by_id.key?(repo_id)
+
+    tasks = features.flat_map { |feature| normalized_tasks(feature) }
+    tasks = tasks.select { |task| task['repo_id'] == repo_id } if repo_id
+    summary = build_policy_summary(tasks, features: features, repo_id: repo_id)
+
+    {
+      api_version: 1,
+      view: 'policy',
+      workspace_id: @manifest['workspace_id'],
+      feature_id: feature_id,
+      repo_id: repo_id,
+      policy_rollup: summary[:rollup],
+      repos: summary[:repos]
     }
   end
 
@@ -264,6 +355,244 @@ class FeatureGraphQuery
         retryable_failures: retryable_failures,
         dedupe_keys: dedupe_keys.uniq
       }
+    }
+  end
+
+  def build_policy_summary(tasks, features:, repo_id:)
+    repo_ids = tasks.map { |task| task['repo_id'] }.uniq.sort
+    repo_ids &= [repo_id] if repo_id
+    task_gate_index = build_task_gate_index(features)
+    evaluations = repo_ids.map do |current_repo_id|
+      repo_tasks = tasks.select { |task| task['repo_id'] == current_repo_id }
+      evaluate_repo_policy(current_repo_id, repo_tasks, task_gate_index)
+    end
+
+    all_violations = evaluations.flat_map { |item| item[:violations] }
+    {
+      rollup: {
+        total_repos: evaluations.length,
+        total_tasks: tasks.length,
+        repos_with_violations: evaluations.count { |item| item[:violations].any? },
+        tasks_with_violations: all_violations.map { |item| item[:task_id] }.compact.uniq.length,
+        violation_count: all_violations.length
+      },
+      repos: evaluations
+    }
+  end
+
+  def build_task_gate_index(features)
+    index = {}
+    features.each do |feature|
+      next unless feature.is_a?(Hash)
+
+      tasks = normalized_tasks(feature)
+      orchestration = build_orchestration(tasks, dependency_context_tasks: tasks)
+      orchestration.fetch(:task_gates, []).each do |gate_row|
+        key = task_key(
+          'feature_id' => feature['feature_id'],
+          'id' => gate_row[:task_id]
+        )
+        index[key] = gate_row
+      end
+    end
+    index
+  end
+
+  def evaluate_repo_policy(repo_id, repo_tasks, task_gate_index)
+    repo = @repo_by_id[repo_id] || {}
+    resolution = resolve_policy_plugin(repo)
+    task_rows = repo_tasks.sort_by { |task| [task['feature_id'].to_s, task['id'].to_s] }.map do |task|
+      gate_row = task_gate_index[task_key(task)] || default_gate_row(task)
+      evaluate_task_policy(task, gate_row, resolution)
+    end
+    violations = (resolution[:violations] + task_rows.flat_map { |row| row[:violations] }).sort_by do |violation|
+      [violation[:scope].to_s, violation[:repo_id].to_s, violation[:feature_id].to_s, violation[:task_id].to_s, violation[:code].to_s]
+    end
+
+    {
+      repo_id: repo_id,
+      repo_runtime: repo['runtime'],
+      repo_build_system: repo['build_system'],
+      resolution: {
+        strategy: resolution[:strategy],
+        plugin_id: resolution[:plugin][:id],
+        plugin: resolution[:plugin][:plugin],
+        selected_policy_ref: resolution[:selected_policy_ref],
+        requested_policy_refs: resolution[:requested_policy_refs],
+        unresolved_policy_refs: resolution[:unresolved_policy_refs]
+      },
+      contract: {
+        phases: POLICY_PHASES.map do |phase|
+          {
+            name: phase,
+            command: resolution[:plugin][:phases][phase.to_sym],
+            deterministic_order: POLICY_PHASES.index(phase) + 1
+          }
+        end
+      },
+      task_evaluations: task_rows.map do |row|
+        {
+          feature_id: row[:feature_id],
+          task_id: row[:task_id],
+          status: row[:status],
+          gate_state: row[:gate_state],
+          policy_state: row[:policy_state],
+          ready_for_execution: row[:ready_for_execution],
+          phases: row[:phases],
+          violations: row[:violations]
+        }
+      end,
+      violations: violations
+    }
+  end
+
+  def resolve_policy_plugin(repo)
+    plugins = policy_plugins_by_id
+    requested_refs = Array(repo['policy_refs']).select { |ref| ref.is_a?(String) && !ref.strip.empty? }
+    unresolved_refs = []
+    selected_ref = nil
+    selected_plugin = nil
+
+    requested_refs.each do |ref|
+      if plugins.key?(ref)
+        selected_ref = ref
+        selected_plugin = plugins[ref]
+        break
+      else
+        unresolved_refs << ref
+      end
+    end
+
+    strategy = 'explicit_ref'
+    if selected_plugin.nil?
+      selected_plugin = fallback_policy_plugin(repo)
+      strategy = selected_plugin[:id] == POLICY_DEFAULT_ID ? 'default' : 'toolchain_fallback'
+    end
+
+    violations = unresolved_refs.map do |ref|
+      {
+        scope: 'repo',
+        repo_id: repo['id'],
+        feature_id: nil,
+        task_id: nil,
+        code: 'policy_ref_not_supported',
+        message: "Policy reference '#{ref}' is not registered in runtime plugin catalog."
+      }
+    end
+
+    {
+      strategy: strategy,
+      plugin: selected_plugin,
+      selected_policy_ref: selected_ref,
+      requested_policy_refs: requested_refs,
+      unresolved_policy_refs: unresolved_refs,
+      violations: violations
+    }
+  end
+
+  def fallback_policy_plugin(repo)
+    POLICY_PLUGIN_DEFINITIONS.reject { |item| item[:id] == POLICY_DEFAULT_ID }.sort_by { |item| item[:id] }.find { |item| item[:matcher].call(repo) } ||
+      policy_plugins_by_id.fetch(POLICY_DEFAULT_ID)
+  end
+
+  def policy_plugins_by_id
+    @policy_plugins_by_id ||= POLICY_PLUGIN_DEFINITIONS.each_with_object({}) { |plugin, memo| memo[plugin[:id]] = plugin }
+  end
+
+  def evaluate_task_policy(task, gate_row, resolution)
+    status = task['status']
+    gate_state = gate_row[:gate_state]
+    phases = build_phase_states(status, resolution[:plugin])
+    violations = []
+
+    if %w[in_progress done].include?(status) && %w[blocked waiting_on_signal].include?(gate_state)
+      violations << {
+        scope: 'task',
+        repo_id: task['repo_id'],
+        feature_id: task['feature_id'],
+        task_id: task['id'],
+        code: 'task_executed_while_gate_unsatisfied',
+        message: "Task '#{task['id']}' is #{status} while gate_state is '#{gate_state}'."
+      }
+    end
+
+    if status == 'done' && !%w[satisfied running].include?(gate_state)
+      violations << {
+        scope: 'task',
+        repo_id: task['repo_id'],
+        feature_id: task['feature_id'],
+        task_id: task['id'],
+        code: 'done_task_without_satisfied_gate',
+        message: "Task '#{task['id']}' is done but gate_state '#{gate_state}' is not terminal."
+      }
+    end
+
+    policy_state = if violations.any?
+                     'violation'
+                   elsif status == 'done'
+                     'satisfied'
+                   elsif status == 'in_progress'
+                     'running'
+                   elsif %w[blocked waiting_on_signal].include?(gate_state)
+                     'waiting'
+                   elsif gate_state == 'ready'
+                     'ready'
+                   else
+                     'pending'
+                   end
+
+    {
+      feature_id: task['feature_id'],
+      task_id: task['id'],
+      status: status,
+      gate_state: gate_state,
+      ready_for_execution: gate_row[:ready_for_execution],
+      policy_state: policy_state,
+      phases: phases,
+      violations: violations
+    }
+  end
+
+  def build_phase_states(status, plugin)
+    completed_phases = case status
+                       when 'done'
+                         POLICY_PHASES
+                       when 'in_progress'
+                         %w[preflight]
+                       else
+                         []
+                       end
+
+    active_phase = status == 'in_progress' ? 'build' : nil
+    POLICY_PHASES.map do |phase|
+      state = if status == 'cancelled'
+                'skipped'
+              elsif completed_phases.include?(phase)
+                'satisfied'
+              elsif active_phase == phase
+                'running'
+              else
+                'pending'
+              end
+
+      {
+        name: phase,
+        command: plugin[:phases][phase.to_sym],
+        state: state
+      }
+    end
+  end
+
+  def task_key(task)
+    "#{task['feature_id']}:#{task['id']}"
+  end
+
+  def default_gate_row(task)
+    {
+      task_id: task['id'],
+      repo_id: task['repo_id'],
+      gate_state: 'unknown',
+      ready_for_execution: false
     }
   end
 
@@ -477,8 +806,8 @@ end
 def parse_options(argv)
   options = { format: 'json' }
   parser = OptionParser.new do |opts|
-    opts.banner = 'Usage: scripts/query-workspace-feature-graph.rb <manifest-path> (--feature-id ID | --repo-id ID) [--view feature|repo|integration|execution-order|gate-status] [--format json]'
-    opts.on('--view VIEW', 'View to render: feature, repo, integration, execution-order, or gate-status') { |value| options[:view] = value }
+    opts.banner = 'Usage: scripts/query-workspace-feature-graph.rb <manifest-path> (--feature-id ID | --repo-id ID) [--view feature|repo|integration|execution-order|gate-status|policy] [--format json]'
+    opts.on('--view VIEW', 'View to render: feature, repo, integration, execution-order, gate-status, or policy') { |value| options[:view] = value }
     opts.on('--feature-id ID', 'Feature id to query') { |value| options[:feature_id] = value }
     opts.on('--repo-id ID', 'Repo id to query') { |value| options[:repo_id] = value }
     opts.on('--format FORMAT', 'Output format (json only currently)') { |value| options[:format] = value }
@@ -498,7 +827,7 @@ end
 
 def validate_query_options!(options)
   raise FeatureGraphQueryError, "Unsupported format '#{options[:format]}'. Only 'json' is supported." unless options[:format] == 'json'
-  allowed_views = %w[feature repo integration execution-order gate-status]
+  allowed_views = %w[feature repo integration execution-order gate-status policy]
   raise FeatureGraphQueryError, "Unsupported view '#{options[:view]}'. Use #{allowed_views.join(', ')}." unless allowed_views.include?(options[:view])
 
   case options[:view]
@@ -506,6 +835,10 @@ def validate_query_options!(options)
     raise FeatureGraphQueryError, '--feature-id is required for feature view' unless options[:feature_id]
   when 'repo'
     raise FeatureGraphQueryError, '--repo-id is required for repo view' unless options[:repo_id]
+  when 'policy'
+    return if options[:feature_id] || options[:repo_id]
+
+    raise FeatureGraphQueryError, '--feature-id or --repo-id is required for policy view'
   else
     raise FeatureGraphQueryError, "--feature-id is required for #{options[:view]} view" unless options[:feature_id]
   end
@@ -541,6 +874,8 @@ def run_query_cli(argv)
              query.execution_order_view(options[:feature_id], repo_id: options[:repo_id])
            when 'gate-status'
              query.gate_status_view(options[:feature_id], repo_id: options[:repo_id])
+           when 'policy'
+             query.policy_view(feature_id: options[:feature_id], repo_id: options[:repo_id])
            else
              query.integration_view(options[:feature_id], repo_id: options[:repo_id])
            end

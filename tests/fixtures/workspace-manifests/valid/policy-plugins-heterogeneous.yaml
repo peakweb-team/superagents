@@ -1,0 +1,61 @@
+schema_version: 1
+workspace_id: helix
+repos:
+  - id: web
+    remote: git@github.com:example/web.git
+    default_branch: main
+    role: webapp
+    language: typescript
+    runtime: node20
+    build_system: pnpm
+    issue_backend:
+      type: repo_issues
+      repo: example/web
+    policy_refs:
+      - policy://unknown/custom-v99
+      - policy://node/pnpm-v1
+
+  - id: infra
+    path: ../infra
+    default_branch: main
+    role: devops
+    language: hcl
+    runtime: terraform
+    build_system: terraform
+    issue_backend:
+      type: external_tracker
+      tracker: jira
+      mapping:
+        project_key: INFRA
+    policy_refs:
+      - policy://terraform/plan-apply-gates
+
+features:
+  - feature_id: policy-rollout
+    title: Policy plugin rollout
+    tasks:
+      - id: infra-prepare
+        feature_id: policy-rollout
+        repo_id: infra
+        title: Prepare terraform plan
+        status: done
+        child_ids:
+          - web-release
+
+      - id: web-release
+        feature_id: policy-rollout
+        repo_id: web
+        title: Release frontend
+        status: in_progress
+        parent_ids:
+          - infra-prepare
+        blocked_by_ids:
+          - infra-prepare
+
+      - id: web-followup
+        feature_id: policy-rollout
+        repo_id: web
+        title: Follow-up fixes before dependency clears
+        status: in_progress
+        blocked_by_ids:
+          - web-release
