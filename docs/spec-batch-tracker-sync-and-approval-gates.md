@@ -80,6 +80,24 @@ After reviewer sign-off and before provider writes:
 
 No batch create/update operation should run without explicit operator approval.
 
+Required operator approval artifact:
+
+- `.agency/specs/batches/<epic-slug>/<milestone-slug-or-unscoped>/<batch-key>/tracker-sync-approval.yaml`
+- minimum fields:
+  - `approval_id` (stable approval record id)
+  - `batch_key`
+  - `approver_id`
+  - `approved_at` (timestamp)
+  - `decision` (`approved` or `rejected`)
+  - `comment` (optional)
+  - `approval_nonce` (or equivalent integrity marker)
+
+Execution enforcement requirements:
+
+- apply phase must look up `tracker-sync-approval.yaml` for the current `batch-key` before any provider write
+- if approval artifact is missing, malformed, or not `decision: approved`, reject batch create/update execution
+- approval artifacts should be treated as immutable decision records and retained with the batch bundle for auditability
+
 ### Phase 4: Apply Writes And Record Results
 
 Execute approved writes and persist one result ledger:
@@ -172,4 +190,3 @@ Fail mode remains required when:
   - see `Phase 4: Apply Writes And Record Results` and `Partial Failure Handling And Retry Guidance`
 - Capability fallback behavior remains aligned with existing contracts:
   - see `Fallback Alignment`
-

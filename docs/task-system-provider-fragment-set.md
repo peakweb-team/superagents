@@ -88,9 +88,11 @@ Both fragments may suggest direct-brief and assumption-capture fragments for dua
 - `task-tracker.create`
   - Create new issues from approved spec artifacts when implementation cannot start from an existing tracked task.
   - Ensure created issue content includes scope summary, acceptance expectations, and links to canonical spec artifacts.
+  - For batch planning runs, execute create actions only after dry-run review and explicit operator approval.
 - `task-tracker.update`
   - Post durable human-facing progress updates and completion summaries.
   - Keep updates milestone-oriented rather than mirroring every internal subtask.
+  - For batch planning runs, publish per-item outcomes (`updated`, `skipped`, `failed`) and retry guidance.
 
 ### Jira Fragment Responsibilities
 

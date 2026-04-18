@@ -86,7 +86,7 @@ When a primary task tracker is configured:
 - create or update the tracked item via canonical task-tracker capabilities
 - store the implementation-ready spec in the ticket/issue body or linked canonical artifact
 - persist milestones and final completion summaries in the same tracker
-- for planning-batch runs, require dry-run planning plus explicit reviewer/operator approval before bulk create/update writes
+- for planning-batch runs, require dry-run planning plus explicit reviewer approval and explicit operator approval before bulk create/update writes
 
 ### Direct-Brief Path
 
