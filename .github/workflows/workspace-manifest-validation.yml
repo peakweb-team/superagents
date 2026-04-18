@@ -1,0 +1,25 @@
+name: Workspace Manifest Validation
+
+on:
+  pull_request:
+    paths:
+      - "docs/federated-workspace-manifest-spec.md"
+      - "docs/schemas/superagents.workspace.schema.json"
+      - "docs/examples/workspace-manifests/**"
+      - "scripts/validate-workspace-manifest.sh"
+      - "scripts/validate-workspace-manifest.rb"
+      - "tests/test-workspace-manifest-validation.sh"
+      - "tests/fixtures/workspace-manifests/**"
+
+jobs:
+  validate:
+    name: Validate workspace manifest contract
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run workspace manifest validation tests
+        run: |
+          chmod +x scripts/validate-workspace-manifest.sh scripts/validate-workspace-manifest.rb tests/test-workspace-manifest-validation.sh
+          ./tests/test-workspace-manifest-validation.sh

@@ -79,6 +79,20 @@ Supported install targets include:
 - `qwen`
 - `kimi`
 
+### 8. Federated Multi-Repo Workspace Manifest
+
+Superagents supports a federated workspace contract for coordinating multiple repositories across different language/toolchain stacks.
+
+- Spec: [docs/federated-workspace-manifest-spec.md](docs/federated-workspace-manifest-spec.md)
+- Schema: [docs/schemas/superagents.workspace.schema.json](docs/schemas/superagents.workspace.schema.json)
+- Example: [docs/examples/workspace-manifests/superagents.workspace.yaml](docs/examples/workspace-manifests/superagents.workspace.yaml)
+
+Validate a manifest:
+
+```bash
+./scripts/validate-workspace-manifest.sh superagents.workspace.yaml
+```
+
 ## How Superagents Relates To Superpowers
 
 ### What Is Shared
@@ -194,6 +208,16 @@ Use one worktree per issue/team stream to keep execution isolated.
 - `integrations/`: generated integration outputs for supported tools
 - `scripts/`: conversion/install scripts
 
+## Runtime Policy
+
+Automation scripts must use a single non-shell runtime across the repository (shell scripts are exempt).
+
+Validate locally:
+
+```bash
+./scripts/enforce-single-runtime.sh
+```
+
 ## Key Documents
 
 - [ROADMAP.md](ROADMAP.md)
@@ -208,6 +232,7 @@ Use one worktree per issue/team stream to keep execution isolated.
 - [docs/install-packaging-skill-fragments-contract.md](docs/install-packaging-skill-fragments-contract.md)
 - [docs/runtime-context-budgeting-and-repo-reading.md](docs/runtime-context-budgeting-and-repo-reading.md)
 - [docs/isolated-devcontainer-bootstrap-workflow.md](docs/isolated-devcontainer-bootstrap-workflow.md)
+- [docs/federated-workspace-manifest-spec.md](docs/federated-workspace-manifest-spec.md)
 - [examples/generated-skills/README.md](examples/generated-skills/README.md)
 
 ## Other Integrations

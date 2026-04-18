@@ -1,0 +1,21 @@
+name: Runtime Policy
+
+on:
+  pull_request:
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - ".github/workflows/**"
+
+jobs:
+  enforce:
+    name: Enforce single non-shell runtime
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check runtime policy
+        run: |
+          chmod +x scripts/enforce-single-runtime.sh
+          ./scripts/enforce-single-runtime.sh

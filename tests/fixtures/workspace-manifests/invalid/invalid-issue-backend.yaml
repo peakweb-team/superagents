@@ -1,0 +1,12 @@
+schema_version: 1
+workspace_id: atlas
+repos:
+  - id: infra
+    path: ../infra
+    default_branch: main
+    role: devops
+    build_system: terraform
+    issue_backend:
+      type: external_tracker
+      tracker: jira
+      repo: example/infra
