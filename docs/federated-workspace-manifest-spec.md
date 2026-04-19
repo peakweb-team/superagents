@@ -8,6 +8,10 @@ The goal is to coordinate multiple repositories under one workspace-level contro
 
 This is explicitly **not** a Turborepo/Nx single-stack package-graph format.
 
+For operator-focused usage guidance (decision framework, end-to-end walkthrough, issue/project routing playbook, dependency gate operations, and migration/backward-compatibility notes), see:
+
+- `docs/federated-multi-repo-cross-language-guide.md`
+
 ## Manifest File Name
 
 Workspace manifests should be stored at the workspace root as:
