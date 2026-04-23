@@ -10,14 +10,31 @@ required_patterns=(
   ".codex/"
 )
 
+has_line_match() {
+  local literal="$1" file="$2"
+  if command -v rg >/dev/null 2>&1; then
+    rg -qxF "$literal" "$file"
+  else
+    grep -Fxq "$literal" "$file"
+  fi
+}
+
+has_any_output() {
+  if command -v rg >/dev/null 2>&1; then
+    rg -q "."
+  else
+    grep -q "."
+  fi
+}
+
 for pattern in "${required_patterns[@]}"; do
-  if ! rg -qxF "$pattern" "$GITIGNORE"; then
+  if ! has_line_match "$pattern" "$GITIGNORE"; then
     echo "Missing required dogfooding ignore pattern in .gitignore: $pattern"
     exit 1
   fi
 done
 
-if git -C "$ROOT_DIR" ls-files -- ".claude/*" ".agency/*" ".codex/*" | rg -q "."; then
+if git -C "$ROOT_DIR" ls-files -- ".claude/*" ".agency/*" ".codex/*" | has_any_output; then
   echo "Tracked runtime artifacts detected under .claude/, .agency/, or .codex/"
   exit 1
 fi
