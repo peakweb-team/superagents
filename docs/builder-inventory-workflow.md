@@ -74,9 +74,11 @@ Example normalized signals:
 - `input.direct_brief`
 - `input.batch_planning_object`
 - `forge.github`
+- `task_tracker.github_projects`
 - `task_tracker.github_issues`
 - `task_tracker.jira`
 - `repo.monorepo`
+- `repo.no_individual_repo_issues`
 - `workflow.pull_requests`
 - `workflow.parallel_agents`
 - `workflow.sprint_kickoff_planning`
@@ -211,6 +213,7 @@ These drive provider-fragment selection when the generated skill should integrat
 
 Common signals:
 
+- `task_tracker.github_projects`
 - `task_tracker.github_issues`
 - `task_tracker.jira`
 - `task_tracker.linear`
@@ -252,6 +255,7 @@ These affect runtime and orchestration guidance.
 Common signals:
 
 - `repo.monorepo`
+- `repo.no_individual_repo_issues`
 - `repo.large`
 - `repo.multi_package`
 - `repo.multi_language`
@@ -345,6 +349,7 @@ Use `high` when the repository provides direct or converging evidence that clear
 
 Examples:
 
+- an org-level GitHub Project workflow with no repo-local issue references supports `task_tracker.github_projects` and `repo.no_individual_repo_issues`
 - a GitHub remote plus `.github/` workflows plus issue references in PR templates support `forge.github` and likely `task_tracker.github_issues`
 - repeated Jira ticket keys in docs and branch conventions support `task_tracker.jira`
 - a root workspace manifest plus multiple app/package directories support `repo.monorepo`
@@ -493,14 +498,15 @@ inventory:
       conflicts_with: []
       assumption: The repository looks delivery-oriented, but no authoritative tracker was detected, so direct-brief intake remains available.
     primary_task_tracker:
-      value: github-issues
+      value: github-projects
       confidence: medium
       supported_by:
         - forge.github
-        - workflow.pull_requests
-        - repo.references_issue_numbers
+        - repo.monorepo
+        - repo.no_individual_repo_issues
+        - task_tracker.github_projects
       conflicts_with: []
-      assumption: GitHub Issues appears primary, but no explicit issue-policy doc was found.
+      assumption: The repository appears to run org-level planning in GitHub Projects with no strong per-repo issue authority signal.
     review_path:
       value: human-pr-review
       confidence: high
@@ -513,8 +519,8 @@ inventory:
       prompt: Should the generated skill start from tracked tasks, direct briefs, or both?
       why: The repository shows delivery workflow signals, but does not make the intake mode explicit.
     - id: task-tracker-authority
-      prompt: Is GitHub Issues the primary tracker, or is another system authoritative?
-      why: The repository shows GitHub delivery flow, but issue authority is not explicit.
+      prompt: Is GitHub Projects, GitHub Issues, or another tracker authoritative for task intake and status updates?
+      why: The repository shows GitHub delivery flow, but authoritative tracker policy is not explicit.
 ```
 
 The exact serialization can evolve, but the content should remain stable.
@@ -534,16 +540,18 @@ Below is a sample Markdown-form inventory summary suitable for an MVP builder ha
   - source: `.github/PULL_REQUEST_TEMPLATE.md`
 - `repo.monorepo` — high confidence
   - source: root workspace manifest and multiple package directories
+- `repo.no_individual_repo_issues` — medium confidence
+  - source: contribution and workflow docs point to org-level project boards instead of per-repo issue intake
 - `workflow.model_budget_matters` — medium confidence
   - source: monorepo shape and multiple specialist-oriented workflow docs
-- `task_tracker.github_issues` — medium confidence
-  - source: issue-number references in docs and PR flow, but no explicit task-policy file
+- `task_tracker.github_projects` — medium confidence
+  - source: project-board-oriented workflow language and cross-repo intake conventions
 
 ### Inferred Decisions
 
 - Primary forge: GitHub (`high`)
 - Work intake mode: both tracked-task and direct-brief (`medium`)
-- Primary task tracker: GitHub Issues (`medium`)
+- Primary task tracker: GitHub Projects (`medium`)
 - Delivery model: PR-based review (`high`)
 - Team sizing guidance needed: yes (`high`)
 - Runtime/model-routing guidance needed: yes (`high`)
@@ -551,13 +559,13 @@ Below is a sample Markdown-form inventory summary suitable for an MVP builder ha
 ### Assumptions
 
 - Direct-brief intake remains available because no authoritative tracker policy was found.
-- GitHub Issues is assumed to be the primary tracker until contradicted.
+- GitHub Projects is assumed primary because monorepo and no-individual-issues signals were detected.
 - No review automation provider is assumed because none was directly detected.
 
 ### Follow-Up Questions
 
 - Confirm whether the generated skill should start from tracked tasks, direct briefs, or both.
-- Confirm whether GitHub Issues is the authoritative tracker or just a mirror for another system.
+- Confirm whether GitHub Projects is authoritative, or if per-repo Issues/Jira should be treated as the source of truth.
 ```
 
 ## Recommended Priority Order For Inventory

@@ -25,6 +25,7 @@ This keeps task-system behavior capability-oriented and avoids mixing provider d
 
 This document defines task-system provider fragments for:
 
+- GitHub Projects
 - GitHub Issues
 - Jira
 
@@ -69,14 +70,27 @@ No repository should be forced to use an external task tracker as a precondition
 
 | Fragment id | Provider | Fragment type | Layer | Canonical capabilities | Primary role |
 | --- | --- | --- | --- | --- | --- |
+| `project-management/github-projects` | GitHub Projects | `provider` | `project-management` | `task-tracker.read`, `task-tracker.update` | Read project items for org-level and cross-repo workflows, then post durable status updates through GitHub Projects item fields. |
 | `project-management/github-issues` | GitHub Issues | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.create`, `task-tracker.update` | Resolve issue references, read issue context, create spec-backed implementation issues, and post durable status updates in GitHub Issues. |
 | `project-management/jira` | Jira | `provider` | `project-management` | `task-tracker.lookup`, `task-tracker.read`, `task-tracker.create`, `task-tracker.update` | Resolve Jira keys/URLs, read Jira ticket context, create spec-backed implementation tickets, and post durable status updates in Jira. |
 
-Both fragments should use `composition.exclusive_within: primary-task-tracker` so assembly chooses at most one tracker-of-record path.
+All tracker fragments should use `composition.exclusive_within: primary-task-tracker` so assembly chooses at most one tracker-of-record path.
 
-Both fragments may suggest direct-brief and assumption-capture fragments for dual-intake compatibility, but they should not require tracker-only intake.
+Tracker fragments may suggest direct-brief and assumption-capture fragments for dual-intake compatibility, but they should not require tracker-only intake.
 
 ## Provider Responsibilities By Capability
+
+### GitHub Projects Fragment Responsibilities
+
+- `task-tracker.read`
+  - Read project item title/body/status context, including linked issue details when present.
+  - Support both linked-issue items and draft items with explicit branching behavior.
+  - Parse canonical cross-repo shape (`## Repos` plus `## Acceptance Criteria`) into repo-scoped implementation specs when present.
+- `task-tracker.update`
+  - Discover field IDs and option IDs at runtime before status writes.
+  - Use `gh project field-list <N> --owner <org> --format json` before `gh project item-edit`.
+  - Never hardcode, persist, or reuse GitHub Projects node IDs across sessions.
+  - If metadata lookup fails, continue implementation and provide exact manual status-update commands to the operator.
 
 ### GitHub Issues Fragment Responsibilities
 
@@ -191,7 +205,9 @@ capability_bindings:
 Inventory and questionnaire phases should keep these behaviors consistent with existing contracts:
 
 - infer candidate tracker fragments from repository/task-reference signals
-- ask follow-up questions when both GitHub Issues and Jira are plausible primary trackers
+- include `task_tracker.github_projects` and `repo.no_individual_repo_issues` as first-class selection signals
+- prefer GitHub Projects over GitHub Issues when both are plausible and `repo.monorepo` plus `repo.no_individual_repo_issues` are present
+- ask follow-up questions when GitHub Projects, GitHub Issues, and Jira are all plausible primary trackers
 - preserve unresolved state instead of forcing a tracker winner when source-of-truth is unclear
 - keep direct-brief path available when selected, even if a tracker fragment is also selected
 

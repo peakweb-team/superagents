@@ -48,7 +48,7 @@ Ask only the unresolved questions that materially affect skill composition. Prio
 
 - Work intake mode: direct brief, tracked task, or both
 - Spec intake shape for direct brief: single-item flow, planning-batch flow, or both
-- Project management system when tracked-task intake is in scope: GitHub Issues, Jira, Linear, or other
+- Project management system when tracked-task intake is in scope: GitHub Projects, GitHub Issues, Jira, Linear, or other
 - Review tooling: CodeRabbit, human-only review, custom CI gates
 - Whether tasks should default to solo execution or team orchestration
 - Worktree isolation strategy: `off`, `manual`, or `auto`, plus whether per-task override is allowed
