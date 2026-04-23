@@ -34,6 +34,11 @@ jobs:
           chmod +x scripts/validate-doc-links.sh tests/test-doc-link-integrity.sh
           ./tests/test-doc-link-integrity.sh
 
+      - name: Run dogfooding guardrail checks
+        run: |
+          chmod +x scripts/check-dogfooding-guardrails.sh tests/test-dogfooding-guardrails.sh
+          ./tests/test-dogfooding-guardrails.sh
+
   conversion-determinism:
     name: Conversion determinism (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
