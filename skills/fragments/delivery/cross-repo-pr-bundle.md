@@ -18,9 +18,9 @@ selection:
   evidence_none: []
   preference: 83
 composition:
-  requires: []
-  suggests:
+  requires:
     - project-management/github-projects
+  suggests:
     - orchestration/team-sizing
     - delivery/pull-request-review
     - runtime/context-and-model-routing
@@ -73,7 +73,7 @@ Run bundle transitions in explicit phases:
 Classify failures as:
 
 - `blocking`: must halt bundle progression immediately.
-- `non_blocking`: can continue only when policy explicitly allows degraded progression.
+- `non-blocking`: can continue only when policy explicitly allows degraded progression.
 
 Default to blocking when dependency order, safety, or correctness is ambiguous.
 
