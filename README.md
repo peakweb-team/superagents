@@ -202,6 +202,15 @@ Reference docs:
 
 - [Anthropic devcontainer guide](https://code.claude.com/docs/en/devcontainer)
 
+### 2c. Dogfood Superagents In This Source Repository (Optional)
+
+If you are developing Superagents and dogfooding it at the same time, use a two-workspace setup (source + sandbox) to avoid recursive edits and runtime artifact pollution.
+
+Quick reference:
+
+- [docs/dogfooding-superagents-in-source-repo.md](docs/dogfooding-superagents-in-source-repo.md)
+- Guardrail check: `./scripts/check-dogfooding-guardrails.sh`
+
 ### 3. Use Skills Day-To-Day
 
 Typical loop:
@@ -271,6 +280,7 @@ Validate locally:
 - [docs/install-packaging-skill-fragments-contract.md](docs/install-packaging-skill-fragments-contract.md)
 - [docs/runtime-context-budgeting-and-repo-reading.md](docs/runtime-context-budgeting-and-repo-reading.md)
 - [docs/isolated-devcontainer-bootstrap-workflow.md](docs/isolated-devcontainer-bootstrap-workflow.md)
+- [docs/dogfooding-superagents-in-source-repo.md](docs/dogfooding-superagents-in-source-repo.md)
 - [docs/federated-workspace-manifest-spec.md](docs/federated-workspace-manifest-spec.md)
 - [examples/generated-skills/README.md](examples/generated-skills/README.md)
 
