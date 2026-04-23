@@ -26,6 +26,7 @@ composition:
     - delivery/pull-request-review
   conflicts:
     - project-management/github-issues
+    - project-management/github-projects
   exclusive_within:
     - primary-task-tracker
   emits:
@@ -56,4 +57,5 @@ Use Jira as the tracked-task source of truth when the project manages delivery t
 ## Builder Notes
 
 - Prefer this over the GitHub Issues fragment when Jira is the authoritative tracker for tracked-task intake.
+- Prefer this over the GitHub Projects fragment only when Jira, not GitHub Projects, is the authoritative source of truth.
 - If both Jira and GitHub Issues are used, define one as primary and the other as reference-only.

@@ -406,7 +406,7 @@ unresolved_decisions:
     safe_to_proceed: false
   - id: task-tracker-authority
     topic: primary task tracker for tracked-task intake
-    why_unresolved: GitHub Issues and Jira are both referenced, but authority is not explicit.
+    why_unresolved: GitHub Projects, GitHub Issues, and Jira are all referenced, but authority is not explicit.
     impact: high
     recommended_question: Which system should the builder treat as authoritative for task intake and status updates?
     safe_to_proceed: false
@@ -461,7 +461,7 @@ decisions:
     value: null
     confidence: low
     source: conflicting-evidence
-    why_unresolved: GitHub Issues and Jira both appear active, but neither is clearly primary.
+    why_unresolved: GitHub Projects, GitHub Issues, and Jira all appear active, but none is clearly primary.
 questions:
   - id: primary-task-tracker
     status: pending
@@ -470,7 +470,7 @@ questions:
 unresolved_decisions:
   - id: task-tracker-authority
     topic: primary task tracker for tracked-task intake
-    why_unresolved: GitHub Issues and Jira both appear active, but authority is unclear.
+    why_unresolved: GitHub Projects, GitHub Issues, and Jira all appear active, but authority is unclear.
     impact: high
     recommended_question: Which system should the builder treat as authoritative?
     safe_to_proceed: false

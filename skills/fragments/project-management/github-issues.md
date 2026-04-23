@@ -15,7 +15,8 @@ selection:
     - task_tracker.github_issues
     - repo.references_issue_numbers
   evidence_all: []
-  evidence_none: []
+  evidence_none:
+    - repo.no_individual_repo_issues
   requires_confirmation:
     - forge.github_without_confirmed_issue_workflow
   preference: 85
@@ -25,6 +26,7 @@ composition:
     - orchestration/team-sizing
     - delivery/pull-request-review
   conflicts:
+    - project-management/github-projects
     - project-management/jira
   exclusive_within:
     - primary-task-tracker
@@ -57,4 +59,5 @@ Use GitHub Issues as the tracked-task system of record when the project manages 
 
 - Pair well with `orchestration/team-sizing.md`.
 - Pair well with `delivery/pull-request-review.md`.
+- Exclude this fragment when repo evidence indicates GitHub Projects is authoritative and per-repo issue workflow is not.
 - If GitHub is present but issues are not authoritative, omit this fragment and prefer direct-brief or lighter PR-only workflow guidance.
