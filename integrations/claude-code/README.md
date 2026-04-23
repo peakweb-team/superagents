@@ -50,3 +50,7 @@ Install/packaging and migration contract:
 Builder usage flow, repo-local precedence rules, and generated-skill review/versioning guidance:
 
 - [`docs/builder-usage-and-repo-local-precedence-contract.md`](../../docs/builder-usage-and-repo-local-precedence-contract.md)
+
+Dogfooding Superagents while developing this repository:
+
+- [`docs/dogfooding-superagents-in-source-repo.md`](../../docs/dogfooding-superagents-in-source-repo.md)

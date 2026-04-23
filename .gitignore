@@ -63,6 +63,12 @@ notes/
 TODO.md
 NOTES.md
 
+# Dogfooding artifacts (local-only; do not commit)
+.claude/
+.agency/
+.codex/
+.superagents-dogfood/
+
 # Generated integration files — run scripts/convert.sh to regenerate locally
 # The scripts/ and integrations/*/README.md files ARE committed; only generated
 # agent/skill files are excluded.
