@@ -1,0 +1,67 @@
+name: Contract And Pipeline Tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  agent-lint:
+    name: Agent lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run agent linter
+        run: |
+          chmod +x scripts/lint-agents.sh
+          ./scripts/lint-agents.sh
+
+  fragment-contract-validation:
+    name: Fragment contracts and docs integrity
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run fragment contract validation
+        run: |
+          chmod +x scripts/validate-fragments.sh tests/test-fragment-contract-validation.sh
+          ./tests/test-fragment-contract-validation.sh
+
+      - name: Run doc link integrity checks
+        run: |
+          chmod +x scripts/validate-doc-links.sh tests/test-doc-link-integrity.sh
+          ./tests/test-doc-link-integrity.sh
+
+  conversion-determinism:
+    name: Conversion determinism (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify conversion determinism
+        run: |
+          chmod +x scripts/convert.sh tests/test-conversion-determinism.sh
+          ./tests/test-conversion-determinism.sh
+
+  installer-smoke:
+    name: Installer smoke tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run installer smoke test
+        run: |
+          chmod +x scripts/install.sh tests/test-install-smoke.sh
+          ./tests/test-install-smoke.sh

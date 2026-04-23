@@ -9,7 +9,7 @@ First off, thank you for considering contributing to The Agency! It's people lik
 - [Agent Design Guidelines](#agent-design-guidelines)
 - [Pull Request Process](#pull-request-process)
 - [Style Guide](#style-guide)
-- [Community](#community)
+- [Community](#questions)
 
 ---
 
@@ -390,9 +390,9 @@ Contributors who make significant contributions will be:
 ### For New Contributors
 
 - [README.md](README.md) - Overview and agent catalog
-- [Example: Frontend Developer](engineering/engineering-frontend-developer.md) - Well-structured agent example
-- [Example: Reddit Community Builder](marketing/marketing-reddit-community-builder.md) - Great personality example
-- [Example: Whimsy Injector](design/design-whimsy-injector.md) - Creative specialist example
+- [Example: Frontend Developer](agents/engineering/engineering-frontend-developer.md) - Well-structured agent example
+- [Example: Reddit Community Builder](agents/marketing/marketing-reddit-community-builder.md) - Great personality example
+- [Example: Whimsy Injector](agents/design/design-whimsy-injector.md) - Creative specialist example
 
 ### For Agent Design
 
