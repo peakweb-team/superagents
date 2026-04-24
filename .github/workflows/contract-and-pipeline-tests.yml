@@ -39,6 +39,11 @@ jobs:
           chmod +x scripts/check-dogfooding-guardrails.sh tests/test-dogfooding-guardrails.sh
           ./tests/test-dogfooding-guardrails.sh
 
+      - name: Run skill-builder runtime target contract checks
+        run: |
+          chmod +x tests/test-skill-builder-runtime-target-contract.sh
+          ./tests/test-skill-builder-runtime-target-contract.sh
+
   conversion-determinism:
     name: Conversion determinism (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
