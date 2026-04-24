@@ -30,9 +30,6 @@ if (Array.isArray(doc.runArgs)) {
     if ((arg === '--cap-add' || arg === '--cap-drop') && (arr[idx + 1] === 'NET_ADMIN' || arr[idx + 1] === 'NET_RAW')) {
       return false;
     }
-    if ((arg === 'NET_ADMIN' || arg === 'NET_RAW') && (arr[idx - 1] === '--cap-add' || arr[idx - 1] === '--cap-drop')) {
-      return false;
-    }
     return true;
   });
 }
@@ -52,7 +49,7 @@ doc.mounts = mounts;
 doc.containerEnv = {
   ...(doc.containerEnv || {}),
   npm_config_cache: '/home/node/.npm-cache',
-  PNPM_HOME: '/home/node/.pnpm-store'
+  npm_config_store_dir: '/home/node/.pnpm-store'
 };
 doc.postCreateCommand = '.devcontainer/post-create-superagents.sh';
 fs.writeFileSync(file, `${JSON.stringify(doc, null, 2)}\n`);
