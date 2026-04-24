@@ -52,7 +52,7 @@ Before writing any execution-facing files, the builder should resolve and record
 - if confidence is below high and output layout would change, the builder should ask a focused follow-up question before writing files
 - if runtime target remains unresolved, do not publish execution-facing skill files
 
-For the current Claude-first MVP, the required canonical mapping is:
+For the current Claude-first MVP, the required canonical mapping is (execution-facing output is defined only for `claude-code`):
 
 | runtime_target | Execution root | Primary entrypoint |
 |---|---|---|
@@ -62,6 +62,7 @@ Invariant for Claude mode:
 
 - do not publish the primary skill as `.claude/skills/superagents/<name>.md`
 - each generated skill folder must contain `SKILL.md`
+- only `runtime_target = claude-code` may publish execution-facing output; any other `runtime_target` must remain unresolved and must not publish execution-facing files until a canonical output-root and entrypoint contract is defined.
 
 ## Output Roots
 
@@ -245,6 +246,7 @@ Recommended decision keys:
 - `runtime_target`
   - examples: `claude-code`, `cursor`, `codex`, `gemini-cli`, `antigravity`, `other`
   - purpose: binds generated execution-facing output paths and entrypoint filename contract
+  - unresolved behavior: if `runtime_target` is unresolved/empty, apply `safe_to_proceed: false` (from questionnaire flow) and do not publish execution-facing files
 
 Task-level override resolution should follow the precedence contract in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md).
 

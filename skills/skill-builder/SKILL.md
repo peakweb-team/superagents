@@ -121,4 +121,4 @@ Provide:
 - Treat project-local skills as the authoritative override layer for that repository.
 - Keep generated skill names in the `superagents-` namespace so repo-local overrides stay explicit and predictable.
 - Do not write mixed-runtime output layouts in one run.
-- If runtime target is ambiguous at assembly time, ask a focused question and resolve the target before writing files.
+- If `runtime_target` is ambiguous at assembly time, ask the focused `runtime-target` follow-up question, record the answer in `decisions.yaml` under `runtime_target`, and only then write files.
