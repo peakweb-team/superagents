@@ -58,14 +58,14 @@ The scaffold script pulls baseline files from Anthropic reference source:
 
 Then applies Superagents-specific container patches:
 
-- Removes firewall bootstrap wiring from `devcontainer.json` (`postStartCommand`, `waitFor: "postStartCommand"` when present, and `NET_ADMIN` / `NET_RAW` capability flags in `runArgs`).
+- Removes `init-firewall.sh` usage and firewall bootstrap wiring from startup (`postStartCommand`, `waitFor: "postStartCommand"` when present, and `NET_ADMIN` / `NET_RAW` capability flags in `runArgs`).
 - Adds named Docker volumes for package caches:
   - `source=superagents-npm-cache,target=/home/node/.npm-cache,type=volume`
   - `source=superagents-pnpm-store,target=/home/node/.pnpm-store,type=volume`
 - Sets package manager cache env vars in `containerEnv`:
   - `npm_config_cache=/home/node/.npm-cache`
   - `npm_config_store_dir=/home/node/.pnpm-store`
-- Updates Dockerfile global Claude Code install line to also run `npm cache clean --force` to keep image layers smaller.
+- Updates Dockerfile global Claude Code install line to append `npm cache clean --force` if not already present, keeping image layers smaller without duplicating commands.
 
 Default source URL:
 
