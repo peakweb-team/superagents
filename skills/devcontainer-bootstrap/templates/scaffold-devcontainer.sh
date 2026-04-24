@@ -60,7 +60,7 @@ const fs = require('fs');
 const file = process.argv[2];
 const dockerfile = fs.readFileSync(file, 'utf8');
 const withUpdatedNode = dockerfile.replace(
-  /(^\s*FROM\s+node:)20(\S*)/im,
+  /(^\s*FROM\s+node:)20(\S*)/gim,
   '$124$2'
 );
 const updated = withUpdatedNode.replace(
