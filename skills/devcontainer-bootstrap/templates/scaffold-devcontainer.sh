@@ -63,10 +63,24 @@ const withUpdatedNode = dockerfile.replace(
   /(^\s*FROM\s+node:)20(\S*)/gim,
   '$124$2'
 );
-const updated = withUpdatedNode.replace(
+const withCleanNpmInstall = withUpdatedNode.replace(
   /npm install -g @anthropic-ai\/claude-code(@\S+)?(?!\s*&&\s*npm cache clean --force)/g,
   'npm install -g @anthropic-ai/claude-code$1 && npm cache clean --force'
 );
+const withAptSandboxOverride = withCleanNpmInstall.replace(
+  /\bapt-get\s+update\b/g,
+  'apt-get -o APT::Sandbox::User=root update'
+);
+let updated = withAptSandboxOverride;
+if (
+  updated.includes('apt-get -o APT::Sandbox::User=root update') &&
+  !updated.includes('APT sandbox keyring access workaround')
+) {
+  updated = updated.replace(
+    /(RUN\s+apt-get\s+-o APT::Sandbox::User=root update\b)/,
+    '# APT sandbox keyring access workaround: prevents intermittent Debian GPG signature failures.\n$1'
+  );
+}
 fs.writeFileSync(file, updated);
 NODE
 

@@ -201,6 +201,7 @@ Installed skill bundle:
 Reference docs:
 
 - [Anthropic devcontainer guide](https://code.claude.com/docs/en/devcontainer)
+- [Devcontainer rebuild runbook](REBUILD.md)
 
 ### 2c. Dogfood Superagents In This Source Repository (Optional)
 
