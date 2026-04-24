@@ -8,8 +8,6 @@ mkdir -p "$TARGET_DIR"
 
 curl -fsSL "$BASE_URL/devcontainer.json" -o "$TARGET_DIR/devcontainer.json"
 curl -fsSL "$BASE_URL/Dockerfile" -o "$TARGET_DIR/Dockerfile"
-curl -fsSL "$BASE_URL/init-firewall.sh" -o "$TARGET_DIR/init-firewall.sh"
-chmod +x "$TARGET_DIR/init-firewall.sh"
 
 TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cp "$TEMPLATE_DIR/post-create-superagents.sh" "$TARGET_DIR/post-create-superagents.sh"
@@ -20,8 +18,52 @@ node - "$TARGET_DIR/devcontainer.json" <<'NODE'
 const fs = require('fs');
 const file = process.argv[2];
 const doc = JSON.parse(fs.readFileSync(file, 'utf8'));
+delete doc.postStartCommand;
+if (doc.waitFor === 'postStartCommand') {
+  delete doc.waitFor;
+}
+if (Array.isArray(doc.runArgs)) {
+  doc.runArgs = doc.runArgs.filter((arg, idx, arr) => {
+    if (arg === 'NET_ADMIN' || arg === 'NET_RAW') {
+      return false;
+    }
+    if ((arg === '--cap-add' || arg === '--cap-drop') && (arr[idx + 1] === 'NET_ADMIN' || arr[idx + 1] === 'NET_RAW')) {
+      return false;
+    }
+    return true;
+  });
+}
+
+const mounts = Array.isArray(doc.mounts) ? [...doc.mounts] : [];
+const requiredMounts = [
+  'source=superagents-npm-cache,target=/home/node/.npm-cache,type=volume',
+  'source=superagents-pnpm-store,target=/home/node/.pnpm-store,type=volume'
+];
+for (const mount of requiredMounts) {
+  if (!mounts.includes(mount)) {
+    mounts.push(mount);
+  }
+}
+doc.mounts = mounts;
+
+doc.containerEnv = {
+  ...(doc.containerEnv || {}),
+  npm_config_cache: '/home/node/.npm-cache',
+  npm_config_store_dir: '/home/node/.pnpm-store'
+};
 doc.postCreateCommand = '.devcontainer/post-create-superagents.sh';
 fs.writeFileSync(file, `${JSON.stringify(doc, null, 2)}\n`);
+NODE
+
+node - "$TARGET_DIR/Dockerfile" <<'NODE'
+const fs = require('fs');
+const file = process.argv[2];
+const dockerfile = fs.readFileSync(file, 'utf8');
+const updated = dockerfile.replace(
+  /npm install -g @anthropic-ai\/claude-code(?!\s*&&\s*npm cache clean --force)/g,
+  'npm install -g @anthropic-ai/claude-code && npm cache clean --force'
+);
+fs.writeFileSync(file, updated);
 NODE
 
 echo "Scaffolded Anthropic-based devcontainer into $TARGET_DIR"
