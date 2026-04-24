@@ -45,7 +45,9 @@ After installation, this skill's templates are expected at:
 
 ## Success Criteria
 
-- `.devcontainer/` exists and is based on Anthropic's reference assets (`devcontainer.json`, `Dockerfile`, `init-firewall.sh`).
+- `.devcontainer/` exists and is based on Anthropic's reference assets (`devcontainer.json`, `Dockerfile`) with superagents-specific patches applied.
+- Generated `devcontainer.json` does not require firewall bootstrap (`postStartCommand`/`waitFor` coupling removed, no `NET_ADMIN`/`NET_RAW` capability additions).
+- npm and pnpm cache storage is configured to use named Docker volumes mounted at `/home/node/.npm-cache` and `/home/node/.pnpm-store`.
 - `postCreateCommand` installs Superagents with user-level scope inside the container.
 - Smoke test passes after container creation.
 
