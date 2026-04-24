@@ -65,6 +65,7 @@ Then applies Superagents-specific container patches:
 - Sets package manager cache env vars in `containerEnv`:
   - `npm_config_cache=/home/node/.npm-cache`
   - `npm_config_store_dir=/home/node/.pnpm-store`
+- Rewrites Dockerfile base image from `node:20` to `node:24` while preserving any tag suffix.
 - Updates Dockerfile global Claude Code install line to append `npm cache clean --force` if not already present, keeping image layers smaller without duplicating commands.
 
 Default source URL:
