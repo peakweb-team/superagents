@@ -202,6 +202,24 @@ Reference docs:
 
 - [Anthropic devcontainer guide](https://code.claude.com/docs/en/devcontainer)
 - [Devcontainer rebuild runbook](REBUILD.md)
+- [Isolated devcontainer bootstrap workflow](docs/isolated-devcontainer-bootstrap-workflow.md)
+
+Host secret onboarding (recommended before first container reopen):
+
+1. Create a GitHub fine-grained token (`https://github.com/settings/tokens`) with at least:
+   - Contents: read/write
+   - Pull requests: read/write
+   - Metadata: read
+   - Workflows: read/write (if needed)
+2. Export host env vars in your shell startup file (`~/.zshrc` or `~/.zshenv`), for example:
+
+```bash
+export GH_TOKEN=ghp_xxx
+export ANTHROPIC_API_KEY=...
+export VERCEL_TOKEN=...
+```
+
+The scaffolded devcontainer forwards these via `${localEnv:...}` so secrets stay host-managed and `gh` can work in-container without repeated interactive login.
 
 ### 2c. Dogfood Superagents In This Source Repository (Optional)
 

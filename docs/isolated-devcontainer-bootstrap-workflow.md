@@ -65,9 +65,40 @@ Then applies Superagents-specific container patches:
 - Sets package manager cache env vars in `containerEnv`:
   - `npm_config_cache=/home/node/.npm-cache`
   - `npm_config_store_dir=/home/node/.pnpm-store`
+- Forwards host-managed secrets into `containerEnv` using `localEnv`:
+  - `GH_TOKEN=${localEnv:GH_TOKEN}`
+  - `ANTHROPIC_API_KEY=${localEnv:ANTHROPIC_API_KEY}`
+  - `VERCEL_TOKEN=${localEnv:VERCEL_TOKEN}`
 - Rewrites Dockerfile base image from `node:20` to `node:24` while preserving any tag suffix.
 - Updates Dockerfile global Claude Code install line to append `npm cache clean --force` if not already present, keeping image layers smaller without duplicating commands.
 - Rewrites `apt-get update` to `apt-get -o APT::Sandbox::User=root update` and inserts a Dockerfile comment documenting the reason, to avoid intermittent Debian repo GPG signature failures caused by APT sandbox keyring access in container builds.
+
+## Host Secret Onboarding Checklist
+
+Before reopening in container, create host-side environment variables (never commit raw secrets into repo files or Dockerfiles).
+
+GitHub token setup:
+
+1. Create a fine-grained PAT at `https://github.com/settings/tokens`.
+2. Typical repo permissions:
+   - Contents: read/write
+   - Pull requests: read/write
+   - Workflows: read/write (only if needed)
+   - Metadata: read
+3. Export on host shell startup (for example in `~/.zshrc` or `~/.zshenv`):
+
+```bash
+export GH_TOKEN=ghp_xxx
+```
+
+Optional host-side exports for other tools:
+
+```bash
+export ANTHROPIC_API_KEY=...
+export VERCEL_TOKEN=...
+```
+
+After setting host vars, reopen/rebuild the devcontainer. `gh` reads `GH_TOKEN` automatically, so repeated in-container `gh auth login` should not be required.
 
 APT diagnosis shortcut used for this patch:
 
