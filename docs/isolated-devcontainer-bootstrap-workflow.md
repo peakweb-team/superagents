@@ -74,6 +74,10 @@ APT diagnosis shortcut used for this patch:
 - If all Debian repos fail at once with `At least one invalid signature was encountered` / `repository is not signed` and manual `gpgv` succeeds, suspect APT sandbox keyring access.
 - If only one repo fails, suspect a stale or missing key for that specific repo.
 
+Framing correction:
+
+- What may look like a clock-skew-style signature issue in this scenario is actually an APT sandbox keyring access failure. Signature material can still be valid while APT's sandboxed verifier cannot read the keyring.
+
 Default source URL:
 
 - `https://raw.githubusercontent.com/anthropics/claude-code/main/.devcontainer`
