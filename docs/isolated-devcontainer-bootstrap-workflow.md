@@ -67,6 +67,12 @@ Then applies Superagents-specific container patches:
   - `npm_config_store_dir=/home/node/.pnpm-store`
 - Rewrites Dockerfile base image from `node:20` to `node:24` while preserving any tag suffix.
 - Updates Dockerfile global Claude Code install line to append `npm cache clean --force` if not already present, keeping image layers smaller without duplicating commands.
+- Rewrites `apt-get update` to `apt-get -o APT::Sandbox::User=root update` and inserts a Dockerfile comment documenting the reason, to avoid intermittent Debian repo GPG signature failures caused by APT sandbox keyring access in container builds.
+
+APT diagnosis shortcut used for this patch:
+
+- If all Debian repos fail at once with `At least one invalid signature was encountered` / `repository is not signed` and manual `gpgv` succeeds, suspect APT sandbox keyring access.
+- If only one repo fails, suspect a stale or missing key for that specific repo.
 
 Default source URL:
 
