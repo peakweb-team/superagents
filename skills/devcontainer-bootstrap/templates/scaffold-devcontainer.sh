@@ -59,9 +59,13 @@ node - "$TARGET_DIR/Dockerfile" <<'NODE'
 const fs = require('fs');
 const file = process.argv[2];
 const dockerfile = fs.readFileSync(file, 'utf8');
-const updated = dockerfile.replace(
-  /npm install -g @anthropic-ai\/claude-code(?!\s*&&\s*npm cache clean --force)/g,
-  'npm install -g @anthropic-ai/claude-code && npm cache clean --force'
+const withUpdatedNode = dockerfile.replace(
+  /(^\s*FROM\s+node:)20(\S*)/gim,
+  '$124$2'
+);
+const updated = withUpdatedNode.replace(
+  /npm install -g @anthropic-ai\/claude-code(@\S+)?(?!\s*&&\s*npm cache clean --force)/g,
+  'npm install -g @anthropic-ai/claude-code$1 && npm cache clean --force'
 );
 fs.writeFileSync(file, updated);
 NODE
