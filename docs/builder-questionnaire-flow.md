@@ -151,7 +151,25 @@ The builder should ask questions in priority order, not all at once.
 
 The initial MVP questionnaire should focus on the smallest set of decisions that most strongly affect fragment selection.
 
-### Priority 1: Work Intake Mode
+### Priority 1: Runtime Target
+
+Question goal:
+
+- determine which AI runtime/platform shape the generated execution-facing output must follow
+- prevent entrypoint/path mismatches (for example a Claude run without `SKILL.md`)
+
+Ask when:
+
+- runtime signals are mixed (for example both `.claude/` and `.cursor/` assets)
+- runtime signals are weak or missing
+- existing local skill artifacts conflict with detected runtime conventions
+
+Examples:
+
+- Which runtime should this generated skill bundle target first: Claude Code, Cursor, Codex, Gemini CLI, or another platform?
+- Should this run publish Claude-compatible skill folders (`.claude/skills/superagents/<name>/SKILL.md`)?
+
+### Priority 2: Work Intake Mode
 
 Question goal:
 
@@ -173,7 +191,7 @@ Examples:
 - If both GitHub Issues and Jira are used, which one should the builder treat as the source of truth for tracked-task intake?
 - Should a greenfield repo support a direct-brief bootstrap mode even if GitHub Issues exists?
 
-### Priority 2: Review Path
+### Priority 3: Review Path
 
 Question goal:
 
@@ -189,7 +207,7 @@ Examples:
 - Should the builder assume human PR review, CodeRabbit, or a layered review path?
 - Is reviewer automation active in this repo, or are reviews human-only?
 
-### Priority 3: Orchestration Default
+### Priority 4: Orchestration Default
 
 Question goal:
 
@@ -205,7 +223,7 @@ Examples:
 - Should bounded parallel implementation default to `sub-agent` before `agent-team`?
 - Are there recurring tasks in this repo where active peer-to-peer coordination materially improves outcomes?
 
-### Priority 4: Worktree Isolation Strategy
+### Priority 5: Worktree Isolation Strategy
 
 Question goal:
 
@@ -224,7 +242,7 @@ Examples:
 - Should a task be allowed to override the repository default worktree strategy?
 - If `auto` is selected, should deterministic task worktree paths use a sibling root or a custom root?
 
-### Priority 5: Runtime / Budget Constraints
+### Priority 6: Runtime / Budget Constraints
 
 Question goal:
 
@@ -242,7 +260,7 @@ Examples:
 - Are there model, reasoning-effort, or budget constraints the builder should encode in runtime guidance?
 - Should this repo default to small-task `narrow` context budgets, or start at large-repo `medium` budgeting with package-mapping first?
 
-### Priority 6: PR And Branching Conventions
+### Priority 7: PR And Branching Conventions
 
 Question goal:
 
@@ -439,6 +457,12 @@ inventory:
         path: CONTRIBUTING.md
         detail: Jira ticket keys appear in workflow examples
 decisions:
+  runtime_target:
+    state: unresolved
+    value: null
+    confidence: low
+    source: conflicting-evidence
+    why_unresolved: Both Claude and non-Claude runtime markers appear, and output layout differs by runtime target.
   work_intake_mode:
     state: assumed
     value: both
@@ -463,11 +487,21 @@ decisions:
     source: conflicting-evidence
     why_unresolved: GitHub Projects, GitHub Issues, and Jira all appear active, but none is clearly primary.
 questions:
+  - id: runtime-target
+    status: pending
+    prompt: Which runtime should the generated bundle target first (Claude Code, Cursor, Codex, Gemini CLI, or another)?
+    why: This determines output paths and canonical entrypoint filenames.
   - id: primary-task-tracker
     status: pending
     prompt: Which system should the builder treat as the primary task tracker for tracked-task intake?
     why: This changes the generated project-management fragment.
 unresolved_decisions:
+  - id: runtime-target
+    topic: runtime target for generated skill output
+    why_unresolved: Runtime markers are mixed and the canonical entrypoint format differs by target platform.
+    impact: high
+    recommended_question: Which runtime should this generated bundle target first?
+    safe_to_proceed: false
   - id: task-tracker-authority
     topic: primary task tracker for tracked-task intake
     why_unresolved: GitHub Projects, GitHub Issues, and Jira all appear active, but authority is unclear.

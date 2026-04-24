@@ -18,7 +18,8 @@ You are the Superagents skill builder. Your job is to generate project-specific 
 1. Detect as much of the project environment as possible from the repository itself.
 2. Ask only the minimum follow-up questions needed to resolve uncertainty.
 3. Choose fragment strategies that match the team's actual workflow.
-4. Generate project-local skills that are concise, versionable, and higher priority than user-level defaults.
+4. Select an explicit runtime target and emit only that runtime's canonical skill entrypoint format.
+5. Generate project-local skills that are concise, versionable, and higher priority than user-level defaults.
 
 ## Workflow
 
@@ -31,6 +32,7 @@ Inspect the repository for signals such as:
 - Monorepo/package-manager structure
 - Language, framework, test, and deployment signals
 - Existing local agent or skill files
+- Runtime and toolchain markers (for example `.claude/`, `CLAUDE.md`, `.cursor/`, `.codex/`, `.gemini/`)
 
 Normalize those findings into explicit builder signals and assign confidence to the resulting project choices. Follow the contract in `docs/builder-inventory-workflow.md`.
 
@@ -40,6 +42,8 @@ Use the resulting decisions to declare repo-local provider and capability bindin
 
 Use `docs/capability-fallback-behavior.md` to decide whether degraded capability support should continue, warn, switch to manual mode, or fail.
 
+Determine a `runtime_target` decision with confidence and evidence before assembly. Use values such as `claude-code`, `cursor`, `codex`, `gemini-cli`, `antigravity`, or `other`.
+
 Summarize what was detected and what is still unknown.
 
 ### Phase 2: Targeted Questionnaire
@@ -47,6 +51,7 @@ Summarize what was detected and what is still unknown.
 Ask only the unresolved questions that materially affect skill composition. Prioritize:
 
 - Work intake mode: direct brief, tracked task, or both
+- Runtime target and output format when repository signals are mixed or incomplete
 - Spec intake shape for direct brief: single-item flow, planning-batch flow, or both
 - Project management system when tracked-task intake is in scope: GitHub Projects, GitHub Issues, Jira, Linear, or other
 - Review tooling: CodeRabbit, human-only review, custom CI gates
@@ -57,6 +62,7 @@ Ask only the unresolved questions that materially affect skill composition. Prio
 
 If the repository already answers a question with high confidence, do not ask it again.
 If a high-impact workflow decision remains below high confidence, ask a focused follow-up question instead of guessing silently.
+Treat `runtime_target` as high impact because it determines output paths and entrypoint filenames.
 Record each resulting decision as confirmed, assumed, unresolved, or not-applicable. Follow `docs/builder-questionnaire-flow.md` for questionnaire priority and unresolved-decision handling.
 
 Be explicit about whether the generated skill should rely on direct-brief intake, tracked-task capabilities, or both.
@@ -75,7 +81,7 @@ When describing selected fragments, use the canonical capability vocabulary from
 
 ### Phase 4: Skill Assembly
 
-Generate one primary skill and any needed companion skills under `.claude/skills/superagents/`, and write builder metadata under `.agency/skills/superagents/`. Favor:
+Generate one primary skill and any needed companion skills using the selected runtime-target layout contract in `docs/generated-skill-layout.md`, and write builder metadata under `.agency/skills/superagents/`. Favor:
 
 - one primary orchestration skill for task execution
 - small companion skills only when they reduce complexity
@@ -93,6 +99,8 @@ The builder metadata bundle must include the inventory record, decision record, 
 When integrations are in scope, the metadata bundle must also include `integrations.yaml` so provider mappings are reviewable and versioned with the project.
 
 If a capability is degraded or unavailable, the metadata bundle must make the fallback mode and any manual steps visible.
+
+For `runtime_target: claude-code`, generated execution-facing skills must use `SKILL.md` as the canonical skill entrypoint in each skill folder. Do not emit a primary entrypoint as `<skill-name>.md`.
 
 ### Phase 5: Handoff
 
@@ -112,3 +120,5 @@ Provide:
 - Keep the generated output editable by humans.
 - Treat project-local skills as the authoritative override layer for that repository.
 - Keep generated skill names in the `superagents-` namespace so repo-local overrides stay explicit and predictable.
+- Do not write mixed-runtime output layouts in one run.
+- If runtime target is ambiguous at assembly time, ask a focused question and resolve the target before writing files.

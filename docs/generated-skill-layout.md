@@ -42,20 +42,40 @@ This document defines:
 - make repo-local Superagents output the authoritative layer for that repository
 - preserve enough builder metadata for review, debugging, and regeneration
 - avoid name collisions with user-authored or third-party skills
+- prevent runtime-entrypoint mismatches by requiring an explicit runtime target before assembly
+
+## Runtime Target Decision
+
+Before writing any execution-facing files, the builder should resolve and record a `runtime_target` decision in `decisions.yaml`.
+
+- if confidence is high, the builder may confirm the target from repo evidence
+- if confidence is below high and output layout would change, the builder should ask a focused follow-up question before writing files
+- if runtime target remains unresolved, do not publish execution-facing skill files
+
+For the current Claude-first MVP, the required canonical mapping is:
+
+| runtime_target | Execution root | Primary entrypoint |
+|---|---|---|
+| `claude-code` | `.claude/skills/superagents/<skill-name>/` | `SKILL.md` |
+
+Invariant for Claude mode:
+
+- do not publish the primary skill as `.claude/skills/superagents/<name>.md`
+- each generated skill folder must contain `SKILL.md`
 
 ## Output Roots
 
 The builder should write generated output under two project-local roots.
 
-### 1. Execution-Facing Skill Root
+### 1. Execution-Facing Skill Root (Claude Mode)
 
-The primary skill output root is:
+When `runtime_target` is `claude-code`, the primary skill output root is:
 
 - `.claude/skills/superagents/`
 
 This is the directory that should contain generated skills in the shape the Claude-first MVP is expected to consume directly.
 
-Each generated skill lives in its own folder under that root.
+Each generated skill lives in its own folder under that root and must contain `SKILL.md` as the runtime entrypoint.
 
 Examples:
 
@@ -222,6 +242,9 @@ Recommended decision keys:
 - `worktree_root_strategy` (optional)
   - examples: `sibling`, `custom-path`
   - purpose: explain expected path-root strategy for deterministic worktree placement
+- `runtime_target`
+  - examples: `claude-code`, `cursor`, `codex`, `gemini-cli`, `antigravity`, `other`
+  - purpose: binds generated execution-facing output paths and entrypoint filename contract
 
 Task-level override resolution should follow the precedence contract in [`docs/orchestration-execution-rubric.md`](./orchestration-execution-rubric.md).
 
