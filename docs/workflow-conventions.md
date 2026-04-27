@@ -8,7 +8,7 @@ This document defines conventions that contributors and operators must follow wh
 
 When an issue cannot be started until another issue is resolved, the blocked issue body must include a `## Blocked by` section. Each blocker is listed as:
 
-```
+```text
 #N — one-line reason
 ```
 
