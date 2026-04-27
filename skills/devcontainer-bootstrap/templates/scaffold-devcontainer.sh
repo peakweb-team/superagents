@@ -49,7 +49,6 @@ doc.mounts = mounts;
 doc.containerEnv = {
   ...(doc.containerEnv || {}),
   GH_TOKEN: '${localEnv:GH_TOKEN}',
-  ANTHROPIC_API_KEY: '${localEnv:ANTHROPIC_API_KEY}',
   VERCEL_TOKEN: '${localEnv:VERCEL_TOKEN}',
   SUPERAGENTS_S3_ACCESS_KEY_ID: '${localEnv:SUPERAGENTS_S3_ACCESS_KEY_ID}',
   SUPERAGENTS_S3_SECRET_ACCESS_KEY: '${localEnv:SUPERAGENTS_S3_SECRET_ACCESS_KEY}',
