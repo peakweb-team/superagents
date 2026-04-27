@@ -14,7 +14,9 @@
 #   SUPERAGENTS_S3_BUCKET
 #
 # Object key convention: <repo-name>/<issue-or-pr-number>/<filename>
-# Bucket must have public-read ACL or a bucket policy granting s3:GetObject to *.
+# Public read access must be granted via a bucket policy (s3:GetObject to *).
+# Do not use --acl public-read: requires s3:PutObjectAcl and fails when
+# S3 Object Ownership is set to "Bucket owner enforced".
 
 set -euo pipefail
 
@@ -43,6 +45,6 @@ S3_KEY="${REPO_NAME}/${REF}/${FILENAME}"
 AWS_ACCESS_KEY_ID="$SUPERAGENTS_S3_ACCESS_KEY_ID" \
 AWS_SECRET_ACCESS_KEY="$SUPERAGENTS_S3_SECRET_ACCESS_KEY" \
 AWS_DEFAULT_REGION="$SUPERAGENTS_S3_REGION" \
-  aws s3 cp "$LOCAL_FILE" "s3://${SUPERAGENTS_S3_BUCKET}/${S3_KEY}" --acl public-read
+  aws s3 cp "$LOCAL_FILE" "s3://${SUPERAGENTS_S3_BUCKET}/${S3_KEY}"
 
 echo "https://${SUPERAGENTS_S3_BUCKET}.s3.${SUPERAGENTS_S3_REGION}.amazonaws.com/${S3_KEY}"
