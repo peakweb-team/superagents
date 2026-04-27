@@ -1,0 +1,14 @@
+# Per-project dev server port registry.
+# Each entry maps a repo name to its designated port.
+# Port range: 3100-3999 (3000-3099 reserved for ad-hoc / unregistered use).
+#
+# To register a new project:
+#   1. Pick an unused port in the 3100-3999 range.
+#   2. Add an entry below: <repo-name>: <port>
+#   3. Commit the change to the superagents repo.
+#
+# IMPORTANT: each port number must be unique — duplicate ports are a registry
+# authoring error and will cause devcontainer port-forwarding conflicts.
+projects:
+  superagents: 3100
+  # Add new projects here

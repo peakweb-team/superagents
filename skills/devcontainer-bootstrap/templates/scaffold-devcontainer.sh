@@ -14,10 +14,62 @@ cp "$TEMPLATE_DIR/post-create-superagents.sh" "$TARGET_DIR/post-create-superagen
 cp "$TEMPLATE_DIR/smoke-test-superagents.sh" "$TARGET_DIR/smoke-test-superagents.sh"
 chmod +x "$TARGET_DIR/post-create-superagents.sh" "$TARGET_DIR/smoke-test-superagents.sh"
 
-node - "$TARGET_DIR/devcontainer.json" <<'NODE'
-const fs = require('fs');
+# ---------------------------------------------------------------------------
+# Port designation
+# ---------------------------------------------------------------------------
+# Resolve the repo name from the git root of the project being scaffolded,
+# then look up the designated dev server port in the port registry.
+REPO_NAME="$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")"
+PORTS_REGISTRY="${TEMPLATE_DIR}/../ports.yaml"
+
+if [ ! -f "$PORTS_REGISTRY" ]; then
+  echo "ERROR: port registry not found at $PORTS_REGISTRY" >&2
+  exit 1
+fi
+
+PROJECT_PORT="$(python3 - "$PORTS_REGISTRY" "$REPO_NAME" <<'PYEOF'
+import sys, re
+
+registry_file = sys.argv[1]
+repo_name     = sys.argv[2]
+
+with open(registry_file) as f:
+    content = f.read()
+
+# Parse only the projects block — avoid a hard yaml dependency.
+in_projects = False
+for line in content.splitlines():
+    stripped = line.strip()
+    if stripped.startswith('#') or not stripped:
+        continue
+    if stripped == 'projects:':
+        in_projects = True
+        continue
+    if in_projects:
+        # Detect end of mapping (top-level key)
+        if re.match(r'^\S', line) and not line.startswith(' '):
+            break
+        m = re.match(r'^\s+(\S+):\s*(\d+)', line)
+        if m and m.group(1) == repo_name:
+            print(m.group(2))
+            sys.exit(0)
+
+print(f"ERROR: repo '{repo_name}' not found in port registry.", file=sys.stderr)
+print(f"       Add an entry to skills/devcontainer-bootstrap/ports.yaml:", file=sys.stderr)
+print(f"         {repo_name}: <port>   # pick an unused port in 3100-3999", file=sys.stderr)
+sys.exit(1)
+PYEOF
+)" || exit 1
+
+# Write the port file so scripts/skills can read it without hardcoding.
+printf '%s\n' "$PROJECT_PORT" > "$TARGET_DIR/.project-port"
+echo "Port designation: $REPO_NAME -> $PROJECT_PORT (written to $TARGET_DIR/.project-port)"
+
+node - "$TARGET_DIR/devcontainer.json" "$PROJECT_PORT" <<'NODE'
+const fs   = require('fs');
 const file = process.argv[2];
-const doc = JSON.parse(fs.readFileSync(file, 'utf8'));
+const port = Number(process.argv[3]);
+const doc  = JSON.parse(fs.readFileSync(file, 'utf8'));
 delete doc.postStartCommand;
 if (doc.waitFor === 'postStartCommand') {
   delete doc.waitFor;
@@ -58,6 +110,7 @@ doc.containerEnv = {
   npm_config_store_dir: '/home/node/.pnpm-store'
 };
 doc.postCreateCommand = '.devcontainer/post-create-superagents.sh';
+doc.forwardPorts = [port];
 fs.writeFileSync(file, `${JSON.stringify(doc, null, 2)}\n`);
 NODE
 
