@@ -28,7 +28,7 @@ In v1, each fragment is:
 - `orchestration/`
   - team-sizing, role-shaping, and coordination fragments
 - `runtime/`
-  - context, model-routing, and execution-discipline fragments
+  - context, model-routing, execution-discipline, and devcontainer-management fragments
 
 ## Builder Expectations
 
