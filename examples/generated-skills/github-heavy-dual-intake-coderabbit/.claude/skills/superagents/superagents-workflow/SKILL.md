@@ -33,9 +33,24 @@ Choose intake per request and keep the chosen path explicit in updates.
 
 Use deterministic naming for task worktrees/branches. Reuse an existing path only when it maps to the same task context. If path or branch context is ambiguous, stop and emit remediation instead of continuing in-place.
 
+## Work Intake — Blocker Check
+
+After reading the issue, check whether the body contains an open `## Blocked by` section.
+
+- If a `## Blocked by` section is present and any listed blocker issue is still open, surface the blocker(s) to the operator and stop. Do not proceed with implementation until the operator confirms the blocker is resolved or explicitly overrides it.
+- If the `## Blocked by` section is absent or all listed blockers are closed, proceed normally.
+
+Example stop message:
+
+```
+Issue #N is blocked by #M — <one-line reason>.
+Resolve #M first or confirm an override before proceeding.
+```
+
 ## Tracked-Task Responsibilities
 
 - Read issue context before coding when tracked-task intake is selected.
+- Apply the blocker check above before any implementation work begins.
 - Keep issue updates milestone-oriented, not commit-by-commit logs.
 - Link PR and verification evidence in issue updates.
 
