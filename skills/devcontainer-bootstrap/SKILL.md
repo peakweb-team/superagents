@@ -95,6 +95,10 @@ follow the registration steps above, then re-run the scaffold.
 - Playwright (Chromium) is installed during post-create so browser automation works without additional setup (`npx playwright --version` succeeds inside the container).
 - Smoke test passes after container creation.
 
+## Container Management
+
+For day-to-day container operations after the initial bootstrap — rebuilding after a config change, stopping a running container, or installing a bespoke package — see the `superagents-devcontainer` skill.
+
 ## Reference
 
 - Anthropic devcontainer docs: `https://code.claude.com/docs/en/devcontainer`
