@@ -49,7 +49,6 @@ doc.mounts = mounts;
 doc.containerEnv = {
   ...(doc.containerEnv || {}),
   GH_TOKEN: '${localEnv:GH_TOKEN}',
-  ANTHROPIC_API_KEY: '${localEnv:ANTHROPIC_API_KEY}',
   VERCEL_TOKEN: '${localEnv:VERCEL_TOKEN}',
   npm_config_cache: '/home/node/.npm-cache',
   npm_config_store_dir: '/home/node/.pnpm-store'
