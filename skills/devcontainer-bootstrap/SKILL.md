@@ -49,6 +49,7 @@ After installation, this skill's templates are expected at:
 - Generated `devcontainer.json` does not require firewall bootstrap (`postStartCommand`/`waitFor` coupling removed, no `NET_ADMIN`/`NET_RAW` capability additions).
 - npm and pnpm cache storage is configured to use named Docker volumes mounted at `/home/node/.npm-cache` and `/home/node/.pnpm-store`.
 - `postCreateCommand` installs Superagents with user-level scope inside the container.
+- Playwright (Chromium) is installed during post-create so browser automation works without additional setup (`npx playwright --version` succeeds inside the container).
 - Smoke test passes after container creation.
 
 ## Reference
