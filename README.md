@@ -4,6 +4,10 @@ A practical execution layer built on top of the `agency-agents` roster.
 
 Superagents keeps the broad specialist-agent library and adds a project-aware skills system so teams can run repeatable delivery workflows inside real repositories.
 
+## Architecture
+
+![superagents architecture diagram — operator connects remotely to a devcontainer running Claude Code with the superagents skills layer, which orchestrates work against the project repo via GitHub, Vercel, and S3 integrations](docs/assets/architecture.svg)
+
 ## What This Repository Is For
 
 Superagents is focused on software-delivery execution, not just persona prompts:
