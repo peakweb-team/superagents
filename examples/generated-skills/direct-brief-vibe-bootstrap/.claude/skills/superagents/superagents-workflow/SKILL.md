@@ -34,6 +34,13 @@ In `auto`, use deterministic task slug naming for branch/worktree, reuse valid t
 - Mark unresolved decisions explicitly rather than hiding uncertainty.
 - Reconcile assumptions after feedback or validation failures.
 
+## Work Intake — Blocker Check
+
+If the brief references a GitHub issue, read the issue body before proceeding. Check whether the body contains an open `## Blocked by` section.
+
+- If a `## Blocked by` section is present and any listed blocker issue is still open, surface the blocker(s) to the operator and stop. Do not proceed with implementation until the operator confirms the blocker is resolved or explicitly overrides it.
+- If the `## Blocked by` section is absent or all listed blockers are closed, proceed normally.
+
 ## Guardrails
 
 - Do not claim tracker synchronization happened when no tracker is configured.

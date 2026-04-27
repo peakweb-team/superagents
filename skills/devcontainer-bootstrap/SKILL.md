@@ -92,6 +92,7 @@ follow the registration steps above, then re-run the scaffold.
 - `postCreateCommand` installs Superagents with user-level scope inside the container.
 - `devcontainer.json` contains `"forwardPorts": [<port>]` set to the project's designated port.
 - `.devcontainer/.project-port` contains the designated port number.
+- Playwright (Chromium) is installed during post-create so browser automation works without additional setup (`npx playwright --version` succeeds inside the container).
 - Smoke test passes after container creation.
 
 ## Reference
