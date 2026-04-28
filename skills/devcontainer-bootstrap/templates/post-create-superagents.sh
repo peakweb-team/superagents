@@ -54,4 +54,7 @@ trap cleanup EXIT
 git clone --depth 1 --branch "$SUPERAGENTS_REF" "$SUPERAGENTS_REPO" "$WORKDIR/pw-agency-agents"
 "$WORKDIR/pw-agency-agents/scripts/install.sh" --tool claude-code --no-interactive
 
+# Fix node_modules ownership when a named volume initialises it as root.
+[ -d /workspace/node_modules ] && sudo chown -R node:node /workspace/node_modules || true
+
 echo "Superagents installed at user scope in ${HOME}/.claude"
