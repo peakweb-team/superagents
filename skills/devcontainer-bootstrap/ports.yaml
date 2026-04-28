@@ -11,4 +11,4 @@
 # authoring error and will cause devcontainer port-forwarding conflicts.
 projects:
   superagents: 3100
-  # Add new projects here
+  geo-platform: 3001  # apps/web fixed to 3001; apps/eval uses 3000 (Next.js default)
