@@ -119,6 +119,6 @@ Provide:
 - Do not invent integrations that were not detected or confirmed.
 - Keep the generated output editable by humans.
 - Treat project-local skills as the authoritative override layer for that repository.
-- Keep generated skill names in the `superagents-` namespace so repo-local overrides stay explicit and predictable.
+- The primary orchestration skill must always be named `superagents`. Companion skills (PR review, task tracking, runtime guardrails, devcontainer management) use `superagents-<function>` names.
 - Do not write mixed-runtime output layouts in one run.
 - If `runtime_target` is ambiguous at assembly time, ask the focused `runtime-target` follow-up question, record the answer in `decisions.yaml` under `runtime_target`, and only then write files.
