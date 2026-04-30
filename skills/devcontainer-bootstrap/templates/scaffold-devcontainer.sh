@@ -143,5 +143,57 @@ if (
 fs.writeFileSync(file, updated);
 NODE
 
+# Install gh CLI from the official GitHub source at build time so the container
+# ships the latest version without needing a runtime upgrade in post-create.
+node - "$TARGET_DIR/Dockerfile" <<'NODE'
+const fs = require('fs');
+const file = process.argv[2];
+let updated = fs.readFileSync(file, 'utf8');
+
+if (!updated.includes('githubcli-archive-keyring.gpg')) {
+  // Remove `gh` from the basic apt-get install list (Debian ships an older version).
+  updated = updated.replace(/^[ \t]+gh[ \t]*\\?\n/gm, '');
+
+  // Append the official gh CLI install block after the first apt-get clean line.
+  const ghBlock = [
+    '',
+    '# Install gh CLI from official GitHub source (gets latest, not Debian\'s older version).',
+    'RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \\',
+    '      | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \\',
+    '    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \\',
+    '      > /etc/apt/sources.list.d/github-cli.list \\',
+    '    && apt-get -o APT::Sandbox::User=root update \\',
+    '    && apt-get install -y gh',
+  ].join('\n');
+  updated = updated.replace(
+    /(&&\s*apt-get\s+clean\s*&&\s*rm\s+-rf\s+\/var\/lib\/apt\/lists\/\*)/,
+    `$1${ghBlock}`
+  );
+}
+fs.writeFileSync(file, updated);
+NODE
+
+# Enable passwordless sudo for the node user (devcontainer-only).
+node - "$TARGET_DIR/Dockerfile" <<'NODE'
+const fs = require('fs');
+const file = process.argv[2];
+let updated = fs.readFileSync(file, 'utf8');
+
+if (!updated.includes('sudoers.d/node')) {
+  const sudoersBlock = [
+    '',
+    '# Allow the node user to run sudo without a password (devcontainer-only).',
+    'RUN echo "node ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/node && \\',
+    '    chmod 0440 /etc/sudoers.d/node',
+  ].join('\n');
+  // Insert immediately before USER node (or USER $USERNAME as a fallback).
+  updated = updated.replace(
+    /(^\s*USER\s+(?:node|\$USERNAME)\s*$)/m,
+    `${sudoersBlock}\n\n$1`
+  );
+}
+fs.writeFileSync(file, updated);
+NODE
+
 echo "Scaffolded Anthropic-based devcontainer into $TARGET_DIR"
 echo "Next step: reopen this repository in container and run .devcontainer/smoke-test-superagents.sh"
