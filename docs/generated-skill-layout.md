@@ -80,7 +80,7 @@ Each generated skill lives in its own folder under that root and must contain `S
 
 Examples:
 
-- `.claude/skills/superagents/superagents-workflow/`
+- `.claude/skills/superagents/superagents/`
 - `.claude/skills/superagents/superagents-pr-review/`
 - `.claude/skills/superagents/superagents-runtime-guardrails/`
 
@@ -126,9 +126,9 @@ This avoids collisions with:
 
 The builder should generate one primary orchestration skill named:
 
-- `superagents-workflow`
+- `superagents`
 
-This is the default entry point for project-specific execution behavior.
+This is the canonical entry point invoked as `/superagents` in every project.
 
 ### Companion Skill Names
 
@@ -186,7 +186,7 @@ Example `skill.json`:
 
 ```json
 {
-  "name": "superagents-workflow",
+  "name": "superagents",
   "generated_by": "skill-builder",
   "generated_at": "2026-04-15T00:00:00Z",
   "framework_release": "v1.0.0",
@@ -355,7 +355,7 @@ However:
 .claude/
   skills/
     superagents/
-      superagents-workflow/
+      superagents/
         SKILL.md
         skill.json
       superagents-pr-review/

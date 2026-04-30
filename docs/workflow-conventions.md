@@ -58,7 +58,7 @@ Or remove the resolved entry entirely if no historical context is needed.
 Follow the imperative mood, present tense for commit messages:
 
 - `Add dependency declaration standard to workflow conventions`
-- `Update superagents-workflow SKILL.md with blocker-check step`
+- `Update superagents SKILL.md with blocker-check step`
 - `Fix informal blocker language in issue bodies`
 
 Keep the subject line under 72 characters. Include a body when the commit reason is not obvious from the subject alone.
