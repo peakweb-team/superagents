@@ -177,13 +177,121 @@ if (!updated.includes('githubcli-archive-keyring.gpg')) {
 fs.writeFileSync(file, updated);
 NODE
 
+# Strip the upstream init-firewall block. The Anthropic base Dockerfile installs
+# /usr/local/bin/init-firewall.sh and an associated sudoers entry; we don't ship
+# the script (network locked down differently in this fork), so its references
+# would break the build. Use a line-based scanner that's robust against minor
+# upstream formatting changes (extra blank lines, missing optional USER lines,
+# multi-line RUN continuations).
+#
+# IMPORTANT: this MUST run BEFORE the passwordless-sudo patch below, because
+# the upstream block writes to /etc/sudoers.d/node-firewall and its presence
+# can confuse a substring-based guard on the sudo patch.
+node - "$TARGET_DIR/Dockerfile" <<'NODE'
+const fs = require('fs');
+const file = process.argv[2];
+const original = fs.readFileSync(file, 'utf8');
+
+const lines = original.split('\n');
+const out = [];
+let i = 0;
+let removed = false;
+
+while (i < lines.length) {
+  const line = lines[i];
+
+  // Detect the start of the firewall block. The canonical anchor is the
+  // `COPY init-firewall.sh` line; the preceding comment is optional.
+  if (/^\s*COPY\s+init-firewall\.sh\b/.test(line)) {
+    // Drop a trailing comment we may have just appended that introduces the
+    // firewall block (e.g. "# Copy and set up firewall script").
+    while (
+      out.length > 0 &&
+      /^\s*#[^\n]*firewall/i.test(out[out.length - 1])
+    ) {
+      out.pop();
+    }
+    // Also drop any trailing blank lines that lead into the block, so we
+    // don't leave a double-blank gap behind.
+    while (out.length > 0 && /^\s*$/.test(out[out.length - 1])) {
+      out.pop();
+    }
+
+    // Skip the COPY line itself.
+    i++;
+
+    // Optional USER root.
+    if (i < lines.length && /^\s*USER\s+root\s*$/.test(lines[i])) {
+      i++;
+    }
+
+    // Skip the RUN block. Anthropic's RUN spans multiple lines via trailing
+    // backslashes; consume continuation lines until we see one without a
+    // trailing backslash. Only treat it as the firewall RUN if the first
+    // line mentions init-firewall (defensive: avoid eating an unrelated RUN).
+    if (
+      i < lines.length &&
+      /^\s*RUN\b[^\n]*init-firewall/.test(lines[i])
+    ) {
+      let runLine = lines[i];
+      i++;
+      while (/\\\s*$/.test(runLine) && i < lines.length) {
+        runLine = lines[i];
+        i++;
+      }
+    }
+
+    // Optional trailing USER node.
+    if (i < lines.length && /^\s*USER\s+node\s*$/.test(lines[i])) {
+      i++;
+    }
+
+    removed = true;
+    continue;
+  }
+
+  out.push(line);
+  i++;
+}
+
+let updated = out.join('\n');
+
+// Final safety net: if any stray init-firewall reference remains (e.g. a new
+// upstream variation we didn't anticipate), strip the remaining lines that
+// mention it so the acceptance criterion (zero init-firewall references) is
+// always satisfied. This is intentionally conservative: it only drops lines
+// that explicitly reference init-firewall or sudoers.d/node-firewall.
+if (/init-firewall|sudoers\.d\/node-firewall/.test(updated)) {
+  updated = updated
+    .split('\n')
+    .filter((l) => !/init-firewall|sudoers\.d\/node-firewall/.test(l))
+    .join('\n');
+  removed = true;
+}
+
+// Collapse 3+ consecutive blank lines down to 2 to keep diffs tidy.
+updated = updated.replace(/\n{3,}/g, '\n\n');
+
+if (removed) {
+  fs.writeFileSync(file, updated);
+}
+NODE
+
 # Enable passwordless sudo for the node user (devcontainer-only).
+#
+# NOTE: The guard checks for the literal `NOPASSWD:ALL` rule that this patch
+# installs, NOT for any path under /etc/sudoers.d/. Earlier versions used
+# `sudoers.d/node` as the sentinel, which false-positives on
+# `sudoers.d/node-firewall` (a substring) when the upstream firewall block is
+# present. Ordering: the firewall-stripping block above runs first, so by this
+# point `sudoers.d/node-firewall` should be gone — but the `NOPASSWD:ALL`
+# sentinel is robust regardless of order.
 node - "$TARGET_DIR/Dockerfile" <<'NODE'
 const fs = require('fs');
 const file = process.argv[2];
 let updated = fs.readFileSync(file, 'utf8');
 
-if (!updated.includes('sudoers.d/node')) {
+if (!updated.includes('NOPASSWD:ALL')) {
   const sudoersBlock = [
     '',
     '# Allow the node user to run sudo without a password (devcontainer-only).',
