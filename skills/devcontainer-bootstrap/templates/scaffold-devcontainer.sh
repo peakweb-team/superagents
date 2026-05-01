@@ -18,6 +18,31 @@ chmod +x \
   "$TARGET_DIR/smoke-test-superagents.sh" \
   "$TARGET_DIR/upgrade-superagents-in-container.sh"
 
+# --- CLI helper scripts (project root) ---
+# Install dc-build / dc-up / dc-shell at the *project root* (not under
+# .devcontainer/). These are host-side wrappers around the `devcontainer` CLI
+# so operators can `./dc-build`, `./dc-up`, `./dc-shell` from the project root.
+#
+# The project root is the parent of TARGET_DIR (TARGET_DIR is conventionally
+# <project>/.devcontainer, but callers can pass any path; resolve the parent
+# explicitly so we don't depend on cwd).
+PROJECT_ROOT="$(cd "$(dirname "$TARGET_DIR")" && pwd)"
+
+# Idempotency: if a helper already exists at the destination, skip it with a
+# notice rather than overwriting an operator-modified version. Mirrors the
+# install_aider / install_windsurf pattern in scripts/install.sh.
+for helper in dc-build dc-up dc-shell; do
+  src="$TEMPLATE_DIR/$helper"
+  dest="$PROJECT_ROOT/$helper"
+  if [ -f "$dest" ]; then
+    echo "Skipping $helper: $dest already exists (remove to reinstall)."
+    continue
+  fi
+  cp "$src" "$dest"
+  chmod +x "$dest"
+  echo "Installed $helper -> $dest"
+done
+
 # ---------------------------------------------------------------------------
 # Port designation
 # ---------------------------------------------------------------------------
