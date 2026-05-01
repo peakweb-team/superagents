@@ -159,3 +159,4 @@ devcontainer up --workspace-folder . --remove-existing-container
 - Dev Containers CLI: `https://github.com/devcontainers/cli`
 - VS Code Dev Containers extension: `https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers`
 - For initial devcontainer setup, see the `superagents-devcontainer-bootstrap` skill.
+- To review and apply Superagents framework upgrades against a project bundle (including detection of devcontainer scaffold drift that would require a rebuild), see the `superagents-upgrade` skill.

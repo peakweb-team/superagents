@@ -161,6 +161,10 @@ Regenerate when:
 
 Regeneration behavior and compatibility classification continue to follow [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md).
 
+### Regeneration Flow
+
+For an interactive review-and-apply flow over an existing repo-local bundle — comparing the installed framework release, the project's `.agency/skills/superagents/manifest.yaml`, and (optionally) the latest superagents `origin/main` — invoke the `superagents-upgrade` skill instead of running the builder directly. The upgrade skill detects drift across contract versions, fragment lock, generated SKILL.md content, and devcontainer scaffold, classifies the result per the upgrade contract, prompts the operator per change with `apply | raise | skip | both`, and hands approved changes back to the skill-builder for regeneration.
+
 ## Worktree Strategy Resolution Contract
 
 Worktree isolation is optional and repository-scoped by default.

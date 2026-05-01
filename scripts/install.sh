@@ -322,7 +322,18 @@ install_claude_code() {
   local devcontainer_backup="${HOME}/.claude/skills/superagents-devcontainer-bootstrap.bak"
   local devcontainer_stage=""
   local devcontainer_count=0
+  local devcontainer_lifecycle_src="$SKILLS_ROOT/superagents-devcontainer"
+  local devcontainer_lifecycle_dest="${HOME}/.claude/skills/superagents-devcontainer"
+  local devcontainer_lifecycle_backup="${HOME}/.claude/skills/superagents-devcontainer.bak"
+  local devcontainer_lifecycle_stage=""
+  local devcontainer_lifecycle_count=0
+  local upgrade_src="$SKILLS_ROOT/superagents-upgrade"
+  local upgrade_dest="${HOME}/.claude/skills/superagents-upgrade"
+  local upgrade_backup="${HOME}/.claude/skills/superagents-upgrade.bak"
+  local upgrade_stage=""
+  local upgrade_count=0
   local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
+  local builder_release_json="$SKILLS_ROOT/skill-builder/release.json"
   local fragments_src="$SKILLS_ROOT/fragments"
   local count=0
   local fragment_count=0
@@ -335,6 +346,10 @@ install_claude_code() {
   skills_stage="$(mktemp -d "$skills_parent/superagents-skill-builder.tmp.XXXXXX")"
   trap '[[ -n "$skills_stage" && -d "$skills_stage" ]] && rm -rf "$skills_stage"' RETURN
   cp "$builder_src" "$skills_stage/SKILL.md"
+  # Optional: forward release.json into the installed bundle so superagents-upgrade can read it.
+  if [[ -f "$builder_release_json" ]]; then
+    cp "$builder_release_json" "$skills_stage/release.json"
+  fi
   mkdir -p "$skills_stage/fragments"
 
   # Stage fragment copies first; only replace the live bundle after a full successful copy.
@@ -392,6 +407,58 @@ install_claude_code() {
   devcontainer_stage=""
   trap - RETURN
 
+  [[ -f "$devcontainer_lifecycle_src/SKILL.md" ]] || { err "skills/superagents-devcontainer/SKILL.md missing."; return 1; }
+  devcontainer_lifecycle_stage="$(mktemp -d "$skills_parent/superagents-devcontainer.tmp.XXXXXX")"
+  trap '[[ -n "$devcontainer_lifecycle_stage" && -d "$devcontainer_lifecycle_stage" ]] && rm -rf "$devcontainer_lifecycle_stage"' RETURN
+  cp -R "$devcontainer_lifecycle_src/." "$devcontainer_lifecycle_stage/"
+  devcontainer_lifecycle_count=$(find "$devcontainer_lifecycle_src" -type f | wc -l | awk '{print $1}')
+  if (( devcontainer_lifecycle_count == 0 )); then
+    rm -rf "$devcontainer_lifecycle_stage"
+    err "skills/superagents-devcontainer contains no files."
+    return 1
+  fi
+  rm -rf "$devcontainer_lifecycle_backup"
+  if [[ -d "$devcontainer_lifecycle_dest" ]]; then
+    mv "$devcontainer_lifecycle_dest" "$devcontainer_lifecycle_backup"
+  fi
+  if ! mv "$devcontainer_lifecycle_stage" "$devcontainer_lifecycle_dest"; then
+    err "failed to activate staged devcontainer lifecycle skill bundle at $devcontainer_lifecycle_dest"
+    rm -rf "$devcontainer_lifecycle_dest"
+    if [[ -d "$devcontainer_lifecycle_backup" ]]; then
+      mv "$devcontainer_lifecycle_backup" "$devcontainer_lifecycle_dest"
+    fi
+    return 1
+  fi
+  rm -rf "$devcontainer_lifecycle_backup"
+  devcontainer_lifecycle_stage=""
+  trap - RETURN
+
+  [[ -f "$upgrade_src/SKILL.md" ]] || { err "skills/superagents-upgrade/SKILL.md missing."; return 1; }
+  upgrade_stage="$(mktemp -d "$skills_parent/superagents-upgrade.tmp.XXXXXX")"
+  trap '[[ -n "$upgrade_stage" && -d "$upgrade_stage" ]] && rm -rf "$upgrade_stage"' RETURN
+  cp -R "$upgrade_src/." "$upgrade_stage/"
+  upgrade_count=$(find "$upgrade_src" -type f | wc -l | awk '{print $1}')
+  if (( upgrade_count == 0 )); then
+    rm -rf "$upgrade_stage"
+    err "skills/superagents-upgrade contains no files."
+    return 1
+  fi
+  rm -rf "$upgrade_backup"
+  if [[ -d "$upgrade_dest" ]]; then
+    mv "$upgrade_dest" "$upgrade_backup"
+  fi
+  if ! mv "$upgrade_stage" "$upgrade_dest"; then
+    err "failed to activate staged upgrade skill bundle at $upgrade_dest"
+    rm -rf "$upgrade_dest"
+    if [[ -d "$upgrade_backup" ]]; then
+      mv "$upgrade_backup" "$upgrade_dest"
+    fi
+    return 1
+  fi
+  rm -rf "$upgrade_backup"
+  upgrade_stage=""
+  trap - RETURN
+
   mkdir -p "$dest"
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$AGENTS_ROOT/$dir" ]] || continue
@@ -406,6 +473,8 @@ install_claude_code() {
   ok "Claude Code: $count agents -> $dest"
   ok "Claude Code: skill-builder + $fragment_count fragments -> $skills_dest"
   ok "Claude Code: devcontainer bootstrap skill + $devcontainer_count files -> $devcontainer_dest"
+  ok "Claude Code: devcontainer lifecycle skill + $devcontainer_lifecycle_count files -> $devcontainer_lifecycle_dest"
+  ok "Claude Code: upgrade skill + $upgrade_count files -> $upgrade_dest"
 }
 
 install_copilot() {
