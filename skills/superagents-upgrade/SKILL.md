@@ -15,7 +15,7 @@ This skill is **interactive and never silently applies changes**. Every detected
 
 - Optional argument: project path. If omitted, use the current working directory.
 - Optional environment overrides:
-  - `SUPERAGENTS_HOST_CHECKOUT` — absolute path to a host superagents source checkout, used as a fallback when the installed bundle does not record its own framework release. Defaults to "(none)" — see [Phase 1](#phase-1-detect) for the resolution order.
+  - `SUPERAGENTS_HOST_CHECKOUT` — absolute path to a host superagents source checkout, used as a fallback when the installed bundle does not record its own framework release. Defaults to "(none)". The resolution order is described in the "Phase 1 — Detect" section below.
   - `SUPERAGENTS_REMOTE` — origin URL used for the optional remote-fetch in Phase 1. Defaults to `https://github.com/peakweb-team/superagents`.
   - `SUPERAGENTS_FETCH_REMOTE` — set to `1` to opt in to the remote fetch. Default off.
 
@@ -262,7 +262,7 @@ When Phase 2.4 detected differences in any of `.devcontainer/devcontainer.json`,
    For the rebuild command and detach-VS-Code-first reminder, see the
    superagents-devcontainer skill, "Rebuild" section.
    ```
-2. Reference the `superagents-devcontainer` skill's "Rebuild" section as the operational source.
+2. Reference the `superagents-devcontainer` skill's "Rebuild" section as the operational source. Note: this is a different skill from `superagents-devcontainer-bootstrap` — the bootstrap skill scaffolds a devcontainer for the first time and ships the templates Phase 2.4 compares against, while the lifecycle skill (`superagents-devcontainer`) carries the rebuild/stop/extend command reference. Both ship in the Claude install via `scripts/install.sh`.
 3. **Do not** invoke `devcontainer` or `docker` from inside this skill. The skill runs inside the devcontainer; rebuilds happen on the host.
 4. Move on. Phase 6 must not block phases that already executed.
 
