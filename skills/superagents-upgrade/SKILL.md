@@ -2,7 +2,7 @@
 name: superagents-upgrade
 description: Review, propose, apply, and feed back upgrades for a project's Superagents bundle. Compares the installed framework release, the project's generated skills under .claude/skills/superagents-* and metadata under .agency/skills/superagents/, and the latest superagents origin/main; classifies the delta per the upgrade contract; prompts the operator per change; and hands approved changes either to the skill-builder for local regeneration or to the upstream-feedback flow.
 disable-model-invocation: false
-argument-hint: "[optional-project-path]"
+argument-hint: "[feedback] [optional-project-path]"
 ---
 
 # Superagents Upgrade
@@ -13,11 +13,15 @@ This skill is **interactive and never silently applies changes**. Every detected
 
 ## Inputs
 
-- Optional argument: project path. If omitted, use the current working directory.
+- Optional first argument: subcommand. Today exactly one subcommand is recognised:
+  - `feedback` — enter the Phase 7 upstream-feedback flow directly without running phases 1–6. Equivalent to `/superagents-upgrade feedback [optional-project-path]`. See "Phase 7 — Upstream feedback" below.
+  - any other first argument is treated as the project path (back-compat with the original single-argument form).
+- Optional positional argument: project path. If omitted, use the current working directory.
 - Optional environment overrides:
   - `SUPERAGENTS_HOST_CHECKOUT` — absolute path to a host superagents source checkout, used as a fallback when the installed bundle does not record its own framework release. Defaults to "(none)". The resolution order is described in the "Phase 1 — Detect" section below.
   - `SUPERAGENTS_REMOTE` — origin URL used for the optional remote-fetch in Phase 1. Defaults to `https://github.com/peakweb-team/superagents`.
   - `SUPERAGENTS_FETCH_REMOTE` — set to `1` to opt in to the remote fetch. Default off.
+  - `SUPERAGENTS_FEEDBACK_REPO` — `owner/repo` slug used by Phase 7 when calling `gh issue create`. Defaults to `peakweb-team/superagents`. Override only when running against a fork or staging mirror.
 
 ## When To Use
 
@@ -32,7 +36,7 @@ Do **not** invoke this skill to perform the initial bootstrap of a project — f
 
 ## Phase Map
 
-This skill executes seven phases in order. Phases 1–5 are implemented in this skill. Phases 6 and 7 are deliberately stubbed: they reference dependent epic issues and surface the relevant prompts but do not act yet.
+This skill executes seven phases in order. Phases 1–5 and 7 are implemented in this skill. Phase 6 is deliberately stubbed: it references its dependent epic issue and surfaces the relevant prompt but does not act yet. Phase 7 is also reachable as a standalone shortcut via `/superagents-upgrade feedback` — see the Phase 7 section for details.
 
 | Phase | Name | Status |
 |-------|------|--------|
@@ -42,7 +46,7 @@ This skill executes seven phases in order. Phases 1–5 are implemented in this 
 | 4 | Decide | implemented |
 | 5 | Apply locally | implemented |
 | 6 | Devcontainer advisory | stub (deferred to issue #147) |
-| 7 | Upstream feedback | stub (deferred to issue #146) |
+| 7 | Upstream feedback | implemented (also reachable standalone) |
 
 The seven-phase contract maps to the six-step "Recommended Upgrade Flow" in [`docs/release-versioning-and-upgrade-contract.md`](../../docs/release-versioning-and-upgrade-contract.md): phases 1–2 implement step 2 (compare), phase 3 implements step 3 (surface), phase 4 implements step 5 (review) interactively per change, phase 5 implements step 4 (regenerate), phase 6 is the devcontainer-specific extension of step 5, and phase 7 is the upstream-feedback hand-off introduced for this skill.
 
@@ -192,9 +196,9 @@ For **each** detected change, prompt the operator with a four-way choice. Never 
 Use a structured per-change prompt. The four options are exactly:
 
 - **`apply`** — regenerate this portion locally in Phase 5
-- **`raise`** — record the change as an upstream-feedback candidate (Phase 7 stub records it; the upstream issue is not opened in this PR)
+- **`raise`** — open an upstream issue against the superagents repo for this change in Phase 7 (after operator confirmation of the rendered body). The change is not applied locally.
 - **`skip`** — do nothing for this change in this run
-- **`both`** — apply locally **and** record an upstream-feedback candidate
+- **`both`** — apply locally **and** open an upstream issue for this change in Phase 7
 
 Ask the questions one at a time and group them by surface (contract drift first, then fragment lock, then generated SKILL.md, then devcontainer). For each question:
 
@@ -266,23 +270,174 @@ When Phase 2.4 detected differences in any of `.devcontainer/devcontainer.json`,
 3. **Do not** invoke `devcontainer` or `docker` from inside this skill. The skill runs inside the devcontainer; rebuilds happen on the host.
 4. Move on. Phase 6 must not block phases that already executed.
 
-## Phase 7 — Upstream feedback (stub)
+## Phase 7 — Upstream feedback
 
-This phase is **deliberately stubbed** in this skill version. Full implementation is tracked under issue #146 (epic #148).
+Open one upstream issue per operator-confirmed improvement against the superagents repo, and append a record of every successful filing to `<project>/.agency/skills/superagents/upstream-feedback.log`.
 
-For every change the operator marked `raise` or `both`:
+Phase 7 has two entry paths:
 
-1. Print:
-   ```text
-   Upstream feedback for this change is deferred to issue #146 — see epic #148.
-   Selection recorded.
-   ```
-2. Append a structured selection record to `<project>/.agency/skills/superagents/upstream-feedback-pending.log` so the future #146 implementation can pick the records up. Each record is one line, key:value pairs separated by `;`:
-   ```text
-   ts:<ISO-8601>; surface:<contract|fragments|skill-md|devcontainer>; change_id:<id>; choice:<raise|both>; summary:<one-line>
-   ```
-   Create the file if it does not exist; append otherwise. Never overwrite.
-3. **Do not** call `gh issue create`. The upstream issue creation is exclusively #146's territory.
+- **In-flow (continued from Phase 4).** Phase 7 runs once Phase 5 (and the Phase 6 stub print) have completed. For every change the operator marked `raise` or `both`, the skill prepares one upstream issue draft. The `originated_in_phase` field on the log record is `4`.
+- **Standalone (`/superagents-upgrade feedback`).** When the first argument is the literal string `feedback`, skip phases 1–6 entirely. Prompt the operator for a single ad-hoc improvement and open one issue. The `originated_in_phase` field on the log record is `7`. The operator may run the standalone path even on projects that have never been bootstrapped — Phase 7 does not read the project manifest, only the project path, so the "manifest missing" stop condition does not apply when the entry path is `feedback`.
+
+Both paths share the per-issue authoring loop (7.2 → 7.6) below.
+
+### 7.1 Standalone entry — gather the improvement
+
+Only when entered via `/superagents-upgrade feedback`. (When continuing from Phase 4, skip to 7.2 and use the operator's already-recorded `raise`/`both` change as the seed.)
+
+Prompt the operator, in order:
+
+1. `improvement_type` — one of: `fragment | agent | builder-behavior | devcontainer | docs | bug | other`.
+2. `summary` — one line. This becomes the issue title verbatim.
+3. `motivating_example` — free text. Encourage paths, snippets, observed-vs-expected behavior. Multi-line is fine.
+4. `labels` (optional) — additional comma-separated labels to apply on top of the type-default set in 7.3.
+5. `project_context` (optional) — the path within the current project that surfaced the improvement (for example, `apps/web/src/foo.ts` or `the entire .claude/skills/superagents-deliver bundle`). Free text. Recorded in the log; not embedded in the issue body unless the operator decides to include it.
+
+If the operator answers `other` to `improvement_type`, ask them for a one-line clarification. Carry that clarification into the rendered body's `## Context` section so reviewers do not have to guess what bucket the issue belongs in.
+
+### 7.2 Map type → template + label hints
+
+Phase 7 maps `improvement_type` onto two things: which `.github/ISSUE_TEMPLATE/*.yml` to attach (when one exists) and which default labels to suggest.
+
+| `improvement_type` | Issue template | Default labels |
+|---|---|---|
+| `fragment` | (none — programmatic body, see 7.4) | `enhancement`, `packaging` |
+| `agent` | `new-agent-request.yml` | `enhancement`, `new-agent` |
+| `builder-behavior` | (none — programmatic body) | `enhancement`, `builder` |
+| `devcontainer` | (none — programmatic body) | `enhancement`, `packaging` |
+| `docs` | (none — programmatic body) | `docs` |
+| `bug` | `bug-report.yml` | `bug` |
+| `other` | (none — programmatic body) | `enhancement` |
+
+Operator-supplied labels from 7.1 step 4 are unioned onto the default set (deduplicated, preserving order).
+
+This skill does **not** add new `.github/ISSUE_TEMPLATE/*.yml` files. The five non-template types render their body directly from the convention documented in 7.4. Adding dedicated templates for `fragment`, `builder-behavior`, `devcontainer`, `docs`, or `other` is a follow-up — track it under a separate issue rather than here.
+
+### 7.3 Render the body
+
+Two rendering paths.
+
+**Templated path (`agent`, `bug`).** Prepare a body that fills the template's structured fields with the operator's answers. The skill does not inline the template's YAML — `gh issue create --template <name>` opens the template form prefilled. The operator confirms or edits before send.
+
+**Programmatic path (everything else).** Render a body that follows the `## Context` / `## Goal` / `## Acceptance Criteria` / `## Dependencies` / `## Out of scope` convention used in closed issues #126 and #135. The exact template:
+
+```markdown
+## Context
+
+<motivating_example, verbatim. If improvement_type was `other`, prepend the operator's
+one-line clarification on its own paragraph before the motivating example.>
+
+## Goal
+
+<summary, optionally extended by the operator at the confirmation prompt below>
+
+## Acceptance Criteria
+
+- [ ] <operator-authored bullets — leave a single placeholder bullet for the operator to fill>
+
+## Dependencies
+
+<one-line — operator may reference an existing issue or write `None`>
+
+## Out of scope
+
+<one-line — operator may write `None`>
+```
+
+The skill never invents acceptance criteria or out-of-scope items on the operator's behalf. It populates the `## Context` and `## Goal` sections from the answers in 7.1 and leaves the remaining sections as placeholders the operator fills at the confirmation prompt.
+
+### 7.4 Confirm and edit
+
+Display the rendered body verbatim, plus the resolved title, label set, target repo (from `SUPERAGENTS_FEEDBACK_REPO`, default `peakweb-team/superagents`), and template flag (if any). Prompt:
+
+```text
+Open this issue against <repo>?
+  [y]   yes — submit as shown
+  [e]   edit — re-prompt to revise the body before submitting
+  [N]   no  — abort. Nothing is written upstream and no record is appended to the log.
+```
+
+A `N` (or no answer) terminates this issue's authoring loop without writing anything. If the operator chose `both` in Phase 4 and aborts the upstream issue here, the local apply already happened — surface that explicitly so the operator knows the apply is not rolled back.
+
+The operator may select `e` an unbounded number of times. Each `e` round re-prompts only the fields the operator wants to change.
+
+### 7.5 Submit
+
+Run, with arguments:
+
+- `--repo "$SUPERAGENTS_FEEDBACK_REPO"` (defaulting to `peakweb-team/superagents`)
+- `--title "<summary>"`
+- `--body-file <tmpfile>` (write the confirmed body to a tempfile under `$TMPDIR` and pass its path; never embed the body inline on the command line)
+- one `--label <value>` per label in the resolved label set
+- `--template <name>` only when 7.2 mapped this type to a yml template
+
+```bash
+gh issue create \
+  --repo "$SUPERAGENTS_FEEDBACK_REPO" \
+  --title "$summary" \
+  --body-file "$body_file" \
+  $label_flags \
+  $template_flag
+```
+
+Capture the URL from `gh`'s stdout. If `gh issue create` exits non-zero (network failure, auth failure, label that does not exist on the repo), surface the error verbatim, do not append a partial record to the log, and offer to retry. The local apply (for `both`) is not rolled back on submit failure — apply already happened in Phase 5.
+
+### 7.6 Record the filing
+
+Append exactly one line to `<project>/.agency/skills/superagents/upstream-feedback.log`. Each line is a single JSON object (JSON Lines / `.jsonl` format, but the file is named `.log` to match the rest of the bundle's log naming). Do not pretty-print across multiple lines — readers grep this file.
+
+Required fields (always present):
+
+| Field | Type | Description |
+|---|---|---|
+| `created_at` | string (ISO-8601, UTC, second precision) | When this record was appended. Example: `2026-04-30T14:23:05Z`. |
+| `improvement_type` | string | One of `fragment | agent | builder-behavior | devcontainer | docs | bug | other`. |
+| `summary` | string | The issue title, verbatim. |
+| `issue_url` | string | The full URL returned by `gh issue create`. |
+| `issue_number` | integer | The issue number parsed from the URL's trailing path segment. |
+| `originated_in_phase` | integer | `4` when reached via Phase 4's `raise`/`both`. `7` when reached via the standalone `feedback` shortcut. |
+| `project_context` | string | The free-text project path from 7.1 step 5. Empty string when the operator skipped that prompt. |
+
+Optional fields (present only when relevant):
+
+| Field | Type | Description |
+|---|---|---|
+| `change_id` | string | The Phase 4 change id this record corresponds to. Present only when `originated_in_phase` is `4`. |
+| `surface` | string | One of `contract | fragments | skill-md | devcontainer`. Present only when `originated_in_phase` is `4`. |
+| `labels` | array of string | The resolved label set submitted with the issue. Always recorded for auditability. |
+| `template` | string | The yml template name (without `.yml`) when 7.2 selected one. Omitted otherwise. |
+
+Example records:
+
+```jsonl
+{"created_at":"2026-04-30T14:23:05Z","improvement_type":"fragment","summary":"Add fragment for tracker-sync providers","issue_url":"https://github.com/peakweb-team/superagents/issues/200","issue_number":200,"originated_in_phase":7,"project_context":"apps/api/.agency/skills/superagents/manifest.yaml","labels":["enhancement","packaging"]}
+{"created_at":"2026-04-30T14:25:11Z","improvement_type":"bug","summary":"Builder writes empty fragments.lock when capability fallback fires","issue_url":"https://github.com/peakweb-team/superagents/issues/201","issue_number":201,"originated_in_phase":4,"project_context":".claude/skills/superagents-deliver/SKILL.md","change_id":"skill-md.superagents-deliver","surface":"skill-md","labels":["bug"],"template":"bug-report"}
+```
+
+Create `.agency/skills/superagents/upstream-feedback.log` if it does not exist; append otherwise. Never rewrite a previous line.
+
+#### Migration from the provisional `upstream-feedback-pending.log`
+
+Issue #145 introduced `<project>/.agency/skills/superagents/upstream-feedback-pending.log` as a provisional artifact for Phase 7's stub. With Phase 7 implemented, the canonical artifact is `upstream-feedback.log` (this section's format) and the `-pending.log` name is retired.
+
+When Phase 7 starts (in either entry path), the skill performs a one-shot migration before appending any new records:
+
+1. If `<project>/.agency/skills/superagents/upstream-feedback-pending.log` exists and `<project>/.agency/skills/superagents/upstream-feedback.log` does not: rename `upstream-feedback-pending.log` to `upstream-feedback.log`. Surface a one-line notice (`migrated upstream-feedback-pending.log → upstream-feedback.log`).
+2. If both files exist: append the contents of `upstream-feedback-pending.log` to `upstream-feedback.log`, then delete `upstream-feedback-pending.log`. Surface the merge.
+3. If only `upstream-feedback.log` exists, or neither exists: do nothing.
+
+The provisional records in `-pending.log` are line-formatted (`key:value;` pairs) per the #145 stub. They are intentionally kept as-is rather than rewritten into JSON Lines — readers that grep the log will find both formats interleaved, which is acceptable for a one-time migration window. New records always use the JSON Lines format above.
+
+### 7.7 Print outcome
+
+Print the URL back to the operator and confirm the log append:
+
+```text
+Filed: <issue_url>
+Recorded in: <project>/.agency/skills/superagents/upstream-feedback.log
+```
+
+When the in-flow path was processing more than one `raise`/`both` change, repeat 7.2 → 7.7 once per change, in the order Phase 4 recorded the choices.
 
 ## Error Handling
 
@@ -291,15 +446,18 @@ For every change the operator marked `raise` or `both`:
 - **Network unavailable for Phase 1.3** → skip the origin/main delta silently; the rest of the flow continues.
 - **Builder hand-off fails in Phase 5** → leave the project in its pre-Phase-5 state. The skill-builder is responsible for atomic writes; if it left a partial bundle, surface that with a message asking the operator to revert.
 - **Manifest validation fails after regeneration** → stop and surface the failure. Do not let the operator commit a manifest the upgrade-metadata test would reject.
+- **`gh issue create` fails in Phase 7** → surface the error verbatim, do not append a partial record to `upstream-feedback.log`, and offer to retry. If the operator chose `both` in Phase 4, the local apply already happened — make this explicit so the operator knows the apply is not rolled back.
+- **`gh` not installed or not authenticated when Phase 7 needs to submit** → stop the Phase 7 sub-flow with a clear message ("`gh auth login` against a token with `repo` scope on `$SUPERAGENTS_FEEDBACK_REPO`"). The rest of the upgrade run (phases 1–5 results) is unaffected.
 
 ## Stopping Conditions
 
 The skill stops cleanly (without applying changes) when:
 
-- the project has no `.agency/skills/superagents/manifest.yaml` (project never bootstrapped)
+- the project has no `.agency/skills/superagents/manifest.yaml` (project never bootstrapped) — except when entered via `/superagents-upgrade feedback`, which does not require a bootstrapped project
 - the operator declines the Phase 4 plan confirmation
 - every detected change is marked `skip`
 - the installed framework release equals the project's `framework_release` *and* every Phase 2 surface is empty (nothing to upgrade)
+- in Phase 7, the operator answers `N` (or no answer) to the confirm-and-edit prompt for every pending issue (no upstream issues filed, no log records written)
 
 The skill stops with an error when:
 
@@ -314,7 +472,8 @@ The skill stops with an error when:
 - Manual-edit warnings, when applicable, named the file path and the consequence.
 - Every detected change received a per-change `apply | raise | skip | both` decision from the operator.
 - For changes marked `apply` or `both`, the regenerated bundle's `manifest.yaml` validates against the upgrade-metadata field set.
-- For changes marked `raise` or `both`, an entry was appended to `upstream-feedback-pending.log`.
+- For changes marked `raise` or `both`, the operator confirmed the rendered body, an upstream issue was filed via `gh issue create`, and a JSON Lines record was appended to `<project>/.agency/skills/superagents/upstream-feedback.log` capturing the URL, type, and project context.
+- The standalone shortcut `/superagents-upgrade feedback` reaches Phase 7 directly, prompts the operator for one improvement, and produces the same log entry shape with `originated_in_phase: 7`.
 - For devcontainer-scaffold changes, the operator saw the host-side rebuild advisory and was pointed at the `superagents-devcontainer` skill.
 
 ## Reference
@@ -325,6 +484,8 @@ The skill stops with an error when:
 - The skill-builder this skill hands off to in Phase 5: [`skills/skill-builder/SKILL.md`](../skill-builder/SKILL.md)
 - Companion devcontainer skill referenced from Phase 6: [`skills/superagents-devcontainer/SKILL.md`](../superagents-devcontainer/SKILL.md)
 - Manifest validation harness used in Phase 5 verification: [`tests/test-manifest-upgrade-metadata.sh`](../../tests/test-manifest-upgrade-metadata.sh)
+- Issue templates Phase 7 maps onto: [`.github/ISSUE_TEMPLATE/`](../../.github/ISSUE_TEMPLATE/)
+- Issue body convention Phase 7's programmatic path follows: closed issues #126 and #135 (`## Context` / `## Goal` / `## Acceptance Criteria` / `## Dependencies` / `## Out of scope`)
 
 ## Open Questions
 
@@ -332,4 +493,4 @@ These are surfaced for the operator and for follow-up work; they are not blockin
 
 - **Promote Phase 1.1 resolution order into the contract.** The installed `release.json` is canonical when present; the other three steps (bundle frontmatter, host-checkout `git describe`, literal `unknown`) are backward-compatibility fallbacks for installs that predate the release pipeline. `docs/release-versioning-and-upgrade-contract.md` does not yet record this ordering — it should, so other consumers can rely on the same resolution.
 - **Builder hand-off contract for Phase 5 and Phase 2.3.** Phase 2.3's manual-edit detection is best-effort heuristic and Phase 5's hand-off regenerates the whole bundle, because the installed `superagents-skill-builder` does not yet promise three behaviors this skill would benefit from: (1) deterministic re-run from `fragments.lock.yaml` plus `decisions.yaml` without re-prompting, (2) a `--dry-run` mode that emits the would-be output without writing files, (3) a `--scope` / `--change-ids` mode that regenerates only a subset of skills. Adding those behaviors to `skills/skill-builder/SKILL.md` is a follow-up; until then, this skill stays on the whole-bundle-regenerate path and on heuristic manual-edit detection. See `skills/skill-builder/SKILL.md` Phase 4 for the current contract.
-- **Phase 7 record format.** The `upstream-feedback-pending.log` line format above is provisional. Issue #146 will define the canonical record shape; until then the line-based format is forward-compatible and easy to grep.
+- **Dedicated issue templates for the non-template improvement types.** Today only `agent` and `bug` map onto a `.github/ISSUE_TEMPLATE/*.yml` file; the other five types (`fragment`, `builder-behavior`, `devcontainer`, `docs`, `other`) render their bodies programmatically per Phase 7.4. Adding dedicated `fragment-request.yml`, `builder-behavior.yml`, `devcontainer-issue.yml`, or `docs-improvement.yml` templates would let `gh issue create --template` enforce the form server-side. Track this as a follow-up rather than expanding the template set inside this PR.

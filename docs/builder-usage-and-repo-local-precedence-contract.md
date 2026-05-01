@@ -165,6 +165,8 @@ Regeneration behavior and compatibility classification continue to follow [`docs
 
 For an interactive review-and-apply flow over an existing repo-local bundle — comparing the installed framework release, the project's `.agency/skills/superagents/manifest.yaml`, and (optionally) the latest superagents `origin/main` — invoke the `superagents-upgrade` skill instead of running the builder directly. The upgrade skill detects drift across contract versions, fragment lock, generated SKILL.md content, and devcontainer scaffold, classifies the result per the upgrade contract, prompts the operator per change with `apply | raise | skip | both`, and hands approved changes back to the skill-builder for regeneration.
 
+Improvements the operator notices during an upgrade run (a fragment that should exist, a builder-behavior gap, a docs ambiguity) are captured in the same flow: the upgrade skill's Phase 7 opens an upstream issue against the superagents repo per `raise` or `both` decision, and records the resulting URL in `<project>/.agency/skills/superagents/upstream-feedback.log` so future upgrade runs can correlate filed issues with the project context that surfaced them. The same Phase 7 is reachable as a standalone shortcut via `/superagents-upgrade feedback` for ad-hoc improvements outside an upgrade pass.
+
 ## Worktree Strategy Resolution Contract
 
 Worktree isolation is optional and repository-scoped by default.
