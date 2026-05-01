@@ -1,8 +1,8 @@
 ---
 name: superagents-devcontainer
-description: Manage a running or stopped Superagents devcontainer — rebuild after config changes, stop running containers, or extend an existing container with a new package or tool.
+description: Manage a running or stopped Superagents devcontainer — rebuild after config changes, stop running containers, extend an existing container with a new package or tool, or refresh the Superagents install in place without a rebuild.
 disable-model-invocation: false
-argument-hint: "[rebuild | stop | extend <package>]"
+argument-hint: "[rebuild | stop | extend <package> | update]"
 ---
 
 # Superagents Devcontainer Management
@@ -12,6 +12,7 @@ Use this skill when you need to manage the lifecycle of a Superagents devcontain
 - **Rebuild** — after changing `devcontainer.json`, `Dockerfile`, or `post-create-superagents.sh`
 - **Stop** — shut down a running container (specific project or all Superagents instances)
 - **Extend** — add a package or tool to a running container without a full rebuild
+- **Update without rebuild** — refresh `~/.claude/` from a Superagents ref in place when only `agents/`, `skills/`, `docs/`, or `scripts/` changed
 
 ---
 
@@ -150,6 +151,63 @@ devcontainer up --workspace-folder . --remove-existing-container
 | One-off `apt-get install` | Inside the running container |
 | Edit `post-create-superagents.sh` | Host (your editor) |
 | `devcontainer up` rebuild | Host terminal |
+
+---
+
+## 4. Update Without Rebuild
+
+For Superagents updates that affect only `agents/`, `skills/`, `docs/`, or `scripts/` (i.e. content the installer copies into `~/.claude/`), you can refresh in-place without a container rebuild.
+
+### When to Use
+
+The `superagents-upgrade` skill detects this case automatically and surfaces it as Phase 5b. Use the manual command below when:
+
+- You know upstream has changes you want to pull in
+- The four scaffold files (`.devcontainer/Dockerfile`, `.devcontainer/devcontainer.json`, `.devcontainer/post-create-superagents.sh`, `.devcontainer/scaffold-devcontainer.sh`) are unchanged between your project and the target ref
+- A full rebuild would be wasteful (it redoes Playwright, OS packages, and the npm/pnpm caches)
+
+### Command
+
+Run inside the running container terminal (not on the host):
+
+```bash
+.devcontainer/upgrade-superagents-in-container.sh
+```
+
+To pin a specific ref (defaults to `main`):
+
+```bash
+SUPERAGENTS_REF=v0.2.0 .devcontainer/upgrade-superagents-in-container.sh
+```
+
+The script:
+
+1. Verifies it is running inside a devcontainer (refuses to clobber a host install).
+2. Shallow-clones the configured `SUPERAGENTS_REPO` at `SUPERAGENTS_REF` into a temp dir.
+3. Runs the scaffold guard against the four scaffold files.
+4. If the guard passes, invokes `scripts/install.sh --tool claude-code --no-interactive` and reports what changed under `~/.claude/`.
+5. Cleans up the temp clone on exit.
+
+### Where to Run
+
+| Step | Location |
+|------|----------|
+| `.devcontainer/upgrade-superagents-in-container.sh` | Inside the running container |
+
+### When the Script Bails
+
+If any of the four scaffold files differ between the project and the target ref, the script exits non-zero with a "rebuild required" message and does **not** modify `~/.claude/`. In that case, follow the [Rebuild](#1-rebuild) section above. The script's exit codes are:
+
+| Exit code | Meaning |
+|-----------|---------|
+| 0 | Success — install completed (or `--dry-run` guard passed) |
+| 1 | General failure (bad arguments, missing project `.devcontainer/`, install.sh failed) |
+| 2 | Scaffold guard fired — host-side rebuild required |
+| 3 | Not running inside a devcontainer (host guard tripped) |
+
+### Restarting Claude
+
+If a `SKILL.md` you currently have open in the running claude session was updated, restart claude (or re-open the skill) so the new content is picked up. The script prints a reminder when changes are detected.
 
 ---
 

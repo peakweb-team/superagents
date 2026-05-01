@@ -12,7 +12,11 @@ curl -fsSL "$BASE_URL/Dockerfile" -o "$TARGET_DIR/Dockerfile"
 TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cp "$TEMPLATE_DIR/post-create-superagents.sh" "$TARGET_DIR/post-create-superagents.sh"
 cp "$TEMPLATE_DIR/smoke-test-superagents.sh" "$TARGET_DIR/smoke-test-superagents.sh"
-chmod +x "$TARGET_DIR/post-create-superagents.sh" "$TARGET_DIR/smoke-test-superagents.sh"
+cp "$TEMPLATE_DIR/upgrade-superagents-in-container.sh" "$TARGET_DIR/upgrade-superagents-in-container.sh"
+chmod +x \
+  "$TARGET_DIR/post-create-superagents.sh" \
+  "$TARGET_DIR/smoke-test-superagents.sh" \
+  "$TARGET_DIR/upgrade-superagents-in-container.sh"
 
 # ---------------------------------------------------------------------------
 # Port designation

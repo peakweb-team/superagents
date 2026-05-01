@@ -36,7 +36,7 @@ Do **not** invoke this skill to perform the initial bootstrap of a project — f
 
 ## Phase Map
 
-This skill executes seven phases in order. All seven phases are implemented in this skill. Phase 7 is also reachable as a standalone shortcut via `/superagents-upgrade feedback` — see the Phase 7 section for details.
+This skill executes seven phases in order, plus a 5b "in-container update" branch that runs in parallel with phase 5 when scaffold files are unchanged. All seven phases (and phase 5b) are implemented in this skill. Phase 7 is also reachable as a standalone shortcut via `/superagents-upgrade feedback` — see the Phase 7 section for details.
 
 | Phase | Name | Status |
 |-------|------|--------|
@@ -45,10 +45,11 @@ This skill executes seven phases in order. All seven phases are implemented in t
 | 3 | Summarize | implemented |
 | 4 | Decide | implemented |
 | 5 | Apply locally | implemented |
+| 5b | In-container update path | implemented (issue #149) |
 | 6 | Devcontainer advisory | implemented |
 | 7 | Upstream feedback | implemented (also reachable standalone) |
 
-The seven-phase contract maps to the six-step "Recommended Upgrade Flow" in [`docs/release-versioning-and-upgrade-contract.md`](../../docs/release-versioning-and-upgrade-contract.md): phases 1–2 implement step 2 (compare), phase 3 implements step 3 (surface), phase 4 implements step 5 (review) interactively per change, phase 5 implements step 4 (regenerate), phase 6 is the devcontainer-specific extension of step 5, and phase 7 is the upstream-feedback hand-off introduced for this skill.
+The phase contract maps to the six-step "Recommended Upgrade Flow" in [`docs/release-versioning-and-upgrade-contract.md`](../../docs/release-versioning-and-upgrade-contract.md): phases 1–2 implement step 2 (compare), phase 3 implements step 3 (surface), phase 4 implements step 5 (review) interactively per change, phase 5 implements step 4 (regenerate) for the project bundle, phase 5b extends step 4 to the container-installed `~/.claude/` surface (only when scaffold files match), phase 6 is the devcontainer-specific extension of step 5 for the rebuild branch, and phase 7 is the upstream-feedback hand-off introduced for this skill.
 
 ## Phase 1 — Detect
 
@@ -252,6 +253,84 @@ For every change marked `apply` or `both`:
    If validation fails, **stop and surface the failure**. Do not pretend the upgrade succeeded.
 
 4. **Print the final diff summary.** List every file that was created, modified, or deleted under both roots so the operator can stage and review with normal `git diff`.
+
+## Phase 5b — In-container update path
+
+This phase is the container-surface mirror of Phase 5. While Phase 5 regenerates the project-local bundle under `<project>/.claude/skills/superagents/` and `<project>/.agency/skills/superagents/`, Phase 5b refreshes the user-level Superagents install under `~/.claude/` (skills like `superagents-skill-builder`, `superagents-devcontainer`, `superagents-upgrade` themselves, plus `~/.claude/agents/`). The two surfaces drift independently and Phase 5b targets only the container-installed surface.
+
+### When to surface
+
+Phase 5b is offered when **both** of the following are true:
+
+1. **Phase 3 classification** is `regeneration-recommended` or `regeneration-required` (i.e. there is something worth applying — Phase 5b is a no-op when the project is already `compatible`).
+2. **Phase 2.4 detected no scaffold drift.** All four scaffold files (`.devcontainer/Dockerfile`, `.devcontainer/devcontainer.json`, `.devcontainer/post-create-superagents.sh`, `.devcontainer/scaffold-devcontainer.sh`) match the target ref. If even one differs, defer to Phase 6 (rebuild advisory) instead — the in-container path would fail its own scaffold guard and refuse to run.
+
+When scaffold files have changed: do **not** offer the in-container path. Surface only the Phase 6 rebuild advisory. Mentioning Phase 5b in this case would mislead the operator into running a script that will exit with code 2.
+
+### What to surface
+
+When Phase 5b is offered, present it alongside the Phase 5 project-bundle option as a parallel choice. Make the trade-off explicit so the operator can pick:
+
+```text
+Two refresh paths are available for this upgrade:
+
+  [a] Project-bundle regeneration (Phase 5)
+      Refreshes <project>/.claude/skills/superagents/ and
+      <project>/.agency/skills/superagents/ from the installed builder.
+      Scope: this project's bundle only.
+
+  [b] In-container update (Phase 5b)
+      Refreshes ~/.claude/ (user-level superagents install) from
+      <ref> via .devcontainer/upgrade-superagents-in-container.sh.
+      Scope: every project sharing this devcontainer's ~/.claude/.
+      Faster than a full rebuild; cleaner state than a manual clone.
+
+  [c] Both
+      Run [a] then [b].
+
+  [d] Skip both (operator runs nothing).
+```
+
+The two paths address different surfaces and are not redundant: the project bundle is what the project's own skills read at runtime; `~/.claude/` is what the operator's `claude` session loads on startup. Most upgrades benefit from refreshing both.
+
+### How to invoke
+
+For choice `[b]` or `[c]`, do **not** invoke the script from inside this skill's process. Instead, instruct the operator to run, from the container terminal:
+
+```bash
+.devcontainer/upgrade-superagents-in-container.sh
+```
+
+To pin a specific ref:
+
+```bash
+SUPERAGENTS_REF=<tag-or-sha> .devcontainer/upgrade-superagents-in-container.sh
+```
+
+The script ships in every project scaffolded via `superagents-devcontainer-bootstrap` (template at `skills/devcontainer-bootstrap/templates/upgrade-superagents-in-container.sh` in the superagents repo, copied into target projects' `.devcontainer/` by `scaffold-devcontainer.sh`). It re-runs the scaffold guard on its own — if scaffold files have drifted between the time of this Phase 5b decision and the time the script runs, it will exit with code 2 and the operator will need to follow the Phase 6 rebuild advisory.
+
+### What the script does
+
+1. **Host guard.** Refuses to run on the host (would clobber the operator's host claude install).
+2. **Shallow clone.** Clones `$SUPERAGENTS_REPO@$SUPERAGENTS_REF` into a temp dir and removes it on exit.
+3. **Scaffold guard.** Compares the four scaffold files (matching the Phase 6 trigger set in § 6.1; `.devcontainer/smoke-test-superagents.sh` is a runtime helper and is intentionally not part of this guard). When the project is a git checkout, the project side of the comparison reads each file's committed blob via `git show HEAD:<relpath>` rather than the working tree, so uncommitted local edits do not falsely trigger this guard. Exits 2 with a "rebuild required" message if any differ, without touching `~/.claude/`.
+4. **Install.** Runs `scripts/install.sh --tool claude-code --no-interactive` against the cloned checkout.
+5. **Diff report.** Prints the file paths under `~/.claude/` that were added, removed, or modified, and reminds the operator to restart their claude session if a `SKILL.md` they had open was changed.
+
+### Recording the decision
+
+Treat Phase 5b like any other Phase 4 decision: record the operator's choice in the in-memory plan so the final summary lists "in-container update: invoked / deferred / skipped". The script itself emits the durable audit trail (the diff report under `~/.claude/`); this skill does not need to write a separate log entry. Do **not** append to `upstream-feedback-pending.log` — that log's format is owned by Phase 7 (issue #146) and is reserved for `raise` / `both` decisions.
+
+### Manual smoke test
+
+After running the script, a quick sanity check inside the same container session:
+
+```bash
+ls -la ~/.claude/skills/superagents-devcontainer/SKILL.md
+head -3 ~/.claude/skills/superagents-devcontainer/SKILL.md
+```
+
+The mtime should be recent; the content should match the target ref. If the operator had a claude session running, they should restart it (or use the in-session reload) so the refreshed skills are loaded.
 
 ## Phase 6 — Devcontainer advisory
 
@@ -553,6 +632,7 @@ The skill stops with an error when:
 - For changes marked `raise` or `both`, the operator confirmed the rendered body, an upstream issue was filed via `gh issue create`, and a JSON Lines record was appended to `<project>/.agency/skills/superagents/upstream-feedback.log` capturing the URL, type, and project context.
 - The standalone shortcut `/superagents-upgrade feedback` reaches Phase 7 directly, prompts the operator for one improvement, and produces the same log entry shape with `originated_in_phase: 7`.
 - For devcontainer-scaffold changes, the operator saw the host-side rebuild advisory and was pointed at the `superagents-devcontainer` skill.
+- When Phase 5b applies (classification is `regeneration-recommended` or `regeneration-required` *and* scaffold files match), the operator saw the in-container update option alongside the project-bundle regeneration option, with the script path and `SUPERAGENTS_REF` override documented.
 
 ## Reference
 
@@ -560,10 +640,12 @@ The skill stops with an error when:
 - Release artifact and pipeline: [`docs/release-process.md`](../../docs/release-process.md), [`docs/schemas/release.schema.json`](../../docs/schemas/release.schema.json)
 - Generated layout this skill operates on: [`docs/generated-skill-layout.md`](../../docs/generated-skill-layout.md)
 - The skill-builder this skill hands off to in Phase 5: [`skills/skill-builder/SKILL.md`](../skill-builder/SKILL.md)
-- Companion devcontainer skill referenced from Phase 6: [`skills/superagents-devcontainer/SKILL.md`](../superagents-devcontainer/SKILL.md)
+- Companion devcontainer skill referenced from Phase 6 and Phase 5b's "Update Without Rebuild" section: [`skills/superagents-devcontainer/SKILL.md`](../superagents-devcontainer/SKILL.md)
 - Manifest validation harness used in Phase 5 verification: [`tests/test-manifest-upgrade-metadata.sh`](../../tests/test-manifest-upgrade-metadata.sh)
 - Issue templates Phase 7 maps onto: [`.github/ISSUE_TEMPLATE/`](../../.github/ISSUE_TEMPLATE/)
 - Issue body convention Phase 7's programmatic path follows: closed issues #126 and #135 (`## Context` / `## Goal` / `## Acceptance Criteria` / `## Dependencies` / `## Out of scope`)
+- In-container update script invoked by Phase 5b: [`skills/devcontainer-bootstrap/templates/upgrade-superagents-in-container.sh`](../devcontainer-bootstrap/templates/upgrade-superagents-in-container.sh) (shipped to `<project>/.devcontainer/upgrade-superagents-in-container.sh` by `scaffold-devcontainer.sh`)
+- Scaffold-guard test for the in-container update path: [`tests/test-in-container-upgrade-guard.sh`](../../tests/test-in-container-upgrade-guard.sh)
 
 ## Open Questions
 
