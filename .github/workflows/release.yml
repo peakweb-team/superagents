@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Validate release.json and publish GitHub release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag and release.json paths
+        id: resolve
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          if ! [[ "$TAG_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Tag ${TAG_NAME} must match vMAJOR.MINOR.PATCH with no leading zeros and no pre-release suffix. See docs/release-process.md."
+            exit 1
+          fi
+          BARE_VERSION="${TAG_NAME#v}"
+          RELEASE_FILE="releases/${BARE_VERSION}.json"
+
+          if [ ! -f "$RELEASE_FILE" ]; then
+            echo "::error::Expected release artifact ${RELEASE_FILE} not found at tagged commit. See docs/release-process.md."
+            exit 1
+          fi
+
+          {
+            echo "tag_name=${TAG_NAME}"
+            echo "bare_version=${BARE_VERSION}"
+            echo "release_file=${RELEASE_FILE}"
+            echo "commit_sha=${GITHUB_SHA}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install schema validator
+        run: |
+          npm install --no-save --silent ajv-cli@5 ajv-formats@3
+
+      - name: Validate release.json against schema
+        env:
+          RELEASE_FILE: ${{ steps.resolve.outputs.release_file }}
+        run: |
+          npx ajv-cli validate \
+            --spec=draft2020 \
+            -c ajv-formats \
+            -s docs/schemas/release.schema.json \
+            -d "$RELEASE_FILE" \
+            --strict=false
+
+      - name: Assert version and commit SHA match tag
+        env:
+          RELEASE_FILE: ${{ steps.resolve.outputs.release_file }}
+          EXPECTED_VERSION: ${{ steps.resolve.outputs.bare_version }}
+          EXPECTED_SHA: ${{ steps.resolve.outputs.commit_sha }}
+        run: |
+          ACTUAL_VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.env.RELEASE_FILE,'utf8')).version)")
+          ACTUAL_SHA=$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.env.RELEASE_FILE,'utf8')).commit_sha)")
+
+          if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "::error::release.json version=${ACTUAL_VERSION} does not match tag bare version=${EXPECTED_VERSION}"
+            exit 1
+          fi
+
+          if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+            echo "::error::release.json commit_sha=${ACTUAL_SHA} does not match tagged commit SHA=${EXPECTED_SHA}"
+            exit 1
+          fi
+
+      - name: Stage release.json upload asset
+        env:
+          RELEASE_FILE: ${{ steps.resolve.outputs.release_file }}
+        run: |
+          mkdir -p .release-staging
+          cp "$RELEASE_FILE" .release-staging/release.json
+
+      - name: Create GitHub release with release.json attached
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.resolve.outputs.tag_name }}
+        run: |
+          gh release create "$TAG_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Superagents $TAG_NAME" \
+            --notes "Automated release for $TAG_NAME. See docs/release-process.md for the release-note template; edit this description to add human-readable notes." \
+            .release-staging/release.json
