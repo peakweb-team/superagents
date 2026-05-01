@@ -94,7 +94,7 @@ The manifest under `.agency/skills/superagents/manifest.yaml` carries a per-bund
 
 GitHub release notes (the human-readable description on the release) should include an upgrade section at minimum. Use this template:
 
-```
+```markdown
 ## Framework Release Version
 
 vX.Y.Z
@@ -147,7 +147,7 @@ The maintainer-side workflow:
    git push origin vX.Y.Z
    ```
 
-5. **The release workflow takes over.** On tag push matching `v[0-9]+.[0-9]+.[0-9]+`, [`.github/workflows/release.yml`](../.github/workflows/release.yml):
+5. **The release workflow takes over.** On tag push matching `v[0-9]*.[0-9]*.[0-9]*` (with strict `vMAJOR.MINOR.PATCH` semver re-validated inside the job to reject leading zeros and pre-release suffixes), [`.github/workflows/release.yml`](../.github/workflows/release.yml):
    - reads `releases/<bare-version>.json` from the tagged commit
    - validates it against the schema and asserts that the `version` field matches the tag and `commit_sha` matches the tagged commit SHA
    - creates a GitHub release for the tag, with the validated `release.json` attached as an asset (uploaded as `release.json`)
