@@ -14,10 +14,12 @@ HOME="$TMP_HOME" "$INSTALL_SCRIPT" --tool claude-code --no-interactive >/tmp/sup
 AGENTS_DIR="$TMP_HOME/.claude/agents"
 SKILL_BUILDER_DIR="$TMP_HOME/.claude/skills/superagents-skill-builder"
 DEVCONTAINER_DIR="$TMP_HOME/.claude/skills/superagents-devcontainer-bootstrap"
+UPGRADE_DIR="$TMP_HOME/.claude/skills/superagents-upgrade"
 
 [[ -d "$AGENTS_DIR" ]] || { echo "Expected agent install directory at $AGENTS_DIR"; exit 1; }
 [[ -f "$SKILL_BUILDER_DIR/SKILL.md" ]] || { echo "Missing skill-builder SKILL.md"; exit 1; }
 [[ -f "$DEVCONTAINER_DIR/SKILL.md" ]] || { echo "Missing devcontainer bootstrap SKILL.md"; exit 1; }
+[[ -f "$UPGRADE_DIR/SKILL.md" ]] || { echo "Missing upgrade SKILL.md"; exit 1; }
 [[ -f "$SKILL_BUILDER_DIR/fragments/project-management/github-issues.md" ]] || { echo "Missing copied fragment in skill-builder bundle"; exit 1; }
 
 expected_fragments="$(find "$ROOT_DIR/skills/fragments" -name '*.md' -type f | wc -l | awk '{print $1}')"

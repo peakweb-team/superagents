@@ -322,6 +322,11 @@ install_claude_code() {
   local devcontainer_backup="${HOME}/.claude/skills/superagents-devcontainer-bootstrap.bak"
   local devcontainer_stage=""
   local devcontainer_count=0
+  local upgrade_src="$SKILLS_ROOT/superagents-upgrade"
+  local upgrade_dest="${HOME}/.claude/skills/superagents-upgrade"
+  local upgrade_backup="${HOME}/.claude/skills/superagents-upgrade.bak"
+  local upgrade_stage=""
+  local upgrade_count=0
   local builder_src="$SKILLS_ROOT/skill-builder/SKILL.md"
   local fragments_src="$SKILLS_ROOT/fragments"
   local count=0
@@ -392,6 +397,32 @@ install_claude_code() {
   devcontainer_stage=""
   trap - RETURN
 
+  [[ -f "$upgrade_src/SKILL.md" ]] || { err "skills/superagents-upgrade/SKILL.md missing."; return 1; }
+  upgrade_stage="$(mktemp -d "$skills_parent/superagents-upgrade.tmp.XXXXXX")"
+  trap '[[ -n "$upgrade_stage" && -d "$upgrade_stage" ]] && rm -rf "$upgrade_stage"' RETURN
+  cp -R "$upgrade_src/." "$upgrade_stage/"
+  upgrade_count=$(find "$upgrade_src" -type f | wc -l | awk '{print $1}')
+  if (( upgrade_count == 0 )); then
+    rm -rf "$upgrade_stage"
+    err "skills/superagents-upgrade contains no files."
+    return 1
+  fi
+  rm -rf "$upgrade_backup"
+  if [[ -d "$upgrade_dest" ]]; then
+    mv "$upgrade_dest" "$upgrade_backup"
+  fi
+  if ! mv "$upgrade_stage" "$upgrade_dest"; then
+    err "failed to activate staged upgrade skill bundle at $upgrade_dest"
+    rm -rf "$upgrade_dest"
+    if [[ -d "$upgrade_backup" ]]; then
+      mv "$upgrade_backup" "$upgrade_dest"
+    fi
+    return 1
+  fi
+  rm -rf "$upgrade_backup"
+  upgrade_stage=""
+  trap - RETURN
+
   mkdir -p "$dest"
   for dir in "${AGENT_DIRS[@]}"; do
     [[ -d "$AGENTS_ROOT/$dir" ]] || continue
@@ -406,6 +437,7 @@ install_claude_code() {
   ok "Claude Code: $count agents -> $dest"
   ok "Claude Code: skill-builder + $fragment_count fragments -> $skills_dest"
   ok "Claude Code: devcontainer bootstrap skill + $devcontainer_count files -> $devcontainer_dest"
+  ok "Claude Code: upgrade skill + $upgrade_count files -> $upgrade_dest"
 }
 
 install_copilot() {
