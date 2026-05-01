@@ -193,6 +193,15 @@ const out = [];
 let i = 0;
 let removed = false;
 
+// Advance past blank lines without consuming them into `out`. Used between
+// sub-blocks of the firewall block so a single blank line between e.g. the
+// COPY and USER root lines doesn't make the scanner give up early.
+const skipBlankLines = () => {
+  while (i < lines.length && /^\s*$/.test(lines[i])) {
+    i++;
+  }
+};
+
 while (i < lines.length) {
   const line = lines[i];
 
@@ -215,10 +224,17 @@ while (i < lines.length) {
 
     // Skip the COPY line itself.
     i++;
+    skipBlankLines();
 
-    // Optional USER root.
+    // Optional USER root. Track whether we saw it so we know whether to also
+    // consume the matching trailing USER node below — without this guard we
+    // could eat the file's only USER node directive when the upstream block
+    // omits the privilege bracket entirely.
+    let sawUserRoot = false;
     if (i < lines.length && /^\s*USER\s+root\s*$/.test(lines[i])) {
       i++;
+      sawUserRoot = true;
+      skipBlankLines();
     }
 
     // Skip the RUN block. Anthropic's RUN spans multiple lines via trailing
@@ -235,10 +251,20 @@ while (i < lines.length) {
         runLine = lines[i];
         i++;
       }
+      if (sawUserRoot) {
+        skipBlankLines();
+      }
     }
 
-    // Optional trailing USER node.
-    if (i < lines.length && /^\s*USER\s+node\s*$/.test(lines[i])) {
+    // Trailing USER node — only consume it if we saw the matching USER root
+    // above. The trailing USER node only exists to revert the USER root
+    // privilege change; without that bracket, a USER node here is the
+    // Dockerfile's primary USER directive and must NOT be stripped.
+    if (
+      sawUserRoot &&
+      i < lines.length &&
+      /^\s*USER\s+node\s*$/.test(lines[i])
+    ) {
       i++;
     }
 
@@ -275,19 +301,23 @@ NODE
 
 # Enable passwordless sudo for the node user (devcontainer-only).
 #
-# NOTE: The guard checks for the literal `NOPASSWD:ALL` rule that this patch
-# installs, NOT for any path under /etc/sudoers.d/. Earlier versions used
-# `sudoers.d/node` as the sentinel, which false-positives on
-# `sudoers.d/node-firewall` (a substring) when the upstream firewall block is
-# present. Ordering: the firewall-stripping block above runs first, so by this
-# point `sudoers.d/node-firewall` should be gone — but the `NOPASSWD:ALL`
-# sentinel is robust regardless of order.
+# NOTE: The guard matches the exact stanza this patch installs — the literal
+# `node ALL=(ALL) NOPASSWD:ALL` rule writing to `/etc/sudoers.d/node`. Earlier
+# versions used `sudoers.d/node` as a substring sentinel, which false-positives
+# on `sudoers.d/node-firewall` when the upstream firewall block is present. A
+# bare `NOPASSWD:ALL` check is also too broad — it would skip if upstream ever
+# adds a NOPASSWD:ALL rule for an unrelated user. Matching the full stanza is
+# both idempotent and tightly scoped to what this script actually installs.
+# Ordering: the firewall-stripping block above runs first, so by this point
+# `sudoers.d/node-firewall` is already gone, but the stanza match doesn't
+# depend on ordering.
 node - "$TARGET_DIR/Dockerfile" <<'NODE'
 const fs = require('fs');
 const file = process.argv[2];
 let updated = fs.readFileSync(file, 'utf8');
 
-if (!updated.includes('NOPASSWD:ALL')) {
+const nodeSudoersStanza = /node\s+ALL=\(ALL\)\s+NOPASSWD:ALL[^\n]*>>?\s*\/etc\/sudoers\.d\/node\b/;
+if (!nodeSudoersStanza.test(updated)) {
   const sudoersBlock = [
     '',
     '# Allow the node user to run sudo without a password (devcontainer-only).',

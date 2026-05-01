@@ -134,4 +134,62 @@ if [[ "$FIRST_HASH" != "$SECOND_HASH" ]]; then
   exit 1
 fi
 
+# Variant: blank lines between firewall sub-blocks. CodeRabbit flagged that the
+# scanner stops early on this shape; ensure the patcher still strips cleanly.
+rm -rf "$TARGET_DIR"
+cat >"$UPSTREAM_DIR/Dockerfile" <<'DOCKERFILE'
+FROM node:20
+
+ARG CLAUDE_CODE_VERSION=latest
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  sudo \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+USER node
+
+# Install Claude
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
+
+
+# Copy and set up firewall script
+COPY init-firewall.sh /usr/local/bin/
+
+USER root
+
+RUN chmod +x /usr/local/bin/init-firewall.sh && \
+  echo "node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall && \
+  chmod 0440 /etc/sudoers.d/node-firewall
+
+USER node
+DOCKERFILE
+run_scaffold
+assert_dockerfile "blank-line variant"
+
+# Variant: the firewall block ships without the optional USER root and trailing
+# USER node markers (a plausible upstream shape change).
+rm -rf "$TARGET_DIR"
+cat >"$UPSTREAM_DIR/Dockerfile" <<'DOCKERFILE'
+FROM node:20
+
+ARG CLAUDE_CODE_VERSION=latest
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  sudo \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Claude
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
+
+# Copy and set up firewall script
+COPY init-firewall.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/init-firewall.sh && \
+  echo "node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall && \
+  chmod 0440 /etc/sudoers.d/node-firewall
+
+USER node
+DOCKERFILE
+run_scaffold
+assert_dockerfile "no USER root variant"
+
 echo "scaffold-devcontainer patches tests: passed"
