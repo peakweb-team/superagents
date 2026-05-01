@@ -274,12 +274,20 @@ if (removed) {
 NODE
 
 # Enable passwordless sudo for the node user (devcontainer-only).
+#
+# NOTE: The guard checks for the literal `NOPASSWD:ALL` rule that this patch
+# installs, NOT for any path under /etc/sudoers.d/. Earlier versions used
+# `sudoers.d/node` as the sentinel, which false-positives on
+# `sudoers.d/node-firewall` (a substring) when the upstream firewall block is
+# present. Ordering: the firewall-stripping block above runs first, so by this
+# point `sudoers.d/node-firewall` should be gone — but the `NOPASSWD:ALL`
+# sentinel is robust regardless of order.
 node - "$TARGET_DIR/Dockerfile" <<'NODE'
 const fs = require('fs');
 const file = process.argv[2];
 let updated = fs.readFileSync(file, 'utf8');
 
-if (!updated.includes('sudoers.d/node')) {
+if (!updated.includes('NOPASSWD:ALL')) {
   const sudoersBlock = [
     '',
     '# Allow the node user to run sudo without a password (devcontainer-only).',
