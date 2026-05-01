@@ -233,13 +233,12 @@ main() {
     # Show only the changed file paths, not the full sha256 lines, to keep
     # the report compact. `+` for additions/changes, `-` for removals.
     # diff lines look like: "< <sha256>  <path>" or "> <sha256>  <path>".
+    # Operate on $0 directly via sub() so paths with consecutive spaces are
+    # preserved verbatim (avoids awk's $0 reconstruction via OFS).
     diff "$before_snapshot" "$after_snapshot" \
       | awk '/^[<>] [0-9a-f]+ / {
                sign=($1=="<"?"-":"+");
-               # Drop the leading "< " or "> " marker and the sha256 hash to
-               # leave only the file path (which may contain spaces).
-               $1=""; $2="";
-               sub(/^[[:space:]]+/, "");
+               sub(/^[<>] [0-9a-f]+[[:space:]]+/, "", $0);
                print sign " " $0;
              }' \
       | LC_ALL=C sort -u
