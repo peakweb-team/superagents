@@ -210,8 +210,13 @@ snapshot_claude_dir() {
     : > "$out_file"
     return 0
   fi
+  # `-r` (--no-run-if-empty) prevents xargs from invoking sha256sum when
+  # find emits zero paths -- without it, sha256sum runs against stdin and
+  # writes a synthetic "<hash>  -" line to the snapshot, which would later
+  # surface as a phantom "-" entry in the diff report when ~/.claude/ is
+  # empty (rare, but possible in fresh-container or test scenarios).
   ( cd "$claude_dir" && find . -type f -print0 \
-      | xargs -0 sha256sum 2>/dev/null \
+      | xargs -0 -r sha256sum 2>/dev/null \
       | LC_ALL=C sort ) > "$out_file" || true
 }
 

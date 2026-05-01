@@ -20,6 +20,12 @@
 #   D. upstream missing a scaffold file -> guard fails (returns 2)
 #   E. end-to-end via --dry-run -> exit 0 when matching, exit 2 when differing,
 #      and ~/.claude/ is never touched
+#   F. scaffold-devcontainer.sh ships the new upgrade script template
+#   H. smoke-test-only drift does NOT trigger guard (locks guard scope to
+#      the four-file Phase 6 § 6.1 rebuild-trigger set)
+#   G. project has uncommitted scaffold edits -> guard reads the committed
+#      blob via `git show HEAD:<relpath>`, returns 0 when the committed
+#      blob still matches upstream
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -271,7 +277,7 @@ populate_tree "$UPSTREAM_E1"
 CLAUDE_DIR="${HOME:-}/.claude"
 claude_before="$WORK_DIR/case-e1/claude-before.txt"
 if [ -d "$CLAUDE_DIR" ]; then
-  ( cd "$CLAUDE_DIR" && find . -type f -print0 | xargs -0 sha256sum 2>/dev/null \
+  ( cd "$CLAUDE_DIR" && find . -type f -print0 | xargs -0 -r sha256sum 2>/dev/null \
       | LC_ALL=C sort ) > "$claude_before" || true
 else
   : > "$claude_before"
@@ -289,7 +295,7 @@ assert_eq "case-E1 dry-run exit code" "0" "$rc_e1"
 
 claude_after="$WORK_DIR/case-e1/claude-after.txt"
 if [ -d "$CLAUDE_DIR" ]; then
-  ( cd "$CLAUDE_DIR" && find . -type f -print0 | xargs -0 sha256sum 2>/dev/null \
+  ( cd "$CLAUDE_DIR" && find . -type f -print0 | xargs -0 -r sha256sum 2>/dev/null \
       | LC_ALL=C sort ) > "$claude_after" || true
 else
   : > "$claude_after"
@@ -314,7 +320,7 @@ printf 'upstream rewrote devcontainer.json\n' > "$UPSTREAM_E2/.devcontainer/devc
 
 claude_before2="$WORK_DIR/case-e2/claude-before.txt"
 if [ -d "$CLAUDE_DIR" ]; then
-  ( cd "$CLAUDE_DIR" && find . -type f -print0 | xargs -0 sha256sum 2>/dev/null \
+  ( cd "$CLAUDE_DIR" && find . -type f -print0 | xargs -0 -r sha256sum 2>/dev/null \
       | LC_ALL=C sort ) > "$claude_before2" || true
 else
   : > "$claude_before2"
@@ -337,7 +343,7 @@ fi
 
 claude_after2="$WORK_DIR/case-e2/claude-after.txt"
 if [ -d "$CLAUDE_DIR" ]; then
-  ( cd "$CLAUDE_DIR" && find . -type f -print0 | xargs -0 sha256sum 2>/dev/null \
+  ( cd "$CLAUDE_DIR" && find . -type f -print0 | xargs -0 -r sha256sum 2>/dev/null \
       | LC_ALL=C sort ) > "$claude_after2" || true
 else
   : > "$claude_after2"
@@ -359,6 +365,29 @@ if ! grep -q "upgrade-superagents-in-container.sh" "$SCAFFOLD_TEMPLATE"; then
   exit 1
 fi
 echo "  ok: scaffold-devcontainer.sh references the new template"
+
+# -------------------------------------------------------------------------
+# Case H: smoke-test-superagents.sh is intentionally NOT in SCAFFOLD_FILES,
+# so a smoke-test-only diff must NOT trigger the guard. This locks the
+# guard's scope to the four files Phase 6 § 6.1 treats as rebuild triggers.
+# (smoke-test is a runtime helper; smoke-test-only drift is handled by the
+# in-container update path, not by a host-side rebuild.)
+# -------------------------------------------------------------------------
+echo "Case H: smoke-test-only drift does not trigger guard"
+PROJECT_H="$WORK_DIR/case-h/project"
+UPSTREAM_H="$WORK_DIR/case-h/upstream"
+populate_tree "$PROJECT_H"
+populate_tree "$UPSTREAM_H"
+# Add the smoke-test file on both sides with deliberately different content.
+# The guard should not even compare it.
+printf 'project smoke-test\n'  > "$PROJECT_H/.devcontainer/smoke-test-superagents.sh"
+printf 'upstream smoke-test\n' > "$UPSTREAM_H/.devcontainer/smoke-test-superagents.sh"
+
+set +e
+( scaffold_guard "$PROJECT_H" "$UPSTREAM_H" >/dev/null 2>&1 )
+rc_h=$?
+set -e
+assert_eq "case-H scaffold_guard returns 0 (smoke-test ignored)" "0" "$rc_h"
 
 # -------------------------------------------------------------------------
 # Case G: project has uncommitted scaffold edits -> guard compares against
