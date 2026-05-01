@@ -1,0 +1,12 @@
+# Invalid: compatibility.reason is missing. The contract requires a short
+# string explaining why the recorded status applies.
+schema_version: 1
+framework_release: v1.1.0
+generated_at: 2026-04-30T12:34:56Z
+contract_versions:
+  fragment_schema: 1
+  generated_skill_schema: 1
+  integration_declaration_schema: 1
+compatibility:
+  status: regeneration-required
+  manual_review_required: true

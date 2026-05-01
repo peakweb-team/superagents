@@ -1,0 +1,13 @@
+# Invalid: contract_versions.integration_declaration_schema is missing.
+# All three contract version keys are required so a future upgrade tool
+# can pin every contract surface independently.
+schema_version: 1
+framework_release: v1.1.0
+generated_at: 2026-04-30T12:34:56Z
+contract_versions:
+  fragment_schema: 1
+  generated_skill_schema: 1
+compatibility:
+  status: compatible
+  reason: missing integration_declaration_schema on purpose
+  manual_review_required: false

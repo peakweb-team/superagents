@@ -96,6 +96,28 @@ Each generated skill must:
 
 The builder metadata bundle must include the inventory record, decision record, fragment lock information, and a human-readable review summary.
 
+The generated `manifest.yaml` must additionally carry the upgrade-aware metadata required by `docs/release-versioning-and-upgrade-contract.md` so a future upgrade tool can compare an installed framework release against this generated bundle. Required fields:
+
+- `framework_release`
+  - Type: string
+  - Source: the release tag of the installed superagents framework (for example `v0.1.0`)
+  - Fallback: when no release tag is available, populate this field with `git describe --tags --always --dirty` of the host superagents checkout. The dirty marker is intentional so a bundle generated from an uncommitted superagents working tree is reviewable as such.
+- `generated_at`
+  - Type: string (ISO-8601 UTC timestamp)
+  - Source: the moment the bundle was assembled. Do not reuse the contract example value `2026-04-30T00:00:00Z`.
+- `contract_versions`
+  - Type: object
+  - Required keys: `fragment_schema`, `generated_skill_schema`, `integration_declaration_schema`
+  - Each value is the integer `schema_version` of the corresponding contract document (`docs/fragment-schema.md`, `docs/generated-skill-layout.md`, `docs/project-integration-declaration-format.md`). Read those docs at generation time rather than hardcoding values.
+- `compatibility`
+  - Type: object
+  - Required keys:
+    - `status` — one of `compatible`, `regeneration-recommended`, `regeneration-required` (the exact enum from the upgrade contract)
+    - `reason` — short string explaining the recorded status
+    - `manual_review_required` — boolean
+
+These fields replace any earlier loose `framework_release: v0.x` placeholder or single-string `compatibility_status` field.
+
 When integrations are in scope, the metadata bundle must also include `integrations.yaml` so provider mappings are reviewable and versioned with the project.
 
 If a capability is degraded or unavailable, the metadata bundle must make the fallback mode and any manual steps visible.

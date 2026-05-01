@@ -1,0 +1,12 @@
+# Invalid: generated_at is not an ISO-8601 timestamp.
+schema_version: 1
+framework_release: v1.1.0
+generated_at: yesterday
+contract_versions:
+  fragment_schema: 1
+  generated_skill_schema: 1
+  integration_declaration_schema: 1
+compatibility:
+  status: compatible
+  reason: bad generated_at on purpose
+  manual_review_required: false

@@ -22,6 +22,8 @@ It builds on:
 - the batch spec planning and artifact model in [`docs/spec-batch-planning-contract.md`](./spec-batch-planning-contract.md)
 - the roadmap direction toward a workflow operating system instead of a loose prompt library
 
+This contract is at `schema_version: 1`. Manifests reference this value as `contract_versions.generated_skill_schema`.
+
 ## Why This Exists
 
 The builder can only be trustworthy if its output lands in a predictable place, uses stable names, and is reviewable like normal project code.
@@ -215,6 +217,7 @@ The MVP metadata bundle should include:
 
 - `manifest.yaml`
   - top-level summary of the builder run, generated skills, framework release, compatibility status, and schema versions
+  - must carry the upgrade-aware metadata fields required by [`docs/release-versioning-and-upgrade-contract.md`](./release-versioning-and-upgrade-contract.md): `framework_release`, `generated_at`, `contract_versions` (with at minimum `fragment_schema`, `generated_skill_schema`, `integration_declaration_schema`), and a structured `compatibility` block (`status`, `reason`, `manual_review_required`)
 - `integrations.yaml`
   - repo-local declaration of which configured integration satisfies each external capability
 - `inventory.yaml`
