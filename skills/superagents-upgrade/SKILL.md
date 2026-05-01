@@ -319,11 +319,7 @@ The script ships in every project scaffolded via `superagents-devcontainer-boots
 
 ### Recording the decision
 
-Treat Phase 5b like any other Phase 4 decision: record the operator's choice in the in-memory plan so the final summary lists "in-container update: invoked / deferred / skipped". When the operator picks `[b]` or `[c]`, also append a one-line marker to `<project>/.agency/skills/superagents/upstream-feedback-pending.log` so an audit trail exists:
-
-```text
-ts:<ISO-8601>; surface:in-container-update; ref:<SUPERAGENTS_REF>; choice:invoked
-```
+Treat Phase 5b like any other Phase 4 decision: record the operator's choice in the in-memory plan so the final summary lists "in-container update: invoked / deferred / skipped". The script itself emits the durable audit trail (the diff report under `~/.claude/`); this skill does not need to write a separate log entry. Do **not** append to `upstream-feedback-pending.log` — that log's format is owned by Phase 7 (issue #146) and is reserved for `raise` / `both` decisions.
 
 ### Manual smoke test
 
