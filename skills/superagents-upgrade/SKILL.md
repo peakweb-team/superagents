@@ -279,7 +279,7 @@ Phase 7 has two entry paths:
 - **In-flow (continued from Phase 4).** Phase 7 runs once Phase 5 (and the Phase 6 stub print) have completed. For every change the operator marked `raise` or `both`, the skill prepares one upstream issue draft. The `originated_in_phase` field on the log record is `4`.
 - **Standalone (`/superagents-upgrade feedback`).** When the first argument is the literal string `feedback`, skip phases 1–6 entirely. Prompt the operator for a single ad-hoc improvement and open one issue. The `originated_in_phase` field on the log record is `7`. The operator may run the standalone path even on projects that have never been bootstrapped — Phase 7 does not read the project manifest, only the project path, so the "manifest missing" stop condition does not apply when the entry path is `feedback`.
 
-Both paths share the per-issue authoring loop (7.2 → 7.6) below.
+Both paths share the per-issue authoring loop (7.2 → 7.7) below.
 
 ### 7.1 Standalone entry — gather the improvement
 
