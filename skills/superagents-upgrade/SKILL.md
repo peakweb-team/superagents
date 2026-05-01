@@ -61,7 +61,7 @@ Resolve in this order, stopping at the first source that yields a value:
 
 Log both the resolved value and the source so the operator can audit it.
 
-> Open question for operators: there are several plausible resolution sources for the installed framework release and no single source of truth ships in the bundle today. The order above is this skill's working answer; it should be promoted into `docs/release-versioning-and-upgrade-contract.md` once one source is canonical. See the "Open Questions" section at the bottom of this file.
+> Note: the installed `release.json` (step 1) is the canonical source of the installed framework release once a release has shipped — `docs/release-process.md` defines that artifact and the install path is now configured to forward it into the bundle. Steps 2–4 are backward-compatibility fallbacks for installs that predate the release pipeline or are running directly off `main`. The four-step order above should be promoted into `docs/release-versioning-and-upgrade-contract.md` so consumers other than this skill can rely on it. See the "Open Questions" section at the bottom of this file.
 
 ### 1.2 Project bundle metadata
 
@@ -330,6 +330,6 @@ The skill stops with an error when:
 
 These are surfaced for the operator and for follow-up work; they are not blocking.
 
-- **Where does the installed framework release live?** Phase 1.1 uses a four-step resolution order that prefers a shipped `release.json` artifact, then bundle frontmatter, then a host checkout's `git describe`, then `unknown`. The release-versioning contract does not pick a canonical source today. Once one source becomes authoritative, this skill should narrow the resolution order and the contract should be updated to match.
+- **Promote Phase 1.1 resolution order into the contract.** The installed `release.json` is canonical when present; the other three steps (bundle frontmatter, host-checkout `git describe`, literal `unknown`) are backward-compatibility fallbacks for installs that predate the release pipeline. `docs/release-versioning-and-upgrade-contract.md` does not yet record this ordering — it should, so other consumers can rely on the same resolution.
 - **Builder hand-off contract for Phase 5 and Phase 2.3.** Phase 2.3's manual-edit detection is best-effort heuristic and Phase 5's hand-off regenerates the whole bundle, because the installed `superagents-skill-builder` does not yet promise three behaviors this skill would benefit from: (1) deterministic re-run from `fragments.lock.yaml` plus `decisions.yaml` without re-prompting, (2) a `--dry-run` mode that emits the would-be output without writing files, (3) a `--scope` / `--change-ids` mode that regenerates only a subset of skills. Adding those behaviors to `skills/skill-builder/SKILL.md` is a follow-up; until then, this skill stays on the whole-bundle-regenerate path and on heuristic manual-edit detection. See `skills/skill-builder/SKILL.md` Phase 4 for the current contract.
 - **Phase 7 record format.** The `upstream-feedback-pending.log` line format above is provisional. Issue #146 will define the canonical record shape; until then the line-based format is forward-compatible and easy to grep.
