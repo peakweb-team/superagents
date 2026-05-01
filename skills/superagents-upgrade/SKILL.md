@@ -36,7 +36,7 @@ Do **not** invoke this skill to perform the initial bootstrap of a project — f
 
 ## Phase Map
 
-This skill executes seven phases in order. Phases 1–5 and 7 are implemented in this skill. Phase 6 is deliberately stubbed: it references its dependent epic issue and surfaces the relevant prompt but does not act yet. Phase 7 is also reachable as a standalone shortcut via `/superagents-upgrade feedback` — see the Phase 7 section for details.
+This skill executes seven phases in order. All seven phases are implemented in this skill. Phase 7 is also reachable as a standalone shortcut via `/superagents-upgrade feedback` — see the Phase 7 section for details.
 
 | Phase | Name | Status |
 |-------|------|--------|
@@ -45,7 +45,7 @@ This skill executes seven phases in order. Phases 1–5 and 7 are implemented in
 | 3 | Summarize | implemented |
 | 4 | Decide | implemented |
 | 5 | Apply locally | implemented |
-| 6 | Devcontainer advisory | stub (deferred to issue #147) |
+| 6 | Devcontainer advisory | implemented |
 | 7 | Upstream feedback | implemented (also reachable standalone) |
 
 The seven-phase contract maps to the six-step "Recommended Upgrade Flow" in [`docs/release-versioning-and-upgrade-contract.md`](../../docs/release-versioning-and-upgrade-contract.md): phases 1–2 implement step 2 (compare), phase 3 implements step 3 (surface), phase 4 implements step 5 (review) interactively per change, phase 5 implements step 4 (regenerate), phase 6 is the devcontainer-specific extension of step 5, and phase 7 is the upstream-feedback hand-off introduced for this skill.
@@ -253,22 +253,100 @@ For every change marked `apply` or `both`:
 
 4. **Print the final diff summary.** List every file that was created, modified, or deleted under both roots so the operator can stage and review with normal `git diff`.
 
-## Phase 6 — Devcontainer advisory (stub)
+## Phase 6 — Devcontainer advisory
 
-This phase is **deliberately stubbed** in this skill version. Full implementation is tracked under issue #147 (epic #148).
+This phase consumes the diff produced in Phase 2.4 and surfaces a host-side rebuild advisory when — and only when — the project's `.devcontainer/` scaffold has drifted from what the installed framework release would currently emit. It is **advisory only**: the skill never invokes `devcontainer`, `docker`, or any other host-side process from inside the container.
 
-When Phase 2.4 detected differences in any of `.devcontainer/devcontainer.json`, `.devcontainer/Dockerfile`, `.devcontainer/post-create-superagents.sh`, `.devcontainer/scaffold-devcontainer.sh`, or `.devcontainer/smoke-test-superagents.sh`:
+### 6.1 Detect
 
-1. Print:
-   ```text
-   Devcontainer scaffold has changed. A host-side rebuild is required.
-   Phase 6 (devcontainer rebuild advisory) is deferred to issue #147 — see epic #148.
-   For the rebuild command and detach-VS-Code-first reminder, see the
-   superagents-devcontainer skill, "Rebuild" section.
-   ```
-2. Reference the `superagents-devcontainer` skill's "Rebuild" section as the operational source. Note: this is a different skill from `superagents-devcontainer-bootstrap` — the bootstrap skill scaffolds a devcontainer for the first time and ships the templates Phase 2.4 compares against, while the lifecycle skill (`superagents-devcontainer`) carries the rebuild/stop/extend command reference. Both ship in the Claude install via `scripts/install.sh`.
-3. **Do not** invoke `devcontainer` or `docker` from inside this skill. The skill runs inside the devcontainer; rebuilds happen on the host.
-4. Move on. Phase 6 must not block phases that already executed.
+The diff source is Phase 2.4's comparison: the project's `.devcontainer/` directory against the templates the installed `superagents-devcontainer-bootstrap` skill would currently emit. Phase 1.1 already resolved the installed framework release and recorded its source (`release.json`, bundle frontmatter, host checkout, or `unknown`); Phase 2.4 uses that resolution to locate the templates to compare against. Phase 6 reuses Phase 2.4's per-file change list verbatim — do not re-walk the filesystem.
+
+The four scaffold files this advisory tracks are:
+
+- `.devcontainer/devcontainer.json`
+- `.devcontainer/Dockerfile`
+- `.devcontainer/post-create-superagents.sh`
+- `.devcontainer/scaffold-devcontainer.sh`
+
+(Phase 2.4 may additionally compare `.devcontainer/smoke-test-superagents.sh`. A diff in the smoke-test script alone does not require a host rebuild — it is a runtime helper, not a scaffold input — so when the only differing file is `smoke-test-superagents.sh`, this advisory stays silent and the change is left to the in-container update path; see § 6.5.)
+
+### 6.2 Project never bootstrapped a devcontainer
+
+If `<project>/.devcontainer/` does not exist, the project never bootstrapped a devcontainer. **Skip Phase 6 entirely and silently** — no warning, no prompt, no log line that would read like a warning. Bootstrap is the `superagents-devcontainer-bootstrap` skill's territory, not this skill's.
+
+### 6.3 No-change branch
+
+If Phase 2.4 reported zero scaffold-file diffs (or the only diff is `smoke-test-superagents.sh`; see § 6.1), the advisory is silent — no rebuild prompt, no false-positive guidance.
+
+The silent pass is still recorded in the upgrade run summary printed by Phase 3 / the final summary in Phase 5, in the form:
+
+```text
+Devcontainer scaffold: checked, no rebuild required.
+```
+
+Reviewers reading the run output can see Phase 6 was evaluated and intentionally produced no operator-facing prompt. When the scaffold is unchanged but other in-container framework files have moved (fragments, generated SKILL.md content, manifests), the in-container update path defined in issue #149 takes over — this advisory hands off to that flow rather than printing its own guidance. See § 6.5 for the hand-off contract.
+
+### 6.4 Change branch
+
+If Phase 2.4 reported one or more scaffold-file diffs (excluding the smoke-test-only case in § 6.1), print the advisory below. Print it once per upgrade run, after Phase 5 has finished applying any local regeneration so the operator sees it as the final actionable item.
+
+Output format:
+
+```text
+## Devcontainer scaffold changes detected
+
+The following devcontainer files differ between the installed framework release and the target framework release:
+  - <relative path, one per line, e.g. .devcontainer/Dockerfile>
+  - <relative path, one per line, e.g. .devcontainer/post-create-superagents.sh>
+
+A host-side rebuild is required for these changes to take effect. The
+container you are reading this from is running the previous scaffold and
+will not pick up the new Dockerfile / post-create / devcontainer.json /
+scaffold-devcontainer.sh until it is rebuilt from the host.
+
+Before rebuilding:
+  1. In VS Code, open the Command Palette and run
+     "Dev Containers: Close Remote Connection".
+  2. Confirm the status bar no longer shows the container name.
+
+Then run on the host (not inside this container):
+
+  devcontainer up --workspace-folder . --remove-existing-container
+
+For full rebuild guidance — including the VS Code Command Palette
+equivalent, prerequisite checks, and the rationale for detaching first —
+see the `superagents-devcontainer` skill, sections "Rebuild" and
+"Important: Detach VS Code First". Do not copy the procedure inline; that
+skill is the canonical source.
+```
+
+Constraints on this output:
+
+- The diff list must be exactly the per-file changes Phase 2.4 produced — never a hard-coded list of all four files. Operators should see which files actually drifted, not a boilerplate roster.
+- The exact host-side command printed is the one from `superagents-devcontainer/SKILL.md` § "Rebuild" → "CLI (host terminal)": `devcontainer up --workspace-folder . --remove-existing-container`. Do not paraphrase or substitute.
+- The detach reminder must point at `superagents-devcontainer/SKILL.md` § "Important: Detach VS Code First" by name. The two short numbered steps shown above are operator-facing pointers to that section, not a re-implementation of it; if the canonical detach procedure changes, update that skill, not this one.
+- The reference to `superagents-devcontainer` is **by skill name**, not by inline-copying its full rebuild procedure (`Dev Containers: Rebuild Container`, `Dev Containers: Rebuild Without Cache`, the `npm install -g @devcontainers/cli` prerequisite check, etc. all live in that skill).
+
+After printing the advisory, Phase 6 returns. It does **not** invoke `devcontainer`, `docker`, `gh`, or any other host-targeting command from inside the container. The operator runs the rebuild themselves on the host.
+
+### 6.5 Coordination with #149 (in-container update path)
+
+Issue #149 introduces the **in-container update path**: when the framework has moved but the `.devcontainer/` scaffold is unchanged, some installed-framework changes can be applied to the running container without a rebuild. That path is implemented separately from this advisory and lives in its own section of this skill (most likely a Phase 5b or a dedicated section between Phase 5 and Phase 6).
+
+The hand-off contract between Phase 6 and #149's section is:
+
+- **Scaffold differs (this Phase 6 fires):** print the advisory in § 6.4 and stop. Do **not** also run #149's in-container update — a host rebuild will reset the container and any in-container updates would be wasted work. The operator's next action is the host-side rebuild.
+- **Scaffold unchanged (this Phase 6 silent per § 6.3):** hand off to #149's in-container update flow. The silent run-summary line in § 6.3 is the seam #149 reads from when deciding whether to fire. Phase 6 does not implement that flow itself.
+
+This skill must not duplicate, pre-empt, or contradict #149's section. If a future change makes scaffold drift recoverable without a rebuild, that change belongs in #149's flow, not in Phase 6.
+
+### 6.6 Constraints (do not violate)
+
+- **Advisory only.** Never invoke `devcontainer`, `docker`, `code`, or any host-side process. The skill runs inside the container; the host is unreachable.
+- **Reference, do not inline.** The `superagents-devcontainer` skill is the canonical source for the rebuild and detach procedure. Phase 6 prints exactly the one host command and points at the skill — no copying the full procedure.
+- **No `.devcontainer/` rewriting.** Phase 6 reads scaffold drift; it never writes scaffold files. The operator's rebuild is what brings the new scaffold into effect.
+- **Silent when not actionable.** When `.devcontainer/` is absent, when no scaffold files differ, or when only `smoke-test-superagents.sh` differs, the advisory does not print operator-facing prompts. Surface only the run-summary line described in § 6.3.
+- **Non-blocking.** Phase 6 must not abort earlier-phase results. By the time it runs, Phase 5 has already applied (or skipped) local regeneration; Phase 6 only adds an advisory at the tail.
 
 ## Phase 7 — Upstream feedback
 
