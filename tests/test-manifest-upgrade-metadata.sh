@@ -54,7 +54,10 @@ get_top_level() {
 }
 
 # Extract the value of a nested key (single level) under a parent object.
-# Assumes two-space indentation for child keys.
+# Assumes two-space indentation for child keys. Strips surrounding quotes
+# so callers receive the string value of YAML scalars regardless of
+# quoting style. Use get_nested_raw when the YAML type itself
+# (integer/boolean vs quoted string) needs to be enforced.
 get_nested() {
   local parent="$1" key="$2" file="$3"
   awk -v parent="$parent" -v key="$key" '
@@ -64,6 +67,23 @@ get_nested() {
       sub("^  "key":[[:space:]]*", "", $0)
       sub("[[:space:]]+#.*$", "", $0)
       gsub(/^["'\'']|["'\'']$/, "", $0)
+      print
+      exit
+    }
+  ' "$file"
+}
+
+# Same as get_nested but preserves surrounding quotes so type-strict
+# checks (e.g. integer or boolean) can reject quoted YAML scalars.
+get_nested_raw() {
+  local parent="$1" key="$2" file="$3"
+  awk -v parent="$parent" -v key="$key" '
+    $0 ~ "^"parent":[[:space:]]*$" { in_block = 1; next }
+    in_block && /^[^[:space:]]/ { in_block = 0 }
+    in_block && $0 ~ "^  "key":" {
+      sub("^  "key":[[:space:]]*", "", $0)
+      sub("[[:space:]]+#.*$", "", $0)
+      sub("[[:space:]]+$", "", $0)
       print
       exit
     }
@@ -113,12 +133,14 @@ for manifest in "${MANIFESTS[@]}"; do
   fi
 
   for nested_key in fragment_schema generated_skill_schema integration_declaration_schema; do
-    value="$(get_nested contract_versions "$nested_key" "$manifest")"
+    # Use the raw extractor: a quoted YAML scalar like `"1"` is a string,
+    # not the integer the contract requires.
+    value="$(get_nested_raw contract_versions "$nested_key" "$manifest")"
     if [[ -z "$value" ]]; then
       fail "contract_versions.$nested_key is missing" "$manifest"
     fi
     if ! [[ "$value" =~ ^[0-9]+$ ]]; then
-      fail "contract_versions.$nested_key must be an integer, got '$value'" "$manifest"
+      fail "contract_versions.$nested_key must be an unquoted integer, got '$value'" "$manifest"
     fi
   done
 
@@ -135,12 +157,14 @@ for manifest in "${MANIFESTS[@]}"; do
     fail "compatibility.reason is missing or empty" "$manifest"
   fi
 
-  manual_review_required="$(get_nested compatibility manual_review_required "$manifest")"
+  # Use the raw extractor so a quoted YAML string like `"true"` is rejected;
+  # the contract requires the YAML boolean type.
+  manual_review_required="$(get_nested_raw compatibility manual_review_required "$manifest")"
   if [[ -z "$manual_review_required" ]]; then
     fail "compatibility.manual_review_required is missing" "$manifest"
   fi
   if ! is_boolean "$manual_review_required"; then
-    fail "compatibility.manual_review_required must be a boolean, got '$manual_review_required'" "$manifest"
+    fail "compatibility.manual_review_required must be an unquoted boolean, got '$manual_review_required'" "$manifest"
   fi
 done
 
