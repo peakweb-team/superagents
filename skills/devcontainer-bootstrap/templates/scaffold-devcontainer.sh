@@ -31,7 +31,7 @@ PROJECT_ROOT="$(cd "$(dirname "$TARGET_DIR")" && pwd)"
 # Idempotency: if a helper already exists at the destination, skip it with a
 # notice rather than overwriting an operator-modified version. Mirrors the
 # install_aider / install_windsurf pattern in scripts/install.sh.
-for helper in dc-build dc-up dc-shell; do
+for helper in dc-build dc-up dc-shell dc-stop; do
   src="$TEMPLATE_DIR/$helper"
   dest="$PROJECT_ROOT/$helper"
   if [ -e "$dest" ]; then
