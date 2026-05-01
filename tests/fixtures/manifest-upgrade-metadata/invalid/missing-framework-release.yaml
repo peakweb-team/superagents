@@ -1,0 +1,12 @@
+# Invalid: framework_release is omitted entirely. Must be rejected because
+# the upgrade contract requires this field for release diffing.
+schema_version: 1
+generated_at: 2026-04-30T12:34:56Z
+contract_versions:
+  fragment_schema: 1
+  generated_skill_schema: 1
+  integration_declaration_schema: 1
+compatibility:
+  status: compatible
+  reason: missing framework_release on purpose
+  manual_review_required: false

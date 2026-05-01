@@ -1,0 +1,16 @@
+# Valid manifest fixture: framework_release populated via the documented
+# `git describe --tags --always --dirty` fallback when no release tag exists
+# yet (the pre-1.0 main case). Uses regeneration-recommended status with
+# manual_review_required=true to exercise the non-default enum/boolean
+# branches.
+schema_version: 1
+framework_release: 0.0.0-12-gabcdef0-dirty
+generated_at: 2026-04-30T08:15:00+00:00
+contract_versions:
+  fragment_schema: 1
+  generated_skill_schema: 1
+  integration_declaration_schema: 1
+compatibility:
+  status: regeneration-recommended
+  reason: Built from a dirty pre-release working tree
+  manual_review_required: true

@@ -1,0 +1,14 @@
+# Invalid: contract_versions.fragment_schema is a quoted string ("1") rather
+# than an unquoted integer. The contract requires the YAML integer type;
+# this fixture exists specifically to keep the quoted-scalar bypass closed.
+schema_version: 1
+framework_release: v1.1.0
+generated_at: 2026-04-30T12:34:56Z
+contract_versions:
+  fragment_schema: "1"
+  generated_skill_schema: 1
+  integration_declaration_schema: 1
+compatibility:
+  status: compatible
+  reason: quoted contract version on purpose
+  manual_review_required: false

@@ -1,0 +1,15 @@
+# Valid manifest fixture: framework_release pinned to a release tag.
+# Demonstrates the canonical, fully populated upgrade-aware metadata shape
+# defined in docs/release-versioning-and-upgrade-contract.md and required by
+# skills/skill-builder/SKILL.md Phase 4.
+schema_version: 1
+framework_release: v1.1.0
+generated_at: 2026-04-30T12:34:56Z
+contract_versions:
+  fragment_schema: 1
+  generated_skill_schema: 1
+  integration_declaration_schema: 1
+compatibility:
+  status: compatible
+  reason: First generation against v1.1.0
+  manual_review_required: false
