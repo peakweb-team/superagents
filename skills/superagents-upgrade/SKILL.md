@@ -82,11 +82,11 @@ If individual fields are missing, treat each missing field as drift in Phase 2.
 
 ### 1.3 Origin/main delta (optional)
 
-Only run when `SUPERAGENTS_FETCH_REMOTE=1` (or the operator explicitly opts in when prompted). When opted in:
+Only run when `SUPERAGENTS_FETCH_REMOTE=1` (or the operator explicitly opts in when prompted). All steps use the configured `$SUPERAGENTS_REMOTE` so fork or mirror setups work without code changes.
 
-1. Use `gh release list --repo peakweb-team/superagents --limit 1` to find the latest tagged release.
-2. Use `gh api repos/peakweb-team/superagents/compare/<latest-tag>...main --jq '.ahead_by'` to count commits on `main` ahead of the latest tag, and `--jq '.commits[].commit.message'` to enumerate them. Prefer this `gh api`-based approach over a clone — it is cheap and stays inside the container.
-3. If `gh` is not available, fall back to a shallow clone into a temp directory (`git clone --depth 50 --filter=blob:none $SUPERAGENTS_REMOTE`) and run `git rev-list <latest-tag>..origin/main --count`. Clean up the temp clone before exiting.
+1. Derive `<owner>/<repo>` from `$SUPERAGENTS_REMOTE` (strip the `https://github.com/` prefix and any trailing `.git`). Use `gh release list --repo <owner>/<repo> --limit 1` to find the latest tagged release.
+2. Use `gh api repos/<owner>/<repo>/compare/<latest-tag>...main --jq '.ahead_by'` to count commits on `main` ahead of the latest tag, and `--jq '.commits[].commit.message'` to enumerate them. Prefer this `gh api`-based approach over a clone — it is cheap and stays inside the container.
+3. If `gh` is not available, fall back to a shallow clone into a temp directory (`git clone --depth 50 --filter=blob:none $SUPERAGENTS_REMOTE`). Inside the clone, fetch tags (`git fetch --tags --depth=1`) and derive `<latest-tag>` with `git describe --tags --abbrev=0 origin/main`. Then run `git rev-list <latest-tag>..origin/main --count`. Clean up the temp clone before exiting.
 
 Surface the count and the short log so the operator can decide whether to compare against `origin/main` or only against the latest released tag.
 
@@ -117,7 +117,7 @@ For each generated `SKILL.md`, do a textual diff against the file the current in
 - **Manual edits** — content differs from the builder's deterministic output even though the fragment set is unchanged. The operator hand-edited the file. This must be surfaced explicitly per Phase 3.
 - **Both** — the file is hand-edited *and* fragments have moved. This is the highest-risk case.
 
-Detect manual edits by re-running the builder in dry-run mode against the locked fragments and the recorded decisions, then diffing the result against the committed file. Any non-empty diff there is a manual edit.
+Detect manual edits heuristically: a manual edit is present when the committed `SKILL.md` content cannot be explained by the recorded fragment lock (for example, prose that does not appear in any selected fragment, or sections out of the order the builder emits). The MVP skill-builder does not currently expose a deterministic dry-run mode, so this detection is best-effort, not authoritative — surface a single warning per file rather than line-level attribution. When the skill-builder grows a deterministic dry-run/non-interactive mode (see Open Questions at the bottom of this file), upgrade this step to a strict diff against the dry-run output.
 
 ### 2.4 Devcontainer scaffold
 
@@ -225,13 +225,13 @@ A `N` (or no answer) terminates the skill cleanly without writing files. A `y` p
 
 For every change marked `apply` or `both`:
 
-1. **Hand off to the installed skill-builder.** Do **not** invoke any CLI. Hand off by invoking the `superagents-skill-builder` skill with a context describing what to regenerate. Pass:
+1. **Hand off to the installed skill-builder.** Do **not** invoke any CLI. Hand off by invoking the `superagents-skill-builder` skill with a context describing the regeneration intent. Pass:
    - the project root
-   - the list of approved change ids (so the builder can scope regeneration where the contract permits)
+   - the list of approved change ids (advisory only — see scoping note below)
    - the `regeneration-recommended` / `regeneration-required` posture
    - any unresolved decisions captured in `decisions.yaml` so the builder does not re-ask them
 
-   When the builder cannot scope the regeneration to a subset (the MVP behavior is "regenerate the whole bundle"), regenerate the whole bundle and surface the broader impact in the resulting diff.
+   **Scoping note:** the MVP skill-builder regenerates the whole bundle in a single run. It does not yet promise scoped regeneration, deterministic dry-run, or a fully non-interactive replay from `fragments.lock.yaml` plus `decisions.yaml`. Phase 5 therefore depends only on the whole-bundle path: pass the change-id list as advisory context for the builder's review summary, regenerate the whole bundle, and let the operator review the resulting diff in normal git history. If the operator approved only a subset of changes, the resulting diff will include changes the operator did not explicitly approve — surface that fact in the final summary so the operator can selectively `git restore` portions before committing. Tightening this hand-off (deterministic dry-run, scoped regeneration) is tracked under Open Questions at the bottom of this file.
 
 2. **Outputs land at the canonical roots:**
    - `<project>/.claude/skills/superagents/` — the execution-facing root described in `docs/generated-skill-layout.md`. For projects following the `superagents-<function>` standardization from issue #135, generated skills also land at `<project>/.claude/skills/superagents-<function>/`.
@@ -331,5 +331,5 @@ The skill stops with an error when:
 These are surfaced for the operator and for follow-up work; they are not blocking.
 
 - **Where does the installed framework release live?** Phase 1.1 uses a four-step resolution order that prefers a shipped `release.json` artifact, then bundle frontmatter, then a host checkout's `git describe`, then `unknown`. The release-versioning contract does not pick a canonical source today. Once one source becomes authoritative, this skill should narrow the resolution order and the contract should be updated to match.
-- **Scoped vs whole-bundle regeneration in Phase 5.** The current skill-builder regenerates the whole bundle. When per-change scoped regeneration becomes possible the Phase 5 hand-off should pass a scope hint instead of falling back to whole-bundle regeneration.
+- **Builder hand-off contract for Phase 5 and Phase 2.3.** Phase 2.3's manual-edit detection is best-effort heuristic and Phase 5's hand-off regenerates the whole bundle, because the installed `superagents-skill-builder` does not yet promise three behaviors this skill would benefit from: (1) deterministic re-run from `fragments.lock.yaml` plus `decisions.yaml` without re-prompting, (2) a `--dry-run` mode that emits the would-be output without writing files, (3) a `--scope` / `--change-ids` mode that regenerates only a subset of skills. Adding those behaviors to `skills/skill-builder/SKILL.md` is a follow-up; until then, this skill stays on the whole-bundle-regenerate path and on heuristic manual-edit detection. See `skills/skill-builder/SKILL.md` Phase 4 for the current contract.
 - **Phase 7 record format.** The `upstream-feedback-pending.log` line format above is provisional. Issue #146 will define the canonical record shape; until then the line-based format is forward-compatible and easy to grep.
