@@ -321,6 +321,10 @@ Install interactively for detected tools:
 ./scripts/install.sh
 ```
 
+## Releases
+
+Superagents is published as semver-tagged GitHub releases. Each release attaches a machine-readable `release.json` artifact (semver scope, contract/schema versions, regeneration posture) so downstream upgrade tooling can decide whether a project's generated bundle is still compatible. See [docs/release-process.md](docs/release-process.md) for tag naming, the release-note template, and the exact maintainer command sequence.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
