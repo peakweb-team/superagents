@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/peakweb-team/superagents/docs/schemas/release.schema.json",
+  "title": "Superagents Release Artifact",
+  "description": "Machine-readable release.json artifact attached to every Superagents GitHub release. Carries semver scope, contract/schema versions, and regeneration posture for downstream upgrade tooling.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "release_type",
+    "contract_versions",
+    "regeneration_status",
+    "changelog_url",
+    "commit_sha"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the framework release (no leading 'v').",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "release_type": {
+      "type": "string",
+      "description": "Semver scope of the release.",
+      "enum": [
+        "patch",
+        "minor",
+        "major"
+      ]
+    },
+    "contract_versions": {
+      "type": "object",
+      "description": "Schema/contract version integers for each versioned surface in this release.",
+      "additionalProperties": false,
+      "required": [
+        "fragment_schema",
+        "generated_skill_schema",
+        "integration_declaration_schema"
+      ],
+      "properties": {
+        "fragment_schema": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generated_skill_schema": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "integration_declaration_schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "regeneration_status": {
+      "type": "string",
+      "description": "Release-wide regeneration posture for project-local generated bundles. Mirrors the release-versioning contract's 'Recommended status wording'.",
+      "enum": [
+        "compatible-no-regeneration-needed",
+        "compatible-regeneration-recommended",
+        "breaking-regeneration-required"
+      ]
+    },
+    "changelog_url": {
+      "type": "string",
+      "description": "Absolute URL to the human-readable release notes for this version.",
+      "format": "uri"
+    },
+    "commit_sha": {
+      "type": "string",
+      "description": "Full 40-character lowercase hex git commit SHA the tag points to.",
+      "pattern": "^[0-9a-f]{40}$"
+    }
+  }
+}
