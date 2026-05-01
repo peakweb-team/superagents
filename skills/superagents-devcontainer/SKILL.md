@@ -16,6 +16,39 @@ Use this skill when you need to manage the lifecycle of a Superagents devcontain
 
 ---
 
+## CLI Helpers (Recommended Entry Points)
+
+The `superagents-devcontainer-bootstrap` skill installs three small host-side
+helper scripts at the **project root** during scaffold. These are the
+recommended way to drive the devcontainer lifecycle from a CLI-first workflow
+(no VS Code required):
+
+| Helper | Action | Wraps |
+|---|---|---|
+| `./dc-build` | Force a clean rebuild | `devcontainer up --workspace-folder . --remove-existing-container` |
+| `./dc-up` | Launch (cached, idempotent) | `devcontainer up --workspace-folder .` |
+| `./dc-shell` | Enter the running container with zsh | `devcontainer exec --workspace-folder . zsh` |
+
+Run all three from the **project root on the host** (not inside the container).
+Each helper:
+
+- Verifies `devcontainer` is on `PATH` and bails with an install hint
+  (`npm install -g @devcontainers/cli`) when missing.
+- Refuses to run inside a container (using `/.dockerenv` and `DEVCONTAINER`
+  heuristics) — they are host-side wrappers only.
+- For `./dc-shell`: also checks that `zsh` is available inside the container
+  before invoking it.
+
+If the helpers are missing from your project (e.g. it was scaffolded before
+they shipped), re-run `skills/devcontainer-bootstrap/templates/scaffold-devcontainer.sh`
+to install them. The scaffold is idempotent: existing helpers are skipped
+rather than overwritten, so operator-modified versions are preserved.
+
+The explicit `devcontainer …` commands in the sections below still work and
+are kept for operators not using the helpers.
+
+---
+
 ## 1. Rebuild
 
 ### When to Use
@@ -42,15 +75,25 @@ Either:
 
 **CLI (host terminal):**
 
+The recommended path is the helper scripts installed at the project root by
+the bootstrap scaffold:
+
 ```bash
 # Standard rebuild (uses cached layers where possible)
-devcontainer up --workspace-folder .
+./dc-up                          # (devcontainer up --workspace-folder .)
 
 # Force a clean rebuild (no cached layers)
+./dc-build                       # (devcontainer up --workspace-folder . --remove-existing-container)
+```
+
+If you prefer the explicit invocations, or your project predates the helpers:
+
+```bash
+devcontainer up --workspace-folder .
 devcontainer up --workspace-folder . --remove-existing-container
 ```
 
-Run both commands from the **project root on the host** (not inside the container).
+Run all of these from the **project root on the host** (not inside the container).
 
 ### Prerequisite Check
 
@@ -141,7 +184,7 @@ sudo apt-get install -y \
 Then rebuild:
 
 ```bash
-devcontainer up --workspace-folder . --remove-existing-container
+./dc-build                       # (devcontainer up --workspace-folder . --remove-existing-container)
 ```
 
 ### Where to Run
