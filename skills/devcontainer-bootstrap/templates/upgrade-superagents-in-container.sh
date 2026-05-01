@@ -89,6 +89,12 @@ EOF
 # a way that requires a host-side rebuild. Exit 2 with a clear message; do not
 # run install.sh.
 #
+# When the project root is a git checkout, the project-side comparison reads
+# the COMMITTED blob via `git show HEAD:<relpath>` rather than the working
+# tree, so uncommitted local edits to a scaffold file do not falsely trigger
+# a "rebuild required" exit. Non-git project roots fall back to the
+# working-tree file path.
+#
 # Args:
 #   $1 -- absolute path to the project root (must contain .devcontainer/)
 #   $2 -- absolute path to the cloned superagents checkout root
@@ -110,23 +116,55 @@ scaffold_guard() {
   local diffs=()
   local missing=()
 
+  # If the project root is a git checkout, compare the COMMITTED scaffold
+  # blobs against upstream rather than the working tree. Operators
+  # frequently have unrelated working-tree edits to .devcontainer/ open;
+  # those should not block the in-container update path. Non-git roots
+  # (rare, e.g. an exported tarball) fall back to the working-tree file.
+  local project_is_git_checkout=0
+  if git -C "$project_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    project_is_git_checkout=1
+  fi
+
   for relpath in "${SCAFFOLD_FILES[@]}"; do
     local project_file="$project_root/$relpath"
     local clone_file="$clone_root/$relpath"
+    # `committed_file` is the path scaffold_guard actually compares against
+    # `clone_file`. For git checkouts we materialize the committed blob into
+    # a temp file (so cmp -s, missing-detection, and the diff message all
+    # work uniformly across both branches).
+    local committed_file=""
 
-    if [ ! -f "$project_file" ]; then
-      missing+=("project: $relpath")
-      continue
+    if [ "$project_is_git_checkout" -eq 1 ]; then
+      committed_file="$(mktemp)"
+      # `git show HEAD:<relpath>` writes the committed blob to stdout. A
+      # non-zero exit means the path is not tracked at HEAD (untracked,
+      # never-committed, or removed) -- treat that as "missing on the
+      # project side", same as the filesystem branch below.
+      if ! git -C "$project_root" show "HEAD:$relpath" > "$committed_file" 2>/dev/null; then
+        rm -f "$committed_file"
+        missing+=("project: $relpath (not committed at HEAD)")
+        continue
+      fi
+    else
+      if [ ! -f "$project_file" ]; then
+        missing+=("project: $relpath")
+        continue
+      fi
+      committed_file="$project_file"
     fi
+
     if [ ! -f "$clone_file" ]; then
       # If the upstream ref does not ship this scaffold file, treat it as a
       # signal that scaffolding has changed shape — a rebuild path is needed.
+      [ "$project_is_git_checkout" -eq 1 ] && rm -f "$committed_file"
       missing+=("upstream: $relpath")
       continue
     fi
-    if ! cmp -s "$project_file" "$clone_file"; then
+    if ! cmp -s "$committed_file" "$clone_file"; then
       diffs+=("$relpath")
     fi
+    [ "$project_is_git_checkout" -eq 1 ] && rm -f "$committed_file"
   done
 
   if [ ${#diffs[@]} -eq 0 ] && [ ${#missing[@]} -eq 0 ]; then
@@ -196,8 +234,20 @@ main() {
   trap "rm -rf '$workdir'" EXIT
 
   local clone_root="$workdir/superagents"
-  echo "Cloning $SUPERAGENTS_REPO@$SUPERAGENTS_REF into temp dir..."
-  git clone --depth 1 --branch "$SUPERAGENTS_REF" "$SUPERAGENTS_REPO" "$clone_root"
+  # SUPERAGENTS_REF can be a branch name, a tag, or a commit SHA. `git clone
+  # --branch` only accepts branch/tag names, so we use the init/fetch/checkout
+  # pattern instead -- `git fetch origin <ref>` resolves all three forms and
+  # `git checkout --detach FETCH_HEAD` lands us on the resolved commit.
+  echo "Fetching $SUPERAGENTS_REPO@$SUPERAGENTS_REF into temp dir..."
+  git init --quiet "$clone_root"
+  git -C "$clone_root" remote add origin "$SUPERAGENTS_REPO"
+  if ! git -C "$clone_root" fetch --depth 1 origin "$SUPERAGENTS_REF"; then
+    echo "ERROR: failed to fetch $SUPERAGENTS_REPO@$SUPERAGENTS_REF" >&2
+    echo "       Verify SUPERAGENTS_REF is a valid branch, tag, or commit SHA" >&2
+    echo "       on $SUPERAGENTS_REPO." >&2
+    exit 1
+  fi
+  git -C "$clone_root" checkout --quiet --detach FETCH_HEAD
 
   echo "Running scaffold guard against ${#SCAFFOLD_FILES[@]} file(s)..."
   if ! scaffold_guard "$project_root" "$clone_root"; then

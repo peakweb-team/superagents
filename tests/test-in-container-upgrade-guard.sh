@@ -177,19 +177,78 @@ echo "Case E: end-to-end --dry-run"
 
 GIT_STUB_DIR="$WORK_DIR/git-stub-bin"
 mkdir -p "$GIT_STUB_DIR"
-# Stub `git`. When called as `git clone --depth 1 --branch X URL DEST`,
-# copy the contents of $FAKE_UPSTREAM_DIR into DEST. Otherwise fall through
-# to the real git so `git rev-parse --show-toplevel` keeps working.
+# Stub `git` for the upstream-repo network operations the script performs.
+# The script no longer uses `git clone --branch`; instead it issues:
+#   git init --quiet "$clone_root"
+#   git -C "$clone_root" remote add origin "$SUPERAGENTS_REPO"
+#   git -C "$clone_root" fetch --depth 1 origin "$SUPERAGENTS_REF"
+#   git -C "$clone_root" checkout --quiet --detach FETCH_HEAD
+# We can't really fetch from a URL in tests, so we intercept the `fetch`
+# step and copy $FAKE_UPSTREAM_DIR contents into the clone root instead.
+# `init`, `remote add`, and `checkout --detach FETCH_HEAD` are treated as
+# no-ops because the contents are already in place after the fetch.
+# Anything else (notably `rev-parse --show-toplevel`,
+# `rev-parse --is-inside-work-tree`, and `show HEAD:<path>` against the
+# project root) falls through to the real git.
 cat > "$GIT_STUB_DIR/git" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
-if [ "${1:-}" = "clone" ]; then
-  # Last positional argument is the destination directory.
-  dest="${@: -1}"
-  mkdir -p "$dest"
-  cp -R "${FAKE_UPSTREAM_DIR:?FAKE_UPSTREAM_DIR must be set for git stub}/." "$dest/"
-  exit 0
-fi
+
+# Parse out an optional leading `-C <dir>` so we can find the verb regardless
+# of where it appears in the argv. Track leftover args for later passthrough.
+work_dir=""
+args=("$@")
+i=0
+while [ $i -lt ${#args[@]} ]; do
+  case "${args[$i]}" in
+    -C)
+      work_dir="${args[$((i+1))]:-}"
+      args=("${args[@]:0:i}" "${args[@]:i+2}")
+      ;;
+    *)
+      i=$((i+1))
+      ;;
+  esac
+done
+verb="${args[0]:-}"
+
+case "$verb" in
+  init)
+    # `git init [--quiet] <dir>` -- just make the directory exist; the script
+    # uses --quiet, but tolerate either form.
+    target=""
+    for a in "${args[@]:1}"; do
+      case "$a" in --quiet|-q) ;; *) target="$a" ;; esac
+    done
+    [ -n "$target" ] && mkdir -p "$target"
+    exit 0
+    ;;
+  remote)
+    # `git remote add origin <url>` -- no-op for the stub.
+    exit 0
+    ;;
+  fetch)
+    # `git fetch --depth 1 origin <ref>` -- this is the network step we
+    # replace with a copy from the fixture tree.
+    : "${FAKE_UPSTREAM_DIR:?FAKE_UPSTREAM_DIR must be set for git stub}"
+    : "${work_dir:?git stub: fetch must be invoked with -C <clone_root>}"
+    cp -R "$FAKE_UPSTREAM_DIR/." "$work_dir/"
+    exit 0
+    ;;
+  checkout)
+    # `git checkout [--quiet] --detach FETCH_HEAD` -- contents already in
+    # place from the fetch stub, so this is a no-op.
+    exit 0
+    ;;
+  clone)
+    # Legacy passthrough for any caller still using `git clone --branch ...`.
+    dest="${args[$((${#args[@]}-1))]}"
+    mkdir -p "$dest"
+    cp -R "${FAKE_UPSTREAM_DIR:?FAKE_UPSTREAM_DIR must be set for git stub}/." "$dest/"
+    exit 0
+    ;;
+esac
+
 # Resolve the real git from PATH minus our stub dir.
 PATH="$(printf '%s\n' "$PATH" | tr ':' '\n' | grep -v -F "$(dirname "$0")" | paste -sd: -)" \
   exec git "$@"
@@ -300,6 +359,29 @@ if ! grep -q "upgrade-superagents-in-container.sh" "$SCAFFOLD_TEMPLATE"; then
   exit 1
 fi
 echo "  ok: scaffold-devcontainer.sh references the new template"
+
+# -------------------------------------------------------------------------
+# Case G: project has uncommitted scaffold edits -> guard compares against
+# committed blob, returns 0 even though working tree differs from upstream.
+# -------------------------------------------------------------------------
+echo "Case G: uncommitted scaffold edits do not trigger guard"
+PROJECT_G="$WORK_DIR/case-g/project"
+UPSTREAM_G="$WORK_DIR/case-g/upstream"
+populate_tree "$PROJECT_G"
+populate_tree "$UPSTREAM_G"
+( cd "$PROJECT_G" && git init -q && git -c user.email=t@t -c user.name=t \
+    -c commit.gpgsign=false add . && git -c user.email=t@t -c user.name=t \
+    -c commit.gpgsign=false commit -q -m init >/dev/null )
+# Now scribble on the working tree -- this should NOT trip the guard, since
+# the committed blob still matches upstream.
+printf 'operator scribbled in the working tree\n' \
+    > "$PROJECT_G/.devcontainer/devcontainer.json"
+
+set +e
+( scaffold_guard "$PROJECT_G" "$UPSTREAM_G" >/dev/null 2>&1 )
+rc_g=$?
+set -e
+assert_eq "case-G scaffold_guard returns 0 despite working-tree edit" "0" "$rc_g"
 
 echo
 echo "In-container upgrade guard tests: passed"

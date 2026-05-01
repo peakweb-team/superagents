@@ -313,7 +313,7 @@ The script ships in every project scaffolded via `superagents-devcontainer-boots
 
 1. **Host guard.** Refuses to run on the host (would clobber the operator's host claude install).
 2. **Shallow clone.** Clones `$SUPERAGENTS_REPO@$SUPERAGENTS_REF` into a temp dir and removes it on exit.
-3. **Scaffold guard.** Compares the four scaffold files. Exits 2 with a "rebuild required" message if any differ, without touching `~/.claude/`.
+3. **Scaffold guard.** Compares the four scaffold files (matching the Phase 6 trigger set in § 6.1; `.devcontainer/smoke-test-superagents.sh` is a runtime helper and is intentionally not part of this guard). When the project is a git checkout, the project side of the comparison reads each file's committed blob via `git show HEAD:<relpath>` rather than the working tree, so uncommitted local edits do not falsely trigger this guard. Exits 2 with a "rebuild required" message if any differ, without touching `~/.claude/`.
 4. **Install.** Runs `scripts/install.sh --tool claude-code --no-interactive` against the cloned checkout.
 5. **Diff report.** Prints the file paths under `~/.claude/` that were added, removed, or modified, and reminds the operator to restart their claude session if a `SKILL.md` they had open was changed.
 
