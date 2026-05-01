@@ -94,6 +94,8 @@ Each generated skill must:
 - define context/model usage expectations
 - prefer repo-local conventions over user-level defaults
 
+The generated primary orchestration skill (`superagents`) must additionally reference the installed `superagents-upgrade` skill in its trigger conditions or workflow section so operators discover it when their installed framework has advanced past the project's `framework_release`. Recommended wording: "When the installed Superagents framework has moved past this project's recorded `framework_release`, invoke `/superagents-upgrade` to review, apply, or feed back the delta."
+
 The builder metadata bundle must include the inventory record, decision record, fragment lock information, and a human-readable review summary.
 
 The generated `manifest.yaml` must additionally carry the upgrade-aware metadata required by `docs/release-versioning-and-upgrade-contract.md` so a future upgrade tool can compare an installed framework release against this generated bundle. Required fields:
