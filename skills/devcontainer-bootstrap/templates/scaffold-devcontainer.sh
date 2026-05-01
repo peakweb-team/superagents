@@ -34,7 +34,7 @@ PROJECT_ROOT="$(cd "$(dirname "$TARGET_DIR")" && pwd)"
 for helper in dc-build dc-up dc-shell; do
   src="$TEMPLATE_DIR/$helper"
   dest="$PROJECT_ROOT/$helper"
-  if [ -f "$dest" ]; then
+  if [ -e "$dest" ]; then
     echo "Skipping $helper: $dest already exists (remove to reinstall)."
     continue
   fi
