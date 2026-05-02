@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# dc-build — force a clean rebuild of this project's devcontainer.
+#
+# Wraps:
+#   devcontainer up --workspace-folder . --remove-existing-container
+#
+# Run this from the project root on the host (not inside the container).
+
+# Refuse to run inside the container — these are host-side commands.
+if [ -f /.dockerenv ] || [ -n "${DEVCONTAINER:-}" ]; then
+  echo "error: this is a host-side helper. Run from your host shell, not inside the container." >&2
+  exit 1
+fi
+
+# Verify the devcontainer CLI is available.
+if ! command -v devcontainer >/dev/null 2>&1; then
+  echo "error: devcontainer CLI not found. Install with: npm install -g @devcontainers/cli" >&2
+  exit 1
+fi
+
+exec devcontainer up --workspace-folder . --remove-existing-container "$@"

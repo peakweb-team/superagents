@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# dc-stop — stop and remove this project's running devcontainer.
+#
+# Finds the container via the devcontainer.local_folder label so the name
+# (which Docker assigns randomly) doesn't matter.
+#
+# Flags:
+#   --stop-only   Stop the container but do not remove it. The next ./dc-up
+#                 will reuse the existing container rather than building a new
+#                 one. Useful when you just need to free up the ports.
+#
+# Run this from the project root on the host (not inside the container).
+
+STOP_ONLY=0
+for arg in "$@"; do
+  case "$arg" in
+    --stop-only) STOP_ONLY=1 ;;
+    -h|--help)
+      sed -n '2,$p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *)
+      echo "error: unknown argument: $arg" >&2
+      echo "Usage: $0 [--stop-only]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Refuse to run inside the container — these are host-side commands.
+if [ -f /.dockerenv ] || [ -n "${DEVCONTAINER:-}" ]; then
+  echo "error: this is a host-side helper. Run from your host shell, not inside the container." >&2
+  exit 1
+fi
+
+# Verify docker is available.
+if ! command -v docker >/dev/null 2>&1; then
+  echo "error: docker not found. Install Docker Desktop and try again." >&2
+  exit 1
+fi
+
+WORKSPACE="$(realpath .)"
+CONTAINER_ID="$(docker ps -q --filter "label=devcontainer.local_folder=${WORKSPACE}" | head -n 1)"
+
+if [ -z "$CONTAINER_ID" ]; then
+  # Also check stopped containers in case --stop-only was used previously.
+  CONTAINER_ID="$(docker ps -aq --filter "label=devcontainer.local_folder=${WORKSPACE}" | head -n 1)"
+  if [ -z "$CONTAINER_ID" ]; then
+    echo "No devcontainer found for workspace: ${WORKSPACE}"
+    exit 0
+  fi
+  echo "Container ${CONTAINER_ID} is already stopped."
+  if [ "$STOP_ONLY" -eq 1 ]; then
+    exit 0
+  fi
+  echo "Removing container ${CONTAINER_ID}..."
+  docker rm "$CONTAINER_ID"
+  echo "Done."
+  exit 0
+fi
+
+CONTAINER_NAME="$(docker inspect --format '{{.Name}}' "$CONTAINER_ID" | sed 's|^/||')"
+echo "Stopping container: ${CONTAINER_NAME} (${CONTAINER_ID})"
+docker stop "$CONTAINER_ID"
+
+if [ "$STOP_ONLY" -eq 1 ]; then
+  echo "Stopped. Run ./dc-up to restart without rebuilding."
+else
+  docker rm "$CONTAINER_ID"
+  echo "Removed. Run ./dc-up to start a fresh container, or ./dc-build to rebuild."
+fi
