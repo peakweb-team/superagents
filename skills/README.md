@@ -16,6 +16,8 @@ This directory is the starting point for the Superagents skills layer.
   - Isolated Claude devcontainer bootstrap skill based on Anthropic reference assets, including user-level Superagents install hooks for containerized `--dangerously-skip-permissions` usage.
 - `superagents-devcontainer/`
   - Day-to-day devcontainer management: rebuild after config changes, stop running containers, and extend a container with a new package or tool.
+- `superagents-cleanup/`
+  - Inventory and safely scrub leftover branches, worktrees, and remote refs that accumulate from issue-driven work. Read-only by default; destructive operations are gated behind explicit flags and per-category confirmation.
 - `fragments/task-intake/`
   - Work-entry fragments for direct-brief and other intake modes.
 - `fragments/project-management/`
