@@ -1,0 +1,66 @@
+{
+  "name": "Claude Code Sandbox",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "TZ": "${localEnv:TZ:America/Los_Angeles}",
+      "CLAUDE_CODE_VERSION": "latest",
+      "GIT_DELTA_VERSION": "0.18.2",
+      "ZSH_IN_DOCKER_VERSION": "1.2.0"
+    }
+  },
+  "runArgs": [],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          },
+          "zsh": {
+            "path": "zsh"
+          }
+        }
+      }
+    }
+  },
+  "remoteUser": "node",
+  "mounts": [
+    "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume",
+    "source=superagents-npm-cache,target=/home/node/.npm-cache,type=volume",
+    "source=superagents-pnpm-store,target=/home/node/.pnpm-store,type=volume"
+  ],
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "POWERLEVEL9K_DISABLE_GITSTATUS": "true",
+    "GH_TOKEN": "${localEnv:GH_TOKEN}",
+    "VERCEL_TOKEN": "${localEnv:VERCEL_TOKEN}",
+    "SUPERAGENTS_S3_ACCESS_KEY_ID": "${localEnv:SUPERAGENTS_S3_ACCESS_KEY_ID}",
+    "SUPERAGENTS_S3_SECRET_ACCESS_KEY": "${localEnv:SUPERAGENTS_S3_SECRET_ACCESS_KEY}",
+    "SUPERAGENTS_S3_REGION": "${localEnv:SUPERAGENTS_S3_REGION}",
+    "SUPERAGENTS_S3_BUCKET": "${localEnv:SUPERAGENTS_S3_BUCKET}",
+    "npm_config_cache": "/home/node/.npm-cache",
+    "npm_config_store_dir": "/home/node/.pnpm-store"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": ".devcontainer/post-create-superagents.sh",
+  "forwardPorts": [
+    3100
+  ]
+}
