@@ -1,0 +1,22 @@
+{
+  "name": "superagents-workflow",
+  "generated_by": "skill-builder",
+  "generated_at": "2026-04-30T00:00:00Z",
+  "framework_release": "v0.x",
+  "schema_version": 1,
+  "repository": "github.com/peakweb-team/superagents",
+  "role": "primary orchestration",
+  "selected_fragments": [
+    "project-management/github-issues",
+    "orchestration/team-sizing",
+    "delivery/pull-request-review",
+    "runtime/context-and-model-routing",
+    "runtime/devcontainer-management"
+  ],
+  "contract_versions": {
+    "generated_skill_layout": 1,
+    "fragment_schema": 1,
+    "integration_declaration": 1
+  },
+  "source_manifest": ".agency/skills/superagents/manifest.yaml"
+}

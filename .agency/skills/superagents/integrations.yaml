@@ -1,0 +1,24 @@
+schema_version: 1
+generated_at: 2026-04-27T00:00:00Z
+bindings:
+  - capability: task-tracker.read
+    provider: github-issues
+    confidence: confirmed
+    notes: gh CLI used for issue reads; GH_TOKEN forwarded via devcontainer per issue #116.
+  - capability: task-tracker.update
+    provider: github-issues
+    confidence: confirmed
+    notes: Issue comments and PR linking via gh CLI.
+  - capability: delivery.pr-review
+    provider: github-pull-requests
+    confidence: confirmed
+  - capability: delivery.pr-review.layered
+    provider: coderabbit
+    confidence: confirmed
+    notes: Installed at GitHub repo level. No local .coderabbit.yaml required.
+  - capability: runtime.context-routing
+    provider: claude-code
+    confidence: confirmed
+  - capability: runtime.model-routing
+    provider: claude-code
+    confidence: confirmed

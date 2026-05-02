@@ -1,0 +1,69 @@
+schema_version: 1
+generated_at: 2026-04-30T00:00:00Z
+selected:
+  - id: project-management/github-issues
+    schema_version: 1
+    reason: GitHub Issues confirmed sole task tracker. Branch naming (codex/issue-NNN-*) and issue templates corroborate.
+    evidence:
+      - forge.github
+      - task_tracker.github_issues
+      - repo.references_issue_numbers
+    emits:
+      - task-intake
+      - task-status-updates
+
+  - id: orchestration/team-sizing
+    schema_version: 1
+    reason: CI validation gates and multi-phase delivery warrant explicit sizing rules. Solo default confirmed by user.
+    evidence:
+      - workflow.validation_expected
+      - workflow.ci_present
+    emits:
+      - team-sizing-rules
+
+  - id: delivery/pull-request-review
+    schema_version: 1
+    reason: PR template present; CodeRabbit confirmed active at repo level; human approval required.
+    evidence:
+      - workflow.pull_requests
+      - forge.github
+      - review.coderabbit
+      - review.human_required
+    emits:
+      - review-loop
+    notes: Extended with CodeRabbit-specific sequencing — wait for CR summary before requesting human review.
+
+  - id: runtime/context-and-model-routing
+    schema_version: 1
+    reason: Large agents + docs surface; model budget matters signal present.
+    evidence:
+      - repo.large
+      - workflow.model_budget_matters
+    emits:
+      - context-budgeting
+      - model-routing-rules
+
+  - id: runtime/devcontainer-management
+    schema_version: 1
+    reason: .devcontainer/ directory present; devcontainer lifecycle guidance needed for rebuild, stop, and package operations.
+    evidence:
+      - repo.devcontainer
+    emits:
+      - devcontainer-management-rules
+    notes: Delegates command reference to superagents-devcontainer-bootstrap user-level skill.
+
+suppressed:
+  - id: task-intake/direct-brief
+    reason: Work intake confirmed as issues-only. Direct-brief intake excluded by user decision.
+
+  - id: task-intake/portfolio-spec-decomposition
+    reason: No batch planning requirement detected. Single-issue flow confirmed.
+
+  - id: project-management/github-projects
+    reason: Conflicts with github-issues (exclusive_within primary-task-tracker). Per-repo issue workflow confirmed by branch naming.
+
+  - id: project-management/jira
+    reason: No Jira signals detected anywhere in the repository.
+
+  - id: delivery/cross-repo-pr-bundle
+    reason: Single-repo workflow. No cross-repo delivery signals detected.

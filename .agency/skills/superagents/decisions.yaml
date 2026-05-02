@@ -1,0 +1,45 @@
+schema_version: 1
+generated_at: 2026-04-30T00:00:00Z
+decisions:
+  runtime_target:
+    value: claude-code
+    decision_state: confirmed
+    rationale: .claude/settings.local.json present; no .cursor/, .codex/, or .gemini/ markers detected.
+
+  work_intake_mode:
+    value: github-issues
+    decision_state: confirmed
+    rationale: User confirmed issues-only intake. Branch naming (codex/issue-NNN-*) corroborates.
+
+  primary_task_tracker:
+    value: github-issues
+    decision_state: confirmed
+
+  primary_code_host_review:
+    value: github-pull-requests
+    decision_state: confirmed
+
+  layered_review:
+    value: coderabbit
+    decision_state: confirmed
+    rationale: User confirmed CodeRabbit is installed at the GitHub repo level.
+
+  worktree_strategy_default:
+    value: auto
+    decision_state: confirmed
+    rationale: User confirmed. Active parallel branches make deterministic worktree isolation appropriate.
+
+  worktree_allow_task_override:
+    value: true
+    decision_state: assumed
+    rationale: Standard safe default; allows off for quick low-risk edits without requiring a policy change.
+
+  team_sizing_default:
+    value: solo
+    decision_state: confirmed
+    rationale: User confirmed. Most repo work (agent adds, doc updates, CI fixes) is single-domain.
+
+  runtime_context_budget:
+    value: medium
+    decision_state: assumed
+    rationale: Large agents/docs surface warrants bounded expansion. Deep loading reserved for cross-cutting issues.

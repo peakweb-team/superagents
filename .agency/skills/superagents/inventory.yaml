@@ -1,0 +1,93 @@
+schema_version: 1
+generated_at: 2026-04-30T00:00:00Z
+signals:
+  - id: forge.github
+    value: true
+    strength: direct
+    source:
+      type: git-remote
+      path: .git/config
+      detail: origin=git@github.com:peakweb-team/superagents.git
+
+  - id: workflow.pull_requests
+    value: true
+    strength: direct
+    source:
+      type: repo-path
+      path: .github/PULL_REQUEST_TEMPLATE.md
+
+  - id: runtime.claude_code_primary
+    value: true
+    strength: direct
+    source:
+      type: repo-path
+      path: .claude/settings.local.json
+
+  - id: repo.references_issue_numbers
+    value: true
+    strength: strong-indirect
+    source:
+      type: git-config
+      path: .git/config
+      detail: 10+ tracked branches follow codex/issue-NNN-* pattern
+
+  - id: task_tracker.github_issues
+    value: true
+    strength: strong-indirect
+    source:
+      type: repo-path
+      path: .github/ISSUE_TEMPLATE/
+      detail: bug-report.yml and new-agent-request.yml present; branch naming corroborates issue-backed workflow
+
+  - id: workflow.ci_present
+    value: true
+    strength: direct
+    source:
+      type: repo-path
+      path: .github/workflows/
+      detail: 4 workflows including lint-agents, contract-and-pipeline-tests, runtime-policy, workspace-manifest-validation
+
+  - id: workflow.validation_expected
+    value: true
+    strength: direct
+    source:
+      type: repo-path
+      path: .github/workflows/contract-and-pipeline-tests.yml
+      detail: Fragment contract validation, doc link integrity, dogfooding guardrails, runtime-target contract tests
+
+  - id: review.coderabbit
+    value: true
+    strength: direct
+    source:
+      type: user-confirmed
+      detail: User confirmed CodeRabbit is installed at the GitHub repo level; no local .coderabbit.yaml present
+
+  - id: review.human_required
+    value: true
+    strength: direct
+    source:
+      type: repo-path
+      path: .github/PULL_REQUEST_TEMPLATE.md
+      detail: Review checklist requires human approval
+
+  - id: repo.large
+    value: true
+    strength: strong-indirect
+    source:
+      type: repo-structure
+      detail: Large agents/ and docs/ directories with many files across multiple category subdirs
+
+  - id: workflow.model_budget_matters
+    value: true
+    strength: strong-indirect
+    source:
+      type: repo-structure
+      detail: Large doc/agent surface; multi-agent design intent documented in docs/
+
+  - id: repo.devcontainer
+    value: true
+    strength: direct
+    source:
+      type: repo-path
+      path: .devcontainer/
+      detail: devcontainer.json, Dockerfile, post-create-superagents.sh, and scaffold scripts present

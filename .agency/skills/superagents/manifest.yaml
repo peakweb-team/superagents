@@ -1,0 +1,30 @@
+schema_version: 1
+generated_at: 2026-05-01T14:45:00Z
+framework_release: v0.x
+builder_version: skill-builder-v1
+repository: github.com/peakweb-team/superagents
+runtime_target: claude-code
+contract_versions:
+  fragment_schema: 1
+  generated_skill_schema: 1
+  integration_declaration_schema: 1
+compatibility:
+  status: compatible
+  reason: >
+    Manifest is on the current upgrade-aware schema. Generated SKILL.md was
+    re-emitted to add the /superagents-upgrade Maintenance section per current
+    skill-builder spec. The primary skill name `superagents-workflow`
+    (per issue #135) is the canonical standardized name going forward; the
+    spec-wording reconciliation is tracked upstream at #164.
+  manual_review_required: false
+generated_skills:
+  - name: superagents-workflow
+    role: primary orchestration
+    path: .claude/skills/superagents-workflow/
+    entrypoint: SKILL.md
+fragment_count: 5
+companion_skills: []
+notes: >
+  Skill is hosted at .claude/skills/superagents-workflow/ (not the
+  .claude/skills/superagents/ builder-contract root) to align with Claude Code
+  runtime discovery. This was normalized in issue #135.
