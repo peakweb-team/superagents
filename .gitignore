@@ -63,9 +63,34 @@ notes/
 TODO.md
 NOTES.md
 
-# Dogfooding artifacts (local-only; do not commit)
-.claude/
-.agency/
+# Dogfooding artifacts
+# The dogfood bundle at the repo root (.agency/skills/superagents/ and
+# .claude/skills/superagents-workflow/) IS committed so it survives
+# devcontainer rebuilds and exercises the upgrade flow against a real
+# committed artifact, matching how every downstream consumer treats
+# their bundle. All other root-level .claude/ and .agency/ content
+# remains local-only (e.g. .claude/settings.local.json, codex
+# worktrees, etc.).
+# Patterns are anchored with leading `/` so subtree fixtures like
+# examples/generated-skills/*/.{claude,agency}/ are unaffected.
+# `**` recursive un-ignore is required to override the global `*.log`
+# rule on .agency/skills/superagents/upstream-feedback.log.
+/.claude/*
+!/.claude/skills/
+/.claude/skills/*
+!/.claude/skills/superagents-workflow/
+!/.claude/skills/superagents-workflow/**
+/.agency/*
+!/.agency/skills/
+/.agency/skills/*
+!/.agency/skills/superagents/
+!/.agency/skills/superagents/**
+# Test fixtures under examples/generated-skills/ have their own
+# .claude/ subtrees that should remain ignored (only the .agency/
+# metadata bundles are committed for those, not the generated SKILL.md
+# files). Anchored above re-included only the root dogfood bundle, so
+# we now re-ignore non-root .claude/ subtrees explicitly.
+examples/**/.claude/
 .codex/
 .superagents-dogfood/
 
